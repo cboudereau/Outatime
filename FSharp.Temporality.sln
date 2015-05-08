@@ -5,6 +5,8 @@ VisualStudioVersion = 12.0.30501.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.Temporality", "FSharp.Temporality\FSharp.Temporality.fsproj", "{49B05A34-A660-4E09-B733-145C11C783AA}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.Temporality.Test", "FSharp.Temporality.Test\FSharp.Temporality.Test.fsproj", "{D8D431BD-0742-4034-95E1-C046AAA84088}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{49B05A34-A660-4E09-B733-145C11C783AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{49B05A34-A660-4E09-B733-145C11C783AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{49B05A34-A660-4E09-B733-145C11C783AA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D8D431BD-0742-4034-95E1-C046AAA84088}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D8D431BD-0742-4034-95E1-C046AAA84088}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D8D431BD-0742-4034-95E1-C046AAA84088}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D8D431BD-0742-4034-95E1-C046AAA84088}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
