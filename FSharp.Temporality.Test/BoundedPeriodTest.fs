@@ -14,24 +14,24 @@ let ArbValidPeriod =
     |> Gen.suchThat validPeriod
     |> Arb.fromGen
 
-let checkForAllValidPeriod fs = 
+let ``Check for all valid period that:`` fs = 
     fs
     |> Seq.iter(fun f -> Check.QuickThrowOnFailure(Prop.forAll ArbValidPeriod f))
 
 [<Fact>]
 let ``convert inclusive period to exclusive period``() = 
-    let startDateAsInvariant boundedPeriod = 
+    let ``start date never change`` boundedPeriod = 
         (boundedPeriod |> BoundedPeriod.ToExclusive).startDate = (boundedPeriod |> BoundedPeriod.ToInclusive).startDate
     
     let ``exclusive end date must be greater than inclusive end date`` boundedPeriod =
         (boundedPeriod |> BoundedPeriod.ToExclusive).endDate > (boundedPeriod |> BoundedPeriod.ToInclusive).endDate
     
-    let ``same kind period equality`` boundedPeriod = 
+    let ``same periods, same bound are equals`` boundedPeriod = 
         match boundedPeriod with
         | Inclusive ip -> boundedPeriod |> BoundedPeriod.ToInclusive = ip        
         | Exclusive ep -> boundedPeriod |> BoundedPeriod.ToExclusive = ep        
 
-    checkForAllValidPeriod 
-        [ startDateAsInvariant
+    ``Check for all valid period that:``
+        [ ``start date never change``
           ``exclusive end date must be greater than inclusive end date``
-          ``same kind period equality`` ]
+          ``same periods, same bound are equals`` ]
