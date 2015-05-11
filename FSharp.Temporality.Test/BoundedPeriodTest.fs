@@ -41,15 +41,15 @@ let ``Check for some invalid periods that throw``<'a when 'a :> exn> fs =
 [<Fact>]
 let ``convert inclusive period to exclusive period``() = 
     let ``start date never change`` boundedPeriod = 
-        (boundedPeriod |> BoundedPeriod.ToExclusive).startDate = (boundedPeriod |> BoundedPeriod.ToInclusive).startDate
+        (boundedPeriod |> BoundedPeriod.ToDailyExclusive).startDate = (boundedPeriod |> BoundedPeriod.ToInclusive).startDate
     
     let ``exclusive end date must be greater than inclusive end date`` boundedPeriod =
-        (boundedPeriod |> BoundedPeriod.ToExclusive).endDate > (boundedPeriod |> BoundedPeriod.ToInclusive).endDate
+        (boundedPeriod |> BoundedPeriod.ToDailyExclusive).endDate > (boundedPeriod |> BoundedPeriod.ToInclusive).endDate
     
     let ``same periods, same bound are equals`` boundedPeriod = 
         match boundedPeriod with
         | Inclusive ip -> boundedPeriod |> BoundedPeriod.ToInclusive = ip        
-        | Exclusive ep -> boundedPeriod |> BoundedPeriod.ToExclusive = ep        
+        | Exclusive ep -> boundedPeriod |> BoundedPeriod.ToDailyExclusive = ep        
 
     ``Check for some valid periods that:``
         [ ``start date never change``
@@ -59,5 +59,16 @@ let ``convert inclusive period to exclusive period``() =
 [<Fact>]
 let ``startDate must be greater than endDate for BoundedPeriod``()=
     [ BoundedPeriod.ToInclusive 
-      BoundedPeriod.ToExclusive ]
+      BoundedPeriod.ToDailyExclusive ]
     |> ``Check for some invalid periods that throw``<BoundedPeriodException> 
+
+[<Fact>]
+let ``discover order on timespan``()=
+    let jan15 day = System.DateTime(2015, 01, day)
+
+    let from10To12 = jan15 12 - jan15 10
+    let from8To10 = jan15 10 - jan15 8
+    let from8To15 = jan15 15 - jan15 8
+
+    Assert.Equal(from10To12, from8To10)
+    Assert.True((from10To12 = from8To10))
