@@ -50,7 +50,7 @@
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
     <None Include="packages.config" />
-    <Compile Include="BoundedPeriodTest.fs" />
+    <Compile Include="TemporalTest.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FsCheck">
