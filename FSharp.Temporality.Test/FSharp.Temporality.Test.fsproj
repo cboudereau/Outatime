@@ -72,8 +72,6 @@
       <HintPath>..\packages\xunit.1.9.2\lib\net20\xunit.dll</HintPath>
       <Private>True</Private>
     </Reference>
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\FSharp.Temporality\FSharp.Temporality.fsproj">
       <Name>FSharp.Temporality</Name>
       <Project>{49b05a34-a660-4e09-b733-145c11c783aa}</Project>
