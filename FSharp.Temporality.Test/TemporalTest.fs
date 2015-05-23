@@ -134,10 +134,10 @@ let ``merge test``() =
     
     let actual = 
         [ { Period = { StartDate = (DateTime(2015,01,01)); Duration = forNDays 5 }; Value = "Hello" }
-          { Period = { StartDate = (DateTime(2015,01,06)); Duration = forNDays 5 }; Value = "World" }
           { Period = { StartDate = (DateTime(2015,01,11)); Duration = forNDays 5 }; Value = "Hello" }
-          { Period = { StartDate = (DateTime(2015,01,16)); Duration = forNDays 5 }; Value = "Hello" }
+          { Period = { StartDate = (DateTime(2015,01,06)); Duration = forNDays 5 }; Value = "World" }
           { Period = { StartDate = (DateTime(2015,01,21)); Duration = forNDays 5 }; Value = "Hello" }
+          { Period = { StartDate = (DateTime(2015,01,16)); Duration = forNDays 5 }; Value = "Hello" }
           { Period = { StartDate = (DateTime(2015,01,26)); Duration = forNDays 5 }; Value = "Hello" } ] 
         |> toTemporal |> merge
 

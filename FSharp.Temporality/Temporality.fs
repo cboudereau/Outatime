@@ -9,12 +9,12 @@ type Period =
       Duration : TimeSpan }
     member this.EndDate = (this.StartDate + this.Duration)
     
-    static member private orderByStartDate first second = 
+    static member private order first second = 
         if first.StartDate <= second.StartDate then (first, second)
         else (second, first)
 
     static member Intersect first second = 
-        let (f, s) = Period.orderByStartDate first second
+        let (f, s) = Period.order first second
         match f.EndDate >= s.StartDate with
         | true -> 
             let startDate = max s.StartDate f.StartDate
@@ -23,23 +23,15 @@ type Period =
                    Duration = endDate - startDate }
         | false -> None
 
-    static member IsIntersect first second = 
-        match first |> Period.Intersect second with
-        | Some _ -> true
-        | _ -> false            
-    
     static member Union first second = 
-        let (f, s) = Period.orderByStartDate first second
+        let (f, s) = Period.order first second
         let startDate = min s.StartDate f.StartDate
         let endDate = max s.EndDate f.EndDate
 
-        if Period.IsIntersect f s 
-        then 
-            Some
-                { StartDate = startDate
-                  Duration = endDate - startDate }
-        else None
-
+        match Period.Intersect f s with
+        | Some _ -> Some { StartDate = startDate; Duration = endDate - startDate }
+        | None -> None
+        
     override this.ToString() = sprintf "[%A;%A)" this.StartDate this.EndDate
 
 let forNDays n = TimeSpan.FromDays(float n)
@@ -63,11 +55,6 @@ type Temporary<'a when 'a : equality and 'a : comparison> =
         match first.Value = second.Value, first.Period |> Period.Intersect second.Period with
         | true, Some p -> Some { first with Period = p}
         | _ -> None
-
-    static member IsIntersect first second = 
-        match Temporary<'a>.Intersect first second with
-        | Some _ -> true
-        | _ -> false
 
     static member Union first second = 
         match first.Value = second.Value, Period.Union first.Period second.Period with
@@ -111,5 +98,5 @@ let merge temporal =
             | [] -> yield! []
         }
         
-    let temporaries = internalMerge temporal.Values
-    temporaries |> toTemporal
+    internalMerge temporal.Values
+    |> toTemporal
