@@ -6,40 +6,110 @@ type TimeSpan = System.TimeSpan
 
 type Period = 
     { StartDate : DateTime
-      EndDate : DateTime }
-    with
-        member this.DayLength = (this.EndDate - this.StartDate)
-        override this.ToString() = sprintf "[%A;%A[" this.StartDate this.EndDate
+      Duration : TimeSpan }
+    member this.EndDate = (this.StartDate + this.Duration)
+    
+    static member private orderByStartDate first second = 
+        if first.StartDate <= second.StartDate then (first, second)
+        else (second, first)
 
-let Always = { StartDate = DateTime.MinValue; EndDate = DateTime.MaxValue }
+    static member Intersect first second = 
+        let (f, s) = Period.orderByStartDate first second
+        match f.EndDate >= s.StartDate with
+        | true -> 
+            let startDate = max s.StartDate f.StartDate
+            let endDate = min s.EndDate f.EndDate
+            Some { StartDate = startDate
+                   Duration = endDate - startDate }
+        | false -> None
+
+    static member IsIntersect first second = 
+        match first |> Period.Intersect second with
+        | Some _ -> true
+        | _ -> false            
+    
+    static member Union first second = 
+        let (f, s) = Period.orderByStartDate first second
+        let startDate = min s.StartDate f.StartDate
+        let endDate = max s.EndDate f.EndDate
+
+        if Period.IsIntersect f s 
+        then 
+            Some
+                { StartDate = startDate
+                  Duration = endDate - startDate }
+        else None
+
+    override this.ToString() = sprintf "[%A;%A)" this.StartDate this.EndDate
 
 let forNDays n = TimeSpan.FromDays(float n)
-
 let forOneDay = forNDays 1
+let forNever = forNDays 0
+
+let Always = 
+    { StartDate = DateTime.MinValue
+      Duration = TimeSpan.MaxValue }
+
+let Never = 
+    { StartDate = DateTime.MinValue
+      Duration = forNever }
 
 type Temporary<'a when 'a : equality and 'a : comparison> = 
     { Period : Period
       Value : 'a }
-    with
-        override this.ToString() = sprintf "%A (%A)" this.Period this.Value
+    override this.ToString() = sprintf "%A (%A)" this.Period this.Value
+
+    static member Intersect first second = 
+        match first.Value = second.Value, first.Period |> Period.Intersect second.Period with
+        | true, Some p -> Some { first with Period = p}
+        | _ -> None
+
+    static member IsIntersect first second = 
+        match Temporary<'a>.Intersect first second with
+        | Some _ -> true
+        | _ -> false
+
+    static member Union first second = 
+        match first.Value = second.Value, Period.Union first.Period second.Period with
+        | true, Some p -> Some { first with Period = p }
+        | _ -> None
 
 type Temporal<'a when 'a : equality and 'a : comparison> = 
-    { Values : Temporary<'a> seq }
-    with
-        override this.ToString() = sprintf "%A" this.Values
+    { Values : Temporary<'a> list }
+    override this.ToString() = sprintf "%A" this.Values
 
-let toTemporal temporaries = { Values = temporaries |> Seq.toList }
+let toTemporal temporaries = 
+    { Values = 
+        temporaries 
+        |> Seq.sortBy(fun t -> t.Period.StartDate)
+        |> Seq.toList }
 
 let split length temporal = 
     let rec internalSplit temporary = 
-        seq{ 
-
-            if(temporary.Period.DayLength <= length) then yield temporary
-            else
-                let next = temporary.Period.StartDate + length
-                yield {temporary with Period = {temporary.Period with EndDate = next}}
-                yield! internalSplit { temporary with Period = {temporary.Period with StartDate = next} }
-            }
+        seq { 
+            if (temporary.Period.Duration <= length) then yield temporary
+            else 
+                yield { temporary with Period = { temporary.Period with Duration = length } }
+                yield! internalSplit { temporary with Period = { temporary.Period with Duration = length } }
+        }
     temporal.Values
     |> Seq.collect internalSplit
     |> toTemporal
+
+let merge temporal = 
+    let rec internalMerge (temporaries:Temporary<_> list) = 
+        seq {
+            match temporaries with
+            | t1 :: t2 :: tail -> 
+                let union = Temporary<_>.Union t1 t2
+
+                if(union.IsSome) then yield! internalMerge (union.Value :: tail)
+                else 
+                    yield t1
+                    yield! internalMerge (t2 :: tail)
+            | [t1] -> yield t1
+            | [] -> yield! []
+        }
+        
+    let temporaries = internalMerge temporal.Values
+    temporaries |> toTemporal
