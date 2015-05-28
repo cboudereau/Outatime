@@ -4,54 +4,59 @@ type DateTime = System.DateTime
 
 type TimeSpan = System.TimeSpan
 
-let forNDays n = TimeSpan.FromDays(float n)
-let forOneDay = forNDays 1
-let forNever = forNDays 0
-let forEver = TimeSpan.MaxValue
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module TimeSpan = 
+    [<CompiledName("ForNDays")>]
+    let forNDays n = TimeSpan.FromDays(float n)
+    [<CompiledName("ForOneDay")>]
+    let forOneDay = forNDays 1
+    [<CompiledName("ForNever")>]
+    let forNever = TimeSpan.Zero
+    [<CompiledName("ForEver")>]
+    let forEver = DateTime.MaxValue - DateTime.MinValue
 
 type Period = 
     { StartDate : DateTime
-      Duration : TimeSpan }
-    member this.EndDate = (this.StartDate + this.Duration)
+      EndDate : DateTime }
+    member this.Duration = (this.EndDate - this.StartDate)
+    static member Always = { StartDate = DateTime.MinValue; EndDate = DateTime.MaxValue }
+    static member Never = { StartDate = DateTime.MinValue; EndDate = DateTime.MinValue }
+
     override this.ToString() = 
         match this with
-        | p when p.StartDate = DateTime.MinValue && p.Duration = forEver -> sprintf "always"
-        | p when p.StartDate = DateTime.MinValue && p.Duration = forNever -> sprintf "never"
+        | p when p.StartDate = DateTime.MinValue && p.Duration = TimeSpan.forEver -> sprintf "always"
+        | p when p.StartDate = DateTime.MinValue && p.Duration = TimeSpan.forNever -> sprintf "never"
         | p -> sprintf "[%A, %A)" p.StartDate p.EndDate
 
-let Always = 
-    { StartDate = DateTime.MinValue
-      Duration = forEver }
-
-let Never = 
-    { StartDate = DateTime.MinValue
-      Duration = forNever }
-
-module Interval = 
-    let private order first second = 
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module Period = 
+    let private sort first second = 
         if first.StartDate <= second.StartDate then (first, second)
         else (second, first)
     
+    [<CompiledName("From")>]
+    let from startDate duration = { StartDate = startDate; EndDate = startDate + duration }
+
     [<CompiledName("Intersect")>]
     let intersect first second = 
-        let (f, s) = order first second
+        let (f, s) = sort first second
         match f.EndDate >= s.StartDate with
         | true -> 
             let startDate = max s.StartDate f.StartDate
             let endDate = min s.EndDate f.EndDate
             Some { StartDate = startDate
-                   Duration = endDate - startDate }
+                   EndDate = endDate }
         | false -> None
     
     [<CompiledName("Union")>]
     let union first second = 
-        let (f, s) = order first second
+        let (f, s) = sort first second
         let startDate = min s.StartDate f.StartDate
         let endDate = max s.EndDate f.EndDate
         match intersect f s with
         | Some _ -> 
             Some { StartDate = startDate
-                   Duration = endDate - startDate }
+                   EndDate = endDate }
         | None -> None
 
 type Temporary<'a when 'a : equality> = 
@@ -62,13 +67,13 @@ type Temporary<'a when 'a : equality> =
 module Temporary = 
     [<CompiledName("Intersect")>]
     let intersect first second = 
-        match first.Value = second.Value, first.Period |> Interval.intersect second.Period with
+        match first.Value = second.Value, first.Period |> Period.intersect second.Period with
         | true, Some p -> Some { first with Period = p }
         | _ -> None
     
     [<CompiledName("Union")>]
     let union first second = 
-        match first.Value = second.Value, Interval.union first.Period second.Period with
+        match first.Value = second.Value, Period.union first.Period second.Period with
         | true, Some p -> Some { first with Period = p }
         | _ -> None
 
@@ -80,13 +85,18 @@ module Temporal =
         |> Seq.sortBy (fun t -> t.Period.StartDate)
         |> Seq.toList
     
+    let view period temporal = 
+        temporal 
+        |> List.filter(fun t -> (t.Period |> Period.intersect period).IsSome)
+
     let split length temporal = 
         let rec internalSplit temporary = 
             seq { 
                 if (temporary.Period.Duration <= length) then yield temporary
                 else 
-                    yield { temporary with Period = { temporary.Period with Duration = length } }
-                    yield! internalSplit { temporary with Period = { temporary.Period with Duration = length } }
+                    let next = temporary.Period.StartDate + length
+                    yield { temporary with Period = { temporary.Period with EndDate = next } }
+                    yield! internalSplit { temporary with Period = { temporary.Period with StartDate = next } }
             }
         temporal
         |> Seq.collect internalSplit
