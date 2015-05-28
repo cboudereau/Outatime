@@ -4,6 +4,11 @@ type DateTime = System.DateTime
 
 type TimeSpan = System.TimeSpan
 
+let forNDays n = TimeSpan.FromDays(float n)
+let forOneDay = forNDays 1
+let forNever = forNDays 0
+let forEver = TimeSpan.MaxValue
+
 type Period = 
     { StartDate : DateTime
       Duration : TimeSpan }
@@ -32,71 +37,72 @@ type Period =
         | Some _ -> Some { StartDate = startDate; Duration = endDate - startDate }
         | None -> None
         
-    override this.ToString() = sprintf "[%A;%A)" this.StartDate this.EndDate
-
-let forNDays n = TimeSpan.FromDays(float n)
-let forOneDay = forNDays 1
-let forNever = forNDays 0
+    override this.ToString() = sprintf "[%A, %A)" this.StartDate this.EndDate
 
 let Always = 
     { StartDate = DateTime.MinValue
-      Duration = TimeSpan.MaxValue }
+      Duration = forEver }
 
 let Never = 
     { StartDate = DateTime.MinValue
       Duration = forNever }
 
-type Temporary<'a when 'a : equality and 'a : comparison> = 
+type Temporary<'a when 'a : equality> = 
     { Period : Period
       Value : 'a }
-    override this.ToString() = sprintf "%A (%A)" this.Period this.Value
+    override this.ToString() = sprintf "%O : %A" this.Period this.Value
 
-    static member Intersect first second = 
+module Temporary = 
+
+    let intersect first second = 
         match first.Value = second.Value, first.Period |> Period.Intersect second.Period with
         | true, Some p -> Some { first with Period = p}
         | _ -> None
 
-    static member Union first second = 
+    [<CompiledName("Union")>]
+    let union first second = 
         match first.Value = second.Value, Period.Union first.Period second.Period with
         | true, Some p -> Some { first with Period = p }
         | _ -> None
 
-type Temporal<'a when 'a : equality and 'a : comparison> = 
+
+type Temporal<'a when 'a : equality> = 
     { Values : Temporary<'a> list }
     override this.ToString() = sprintf "%A" this.Values
 
-let toTemporal temporaries = 
-    { Values = 
-        temporaries 
-        |> Seq.sortBy(fun t -> t.Period.StartDate)
-        |> Seq.toList }
+module Temporal = 
+    let toTemporal temporaries = 
+        { Values = 
+            temporaries 
+            |> Seq.sortBy(fun t -> t.Period.StartDate)
+            |> Seq.toList }
 
-let split length temporal = 
-    let rec internalSplit temporary = 
-        seq { 
-            if (temporary.Period.Duration <= length) then yield temporary
-            else 
-                yield { temporary with Period = { temporary.Period with Duration = length } }
-                yield! internalSplit { temporary with Period = { temporary.Period with Duration = length } }
-        }
-    temporal.Values
-    |> Seq.collect internalSplit
-    |> toTemporal
-
-let merge temporal = 
-    let rec internalMerge (temporaries:Temporary<_> list) = 
-        seq {
-            match temporaries with
-            | t1 :: t2 :: tail -> 
-                let union = Temporary<_>.Union t1 t2
-
-                if(union.IsSome) then yield! internalMerge (union.Value :: tail)
+    let split length temporal = 
+        let rec internalSplit temporary = 
+            seq { 
+                if (temporary.Period.Duration <= length) then yield temporary
                 else 
-                    yield t1
-                    yield! internalMerge (t2 :: tail)
-            | [t1] -> yield t1
-            | [] -> yield! []
-        }
-        
-    internalMerge temporal.Values
-    |> toTemporal
+                    yield { temporary with Period = { temporary.Period with Duration = length } }
+                    yield! internalSplit { temporary with Period = { temporary.Period with Duration = length } }
+            }
+        temporal.Values
+        |> Seq.collect internalSplit
+        |> toTemporal
+
+    let merge temporal = 
+        let rec internalMerge temporaries = 
+            seq {
+                match temporaries with
+                | t1 :: t2 :: tail -> 
+                    let union = Temporary.union t1 t2
+
+                    if(union.IsSome) then yield! internalMerge (union.Value :: tail)
+                    else 
+                        yield t1
+                        yield! internalMerge (t2 :: tail)
+                | [t1] -> yield t1
+                | [] -> yield! []
+            }
+            
+        internalMerge temporal.Values
+        |> toTemporal
