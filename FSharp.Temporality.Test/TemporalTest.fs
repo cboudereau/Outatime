@@ -44,13 +44,13 @@ let ``period intesection test``()=
               Duration = maxEndDate - minStartDate }
         
         let ``largest period intersect with all period`` = 
-            match (Period.Intersect largestPeriod p1), (Period.Intersect largestPeriod p2) with
+            match (Interval.intersect largestPeriod p1), (Interval.intersect largestPeriod p2) with
             | Some a1, Some a2 -> a1 = p1 && a2 = p2
             | _, _ when p2.StartDate > p1.EndDate -> true
             | _, _ -> false
 
         let ``Never never intesect with period`` = 
-            match (Period.Intersect Never p1), (Period.Intersect p2 Never) with
+            match (Interval.intersect Never p1), (Interval.intersect p2 Never) with
             | None, None -> true
             | _ -> false
 
@@ -94,13 +94,12 @@ let ``split period by n days``()=
 
     let ``check that period are sorted by start date in order to have correct interval`` temporal = 
         let actual = temporal |> Temporal.split splitPeriod
-        (actual.Values |> Seq.sortBy(fun t -> t.Period.StartDate) |> Seq.toList) = (actual.Values |> Seq.toList)
+        (actual |> Seq.sortBy(fun t -> t.Period.StartDate) |> Seq.toList) = (actual |> Seq.toList)
 
     let ``check that all period are less than split period`` temporal = 
-        let actual = temporal |> Temporal.split splitPeriod
-        actual.Values
-        |> Seq.map(fun v -> v.Period.Duration <= splitPeriod)
-        |> Seq.forall(fun b -> b)
+        temporal 
+        |> Temporal.split splitPeriod
+        |> Seq.forall(fun v -> v.Period.Duration <= splitPeriod)
 
     Check.QuickThrowOnFailure(Prop.forAll arb <| ``check that all period are less than split period``)
     Check.QuickThrowOnFailure(Prop.forAll arb <| ``check that period are sorted by start date in order to have correct interval``)
