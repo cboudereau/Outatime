@@ -77,16 +77,19 @@ module Temporary =
         | true, Some p -> Some { first with Period = p }
         | _ -> None
 
-type Temporal<'a when 'a : equality> = Temporary<'a> list
+type Temporal<'a when 'a : equality> = 
+    { Values: Temporary<'a> list }
 
 module Temporal = 
     let toTemporal temporaries = 
-        temporaries
-        |> Seq.sortBy (fun t -> t.Period.StartDate)
-        |> Seq.toList
+        let sortedTemporaries = 
+            temporaries
+            |> Seq.sortBy (fun t -> t.Period.StartDate)
+            |> Seq.toList
+        { Values = sortedTemporaries }
     
     let view period temporal = 
-        temporal 
+        temporal.Values
         |> Seq.map(fun t -> (t.Period |> Period.intersect period, t))
         |> Seq.filter(fun (o, _) -> o.IsSome)
         |> Seq.map(fun (p, t) -> { t with Period = p.Value })
@@ -101,7 +104,7 @@ module Temporal =
                     yield { temporary with Period = { temporary.Period with EndDate = next } }
                     yield! internalSplit { temporary with Period = { temporary.Period with StartDate = next } }
             }
-        temporal
+        temporal.Values
         |> Seq.collect internalSplit
         |> toTemporal
     
@@ -118,4 +121,4 @@ module Temporal =
                 | [ t1 ] -> yield t1
                 | [] -> yield! []
             }
-        internalMerge temporal |> toTemporal
+        internalMerge temporal.Values |> toTemporal

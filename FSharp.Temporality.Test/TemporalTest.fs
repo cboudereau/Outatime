@@ -24,7 +24,7 @@ let toPeriod (d1, d2) =
 
 let toTemporary (v, d1, d2) = 
     let p = toPeriod (d1, d2)
-    { Period = p; Value = v}
+    { Period = p; Value = v }
 
 [<Fact>]
 let ``TimeSpan composition test``()=
@@ -86,13 +86,14 @@ let ``period intersection test``()=
 let ``split period of 20 days by 5 should be 4 period of 5 days``()=
     let actual = 
         [ { Period = Period.from (jan15 1) (TimeSpan.forNDays 19); Value = "Hello" } ]
+        |> Temporal.toTemporal
         |> Temporal.split (TimeSpan.forNDays 5)
     actual
     |> should equal 
-        [ { Period = Period.from (jan15 1) (TimeSpan.forNDays 5); Value = "Hello" }
-          { Period = Period.from (jan15 6) (TimeSpan.forNDays 5); Value = "Hello" }
-          { Period = Period.from (jan15 11) (TimeSpan.forNDays 5); Value = "Hello" }
-          { Period = Period.from (jan15 16) (TimeSpan.forNDays 4); Value = "Hello" } ]
+        ([ { Period = Period.from (jan15 1) (TimeSpan.forNDays 5); Value = "Hello" }
+           { Period = Period.from (jan15 6) (TimeSpan.forNDays 5); Value = "Hello" }
+           { Period = Period.from (jan15 11) (TimeSpan.forNDays 5); Value = "Hello" }
+           { Period = Period.from (jan15 16) (TimeSpan.forNDays 4); Value = "Hello" } ] |> Temporal.toTemporal)
 
 [<Fact>]
 let ``split empty period is empty period``() = 
@@ -114,7 +115,7 @@ let ``split empty period is empty period``() =
 [<Fact>]
 let ``split period by n days``()=
     let toTestTemporary (n, date) = 
-        { Period = { StartDate=date; EndDate = date + (n |> TimeSpan.forNDays |> toPositiveDuration) }
+        { Period = { StartDate = date; EndDate = date + (n |> TimeSpan.forNDays |> toPositiveDuration) }
           Value = "hello" }
     
     let toTestTemporaries u = u |> Seq.map(toTestTemporary) |> Temporal.toTemporal
@@ -129,11 +130,11 @@ let ``split period by n days``()=
 
     let ``check that period are sorted by start date in order to have correct interval`` temporal = 
         let actual = temporal |> Temporal.split splitPeriod
-        (actual |> Seq.sortBy(fun t -> t.Period.StartDate) |> Seq.toList) = (actual |> Seq.toList)
+        (actual.Values |> Seq.sortBy(fun t -> t.Period.StartDate) |> Seq.toList) = (actual.Values)
 
     let ``check that all period are less than split period`` temporal = 
-        temporal 
-        |> Temporal.split splitPeriod
+        (temporal
+        |> Temporal.split splitPeriod).Values
         |> Seq.forall(fun v -> v.Period.Duration <= splitPeriod)
 
     Check.QuickThrowOnFailure(Prop.forAll arb <| ``check that all period are less than split period``)
@@ -190,6 +191,30 @@ let ``when value are equal on intersect periods should merge``() =
 
     actual |> should equal expected
 
+    let actual = 
+        [ { Period = { StartDate = jan15 01; EndDate = jan15 30 }; Value = "Hello"}
+          { Period = { StartDate = jan15 05; EndDate = jan15 25 }; Value = "Hello"} ]
+        |> Temporal.toTemporal 
+        |> Temporal.merge
+
+    let expected = 
+        [ { Period = { StartDate = jan15 01; EndDate = jan15 30 }; Value = "Hello"} ]
+        |> Temporal.toTemporal
+
+    actual |> should equal expected
+
+//[<Fact>]
+let ``overlap problems``()=
+    let overlapedTemporal = 
+        [ { Period = { StartDate = jan15 1; EndDate = jan15 15 }; Value = "Hello" }
+          { Period = { StartDate = jan15 5; EndDate = jan15 17 }; Value = "Toto" }
+          { Period = { StartDate = jan15 7; EndDate = jan15 20 }; Value = "Hello" } ]
+
+    overlapedTemporal 
+    |> Temporal.toTemporal 
+    |> Temporal.merge 
+    |> should equal []
+
 [<Fact>]
 let ``should list temporaries for a given period``()=
     let temporal = 
@@ -198,45 +223,51 @@ let ``should list temporaries for a given period``()=
         |> Temporal.toTemporal
     
     temporal |> Temporal.view Period.Always |> should equal temporal
-    temporal |> Temporal.view Period.Never = [] |> should equal true
+    temporal |> Temporal.view Period.Never = ([] |> Temporal.toTemporal) |> should equal true
 
     temporal 
     |> Temporal.view (Period.from (jan15 5) (TimeSpan.forNDays 10)) 
     |> should equal
-        [ { Period = { StartDate = (jan15 05); EndDate = (jan15 11)}; Value = "Hello" }
-          { Period = { StartDate = (jan15 11); EndDate = (jan15 15)}; Value = "Toto" } ]
-//
+        ([ { Period = { StartDate = (jan15 05); EndDate = (jan15 11)}; Value = "Hello" }
+           { Period = { StartDate = (jan15 11); EndDate = (jan15 15)}; Value = "Toto" } ] |> Temporal.toTemporal)
+
 //[<Fact>]
-//let ``check that temporary grouped by value can't intersect beetween them``() =
-//    let arb = 
-//        Arb.generate<string*DateTime*DateTime>
-//        |> Gen.listOf
-//        |> Gen.oneof 
-//            [ gen { ("Hello", jan15  1, jan15 10) }
-//              gen { ("World", jan15 10, jan15 12) }
-//              gen { ("Hello", jan15 13, jan15 15) }
-//              gen { ("Hello", jan15 12, jan15 13) }
-//              gen { ("Hello", jan15 15, jan15 17) } ]
-//        |> Gen.map(toTemporary)
-//        |> Arb.fromGen
-//
-//    let intersectProperty temporaries = 
-//        let intersectWithList t l = l |> Seq.map(fun t2 -> Temporary<_>.Intersect t t2)
-//        
-//        let intersectBetweenLists l1 l2 = 
-//            seq {
-//                l1 |> Seq.map(fun i1 -> yield! intersectWithList i1 l2)
-//            }
-//        
-//        let intersections = 
-//            seq {
-//                temporaries 
-//                |> Seq.groupBy(fun t -> t.Value)
-//                |> Seq.map(
-//                    fun (_, groups) -> 
-//                        groups |> Seq.
-//                        let groupIntersections = intersectBetweenLists groups groups
-//                        )
-//            }
-//
-//    Check.QuickThrowOnFailure(Prop.forAll arb intersectProperty)
+let ``check that temporary grouped by value can't intersect beetween them``() =
+    let oneOf = 
+        [ { Period = { StartDate = jan15 01; EndDate = jan15 10 } ; Value = "Hello" }
+          { Period = { StartDate = jan15 10; EndDate = jan15 12 }; Value = "World" }
+          { Period = { StartDate = jan15 13; EndDate = jan15 15 }; Value = "Hello" }
+          { Period = { StartDate = jan15 12; EndDate = jan15 13 }; Value = "Hello" }
+          { Period = { StartDate = jan15 15; EndDate = jan15 17 }; Value = "Hello" } ] 
+    
+    let arb = 
+        Arb.generate<string*DateTime*DateTime>
+        |> Gen.map(toTemporary)
+        |> Gen.listOf
+        |> Arb.fromGen
+
+    let intersectProperty temporaries = 
+        let groups = 
+            (temporaries 
+            |> Temporal.toTemporal 
+            |> Temporal.merge).Values 
+            |> Seq.groupBy(fun t -> t.Value)
+            |> Seq.toList
+
+        let notIntersect (_, temporaries) = 
+
+            let rec internalNotIntersect temporaries = 
+                match temporaries with
+                | t1 :: t2 :: tail -> 
+                    match Temporary.intersect t1 t2 with
+                    | Some _ -> false
+                    | None -> internalNotIntersect (t2 :: tail)
+                | [t1] -> true
+                | [] -> true
+            
+            internalNotIntersect (temporaries |> Seq.toList) 
+
+
+        groups |> List.forall(notIntersect)
+        
+    Check.QuickThrowOnFailure(Prop.forAll arb intersectProperty)
