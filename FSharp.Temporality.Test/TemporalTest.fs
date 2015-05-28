@@ -41,14 +41,14 @@ let ``Period should be display with math interval notation for half open interva
     
     p.ToString() |> should equal "[1/1/2015 0:00:00, 2/1/2015 0:00:00)" 
 
-    Period.Always.ToString() |> should equal "always"
-    Period.Never.ToString() |> should equal "never"
+    Period.Always.ToString() |> should equal "Always"
+    Period.Never.ToString() |> should equal "Never"
 
 [<Fact>]
 let ``Temporary should be displayed same as Period``()=
     let t = { Period = Period.Always; Value = "Hello" }
 
-    t.ToString() |> should equal @"always : ""Hello"""
+    t.ToString() |> should equal @"Always : ""Hello"""
 
 [<Fact>]
 let ``period intersection test``()=

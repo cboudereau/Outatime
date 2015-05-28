@@ -24,8 +24,8 @@ type Period =
 
     override this.ToString() = 
         match this with
-        | p when p.StartDate = DateTime.MinValue && p.Duration = TimeSpan.forEver -> sprintf "always"
-        | p when p.StartDate = DateTime.MinValue && p.Duration = TimeSpan.forNever -> sprintf "never"
+        | p when p = Period.Always -> sprintf "Always"
+        | p when p = Period.Never -> sprintf "Never"
         | p -> sprintf "[%A, %A)" p.StartDate p.EndDate
 
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
