@@ -85,14 +85,14 @@ let ``period intersection test``()=
 [<Fact>]
 let ``split period of 20 days by 5 should be 4 period of 5 days``()=
     let actual = 
-        [ { Period = Period.from (jan15 1) (TimeSpan.forNDays 20); Value = "Hello" } ]
+        [ { Period = Period.from (jan15 1) (TimeSpan.forNDays 19); Value = "Hello" } ]
         |> Temporal.split (TimeSpan.forNDays 5)
     actual
     |> should equal 
         [ { Period = Period.from (jan15 1) (TimeSpan.forNDays 5); Value = "Hello" }
           { Period = Period.from (jan15 6) (TimeSpan.forNDays 5); Value = "Hello" }
           { Period = Period.from (jan15 11) (TimeSpan.forNDays 5); Value = "Hello" }
-          { Period = Period.from (jan15 16) (TimeSpan.forNDays 5); Value = "Hello" } ]
+          { Period = Period.from (jan15 16) (TimeSpan.forNDays 4); Value = "Hello" } ]
 
 [<Fact>]
 let ``split empty period is empty period``() = 
@@ -114,7 +114,7 @@ let ``split empty period is empty period``() =
 [<Fact>]
 let ``split period by n days``()=
     let toTestTemporary (n, date) = 
-        { Period = { StartDate=date; EndDate = date + (TimeSpan.forNDays n) }
+        { Period = { StartDate=date; EndDate = date + (n |> TimeSpan.forNDays |> toPositiveDuration) }
           Value = "hello" }
     
     let toTestTemporaries u = u |> Seq.map(toTestTemporary) |> Temporal.toTemporal
@@ -197,9 +197,14 @@ let ``should list temporaries for a given period``()=
           { Period = Period.from (jan15 11) (TimeSpan.forNDays 10); Value = "Toto" } ]
         |> Temporal.toTemporal
     
-    
     temporal |> Temporal.view Period.Always |> should equal temporal
     temporal |> Temporal.view Period.Never = [] |> should equal true
+
+    temporal 
+    |> Temporal.view (Period.from (jan15 5) (TimeSpan.forNDays 10)) 
+    |> should equal
+        [ { Period = { StartDate = (jan15 05); EndDate = (jan15 11)}; Value = "Hello" }
+          { Period = { StartDate = (jan15 11); EndDate = (jan15 15)}; Value = "Toto" } ]
 //
 //[<Fact>]
 //let ``check that temporary grouped by value can't intersect beetween them``() =

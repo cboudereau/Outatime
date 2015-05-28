@@ -87,7 +87,10 @@ module Temporal =
     
     let view period temporal = 
         temporal 
-        |> List.filter(fun t -> (t.Period |> Period.intersect period).IsSome)
+        |> Seq.map(fun t -> (t.Period |> Period.intersect period, t))
+        |> Seq.filter(fun (o, _) -> o.IsSome)
+        |> Seq.map(fun (p, t) -> { t with Period = p.Value })
+        |> toTemporal
 
     let split length temporal = 
         let rec internalSplit temporary = 
