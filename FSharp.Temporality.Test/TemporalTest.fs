@@ -28,7 +28,22 @@ let toTemporary (v, d1, d2) =
     { Period = p; Value = v}
 
 [<Fact>]
-let ``period intesection test``()=
+let ``Period should be display with math interval notation for half open interval``()=
+    let p = { StartDate = jan15 1; Duration = forOneDay }
+    
+    p.ToString() |> should equal "[1/1/2015 0:00:00, 2/1/2015 0:00:00)" 
+
+    Always.ToString() |> should equal "always"
+    Never.ToString() |> should equal "never"
+
+[<Fact>]
+let ``Temporary should be displayed same as Period``()=
+    let t = { Period = Always; Value = "Hello" }
+
+    t.ToString() |> should equal @"always : ""Hello"""
+
+[<Fact>]
+let ``period intersection test``()=
     let arb = 
         Arb.generate<DateTime>
         |> Gen.four

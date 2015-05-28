@@ -13,13 +13,25 @@ type Period =
     { StartDate : DateTime
       Duration : TimeSpan }
     member this.EndDate = (this.StartDate + this.Duration)
-    override this.ToString() = sprintf "[%A, %A)" this.StartDate this.EndDate
+    override this.ToString() = 
+        match this with
+        | p when p.StartDate = DateTime.MinValue && p.Duration = forEver -> sprintf "always"
+        | p when p.StartDate = DateTime.MinValue && p.Duration = forNever -> sprintf "never"
+        | p -> sprintf "[%A, %A)" p.StartDate p.EndDate
+
+let Always = 
+    { StartDate = DateTime.MinValue
+      Duration = forEver }
+
+let Never = 
+    { StartDate = DateTime.MinValue
+      Duration = forNever }
 
 module Interval = 
     let private order first second = 
         if first.StartDate <= second.StartDate then (first, second)
         else (second, first)
-
+    
     [<CompiledName("Intersect")>]
     let intersect first second = 
         let (f, s) = order first second
@@ -30,24 +42,17 @@ module Interval =
             Some { StartDate = startDate
                    Duration = endDate - startDate }
         | false -> None
-
+    
     [<CompiledName("Union")>]
     let union first second = 
         let (f, s) = order first second
         let startDate = min s.StartDate f.StartDate
         let endDate = max s.EndDate f.EndDate
-
         match intersect f s with
-        | Some _ -> Some { StartDate = startDate; Duration = endDate - startDate }
+        | Some _ -> 
+            Some { StartDate = startDate
+                   Duration = endDate - startDate }
         | None -> None
-
-let Always = 
-    { StartDate = DateTime.MinValue
-      Duration = forEver }
-
-let Never = 
-    { StartDate = DateTime.MinValue
-      Duration = forNever }
 
 type Temporary<'a when 'a : equality> = 
     { Period : Period
@@ -55,28 +60,26 @@ type Temporary<'a when 'a : equality> =
     override this.ToString() = sprintf "%O : %A" this.Period this.Value
 
 module Temporary = 
-
     [<CompiledName("Intersect")>]
     let intersect first second = 
         match first.Value = second.Value, first.Period |> Interval.intersect second.Period with
-        | true, Some p -> Some { first with Period = p}
+        | true, Some p -> Some { first with Period = p }
         | _ -> None
-
+    
     [<CompiledName("Union")>]
     let union first second = 
         match first.Value = second.Value, Interval.union first.Period second.Period with
         | true, Some p -> Some { first with Period = p }
         | _ -> None
 
-
 type Temporal<'a when 'a : equality> = Temporary<'a> list
 
 module Temporal = 
     let toTemporal temporaries = 
-        temporaries 
-        |> Seq.sortBy(fun t -> t.Period.StartDate)
+        temporaries
+        |> Seq.sortBy (fun t -> t.Period.StartDate)
         |> Seq.toList
-
+    
     let split length temporal = 
         let rec internalSplit temporary = 
             seq { 
@@ -88,21 +91,18 @@ module Temporal =
         temporal
         |> Seq.collect internalSplit
         |> toTemporal
-
+    
     let merge temporal = 
         let rec internalMerge temporaries = 
-            seq {
+            seq { 
                 match temporaries with
                 | t1 :: t2 :: tail -> 
                     let union = Temporary.union t1 t2
-
-                    if(union.IsSome) then yield! internalMerge (union.Value :: tail)
+                    if (union.IsSome) then yield! internalMerge (union.Value :: tail)
                     else 
                         yield t1
                         yield! internalMerge (t2 :: tail)
-                | [t1] -> yield t1
+                | [ t1 ] -> yield t1
                 | [] -> yield! []
             }
-            
-        internalMerge temporal
-        |> toTemporal
+        internalMerge temporal |> toTemporal
