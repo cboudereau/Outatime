@@ -17,6 +17,8 @@ let getPeriod d1 d2 =
     { StartDate = minDate
       EndDate = maxDate }
 
+let getTemporary d1 d2 v = { Period = getPeriod d1 d2; Value = v }
+
 let toPeriod (d1, d2) = 
     match d2 > d1 with
     | true -> { StartDate = d1; EndDate = d2 }
@@ -49,38 +51,6 @@ let ``Temporary should be displayed same as Period``()=
     let t = { Period = Period.Always; Value = "Hello" }
 
     t.ToString() |> should equal @"Always : ""Hello"""
-
-[<Fact>]
-let ``period intersection test``()=
-    let arb = 
-        Arb.generate<DateTime>
-        |> Gen.four
-        |> Gen.map(fun (d1, d2, d3, d4) -> ( getPeriod d1 d2, getPeriod d3 d4 ))
-        |> Arb.fromGen
-    
-    let ``check that the largest period of two periods intersect with them`` (p1, p2) =
-        
-        let largestPeriod = 
-            let minStartDate = min p1.StartDate p2.StartDate
-            let maxEndDate = max p1.EndDate p2.EndDate
-            { StartDate = minStartDate
-              EndDate = maxEndDate }
-        
-        let ``largest period intersect with all period`` = 
-            match (Period.intersect largestPeriod p1), (Period.intersect largestPeriod p2) with
-            | Some a1, Some a2 -> a1 = p1 && a2 = p2
-            | _, _ when p2.StartDate > p1.EndDate -> true
-            | _, _ -> false
-
-        let ``Never never intesect with period`` = 
-            match (Period.intersect Period.Never p1), (Period.intersect p2 Period.Never) with
-            | None, None -> true
-            | _ -> false
-
-        ``largest period intersect with all period``
-        && ``Never never intesect with period``
-
-    Check.QuickThrowOnFailure(Prop.forAll arb <| ``check that the largest period of two periods intersect with them``) 
 
 [<Fact>]
 let ``split period of 20 days by 5 should be 4 period of 5 days``()=
@@ -141,36 +111,6 @@ let ``split period by n days``()=
     Check.QuickThrowOnFailure(Prop.forAll arb <| ``check that period are sorted by start date in order to have correct interval``)
 
 [<Fact>]
-let ``contigous period with same value should be merged``()=
-    let arb = 
-        Arb.generate<DateTime>
-        |> Gen.four
-        |> Gen.map(
-            fun (d1, d2, d3, d4) -> 
-                ( getPeriod d1 d2, getPeriod d3 d4 ))
-        |> Arb.fromGen
-
-    let ``check that largest period of two with same value are all merged`` (p1,p2) =
-        let sameValue = "Hello"
-        let getTemporary p v = { Period = p; Value = v }
-        let maxPeriod = 
-            let startDate = min p1.StartDate p2.StartDate 
-            let endDate = max p1.EndDate p2.EndDate
-            { StartDate = startDate
-              EndDate = endDate }
-        let tMax = getTemporary maxPeriod sameValue
-        let t1 = getTemporary p1 sameValue
-        let t2 = getTemporary p2 "World"
-
-        let merged = [tMax; t1; t2] |> Temporal.toTemporal |> Temporal.merge
-        
-        if(t2.Period.StartDate < t1.Period.StartDate) 
-        then merged = ([tMax; t1; t2] |> Temporal.toTemporal)
-        else merged = ([tMax; t2] |> Temporal.toTemporal)
-        
-    Check.QuickThrowOnFailure(Prop.forAll arb <| ``check that largest period of two with same value are all merged``)
-
-[<Fact>]
 let ``when value are equal on intersect periods should merge``() =
     [] |> Temporal.toTemporal |> Temporal.merge |> should equal ([] |> Temporal.toTemporal)
     
@@ -203,18 +143,6 @@ let ``when value are equal on intersect periods should merge``() =
 
     actual |> should equal expected
 
-//[<Fact>]
-let ``overlap problems``()=
-    let overlapedTemporal = 
-        [ { Period = { StartDate = jan15 1; EndDate = jan15 15 }; Value = "Hello" }
-          { Period = { StartDate = jan15 5; EndDate = jan15 17 }; Value = "Toto" }
-          { Period = { StartDate = jan15 7; EndDate = jan15 20 }; Value = "Hello" } ]
-
-    overlapedTemporal 
-    |> Temporal.toTemporal 
-    |> Temporal.merge 
-    |> should equal []
-
 [<Fact>]
 let ``should list temporaries for a given period``()=
     let temporal = 
@@ -230,44 +158,3 @@ let ``should list temporaries for a given period``()=
     |> should equal
         ([ { Period = { StartDate = (jan15 05); EndDate = (jan15 11)}; Value = "Hello" }
            { Period = { StartDate = (jan15 11); EndDate = (jan15 15)}; Value = "Toto" } ] |> Temporal.toTemporal)
-
-//[<Fact>]
-let ``check that temporary grouped by value can't intersect beetween them``() =
-    let oneOf = 
-        [ { Period = { StartDate = jan15 01; EndDate = jan15 10 } ; Value = "Hello" }
-          { Period = { StartDate = jan15 10; EndDate = jan15 12 }; Value = "World" }
-          { Period = { StartDate = jan15 13; EndDate = jan15 15 }; Value = "Hello" }
-          { Period = { StartDate = jan15 12; EndDate = jan15 13 }; Value = "Hello" }
-          { Period = { StartDate = jan15 15; EndDate = jan15 17 }; Value = "Hello" } ] 
-    
-    let arb = 
-        Arb.generate<string*DateTime*DateTime>
-        |> Gen.map(toTemporary)
-        |> Gen.listOf
-        |> Arb.fromGen
-
-    let intersectProperty temporaries = 
-        let groups = 
-            (temporaries 
-            |> Temporal.toTemporal 
-            |> Temporal.merge).Values 
-            |> Seq.groupBy(fun t -> t.Value)
-            |> Seq.toList
-
-        let notIntersect (_, temporaries) = 
-
-            let rec internalNotIntersect temporaries = 
-                match temporaries with
-                | t1 :: t2 :: tail -> 
-                    match Temporary.intersect t1 t2 with
-                    | Some _ -> false
-                    | None -> internalNotIntersect (t2 :: tail)
-                | [t1] -> true
-                | [] -> true
-            
-            internalNotIntersect (temporaries |> Seq.toList) 
-
-
-        groups |> List.forall(notIntersect)
-        
-    Check.QuickThrowOnFailure(Prop.forAll arb intersectProperty)

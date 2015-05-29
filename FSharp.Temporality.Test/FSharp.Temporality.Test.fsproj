@@ -50,8 +50,12 @@
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
     <None Include="packages.config" />
-    <Compile Include="TemporalTest.fs" />
     <None Include="app.config" />
+    <Compile Include="TestData.fs" />
+    <Compile Include="TemporalTest.fs" />
+    <Compile Include="IntersectProperties.fs" />
+    <Compile Include="MergeProperties.fs" />
+    <Compile Include="SplitProperties.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FsCheck">

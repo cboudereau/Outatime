@@ -40,7 +40,7 @@ module Period =
     [<CompiledName("Intersect")>]
     let intersect first second = 
         let (f, s) = sort first second
-        match f.EndDate >= s.StartDate with
+        match f.EndDate > s.StartDate with
         | true -> 
             let startDate = max s.StartDate f.StartDate
             let endDate = min s.EndDate f.EndDate
@@ -53,11 +53,11 @@ module Period =
         let (f, s) = sort first second
         let startDate = min s.StartDate f.StartDate
         let endDate = max s.EndDate f.EndDate
-        match intersect f s with
-        | Some _ -> 
+        match f.EndDate >= s.StartDate with
+        | true -> 
             Some { StartDate = startDate
                    EndDate = endDate }
-        | None -> None
+        | false -> None
 
 type Temporary<'a when 'a : equality> = 
     { Period : Period
