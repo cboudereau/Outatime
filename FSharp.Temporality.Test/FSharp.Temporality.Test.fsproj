@@ -56,6 +56,7 @@
     <Compile Include="IntersectProperties.fs" />
     <Compile Include="MergeProperties.fs" />
     <Compile Include="SplitProperties.fs" />
+    <Compile Include="ViewProperties.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FsCheck">

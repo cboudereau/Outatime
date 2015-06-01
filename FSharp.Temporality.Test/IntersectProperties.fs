@@ -26,3 +26,14 @@ module IntersectProperties =
         match (Period.intersect Period.Never p1), (Period.intersect p2 Period.Never), Period.intersect Period.Never Period.Never with
         | None, None, None -> true
         | _ -> false
+
+[<Arbitrary(typeof<TestData.ValidRepresentableTemporal>)>]
+module SameValue =
+
+    [<Property>]
+    let ``temporal with same Hello value contains one temporary`` (temporal:Temporal<string>) =
+        let mergedTemporal = temporal |> Temporal.merge
+
+        if(temporal.Values |> Seq.length = 0) 
+        then mergedTemporal.Values |> Seq.length = 0
+        else mergedTemporal.Values |> Seq.length = 1
