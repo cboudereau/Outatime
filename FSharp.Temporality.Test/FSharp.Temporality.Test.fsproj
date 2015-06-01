@@ -53,7 +53,7 @@
     <None Include="app.config" />
     <Compile Include="PeriodTest.fs" />
     <Compile Include="TestData.fs" />
-    <Compile Include="IntersectProperties.fs" />
+    <Compile Include="PeriodProperties.fs" />
     <Compile Include="MergeProperties.fs" />
     <Compile Include="SplitProperties.fs" />
     <Compile Include="ViewProperties.fs" />

@@ -9,7 +9,7 @@ let getPeriod d1 d2 =
     { StartDate = minDate
       EndDate = maxDate }
 
-type TwoPeriodsArb = 
+type TwoRandomPeriods = 
     static member Values() = 
         Arb.generate<DateTime>
         |> Gen.four
@@ -69,7 +69,7 @@ type NoOverlapTemporaries =
         |> Gen.map (toTemporaries)
         |> Arb.fromGen
 
-type ValidRepresentableTemporal = 
+type HelloValidRepresentableTemporal = 
     static member Values() = singleValueContiguousTemporalGen "hello" |> Arb.fromGen
 
 type HelloRandomTemporal = 

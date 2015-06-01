@@ -31,3 +31,14 @@ module NoOverlapMerge =
             internalUnion (temporaries |> Seq.toList)
 
         groups |> List.forall(not << union)
+
+[<Arbitrary(typeof<TestData.HelloValidRepresentableTemporal>)>]
+module SameValue =
+
+    [<Property>]
+    let ``temporal with same Hello value is the union`` (temporal:Temporal<string>) =
+        let mergedTemporal = temporal |> Temporal.merge
+
+        if(temporal.Values |> Seq.length = 0) 
+        then mergedTemporal.Values |> Seq.length = 0
+        else mergedTemporal.Values |> Seq.length = 1
