@@ -51,8 +51,8 @@
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="app.config" />
+    <Compile Include="PeriodTest.fs" />
     <Compile Include="TestData.fs" />
-    <Compile Include="TemporalTest.fs" />
     <Compile Include="IntersectProperties.fs" />
     <Compile Include="MergeProperties.fs" />
     <Compile Include="SplitProperties.fs" />
