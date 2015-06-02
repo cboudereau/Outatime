@@ -10,10 +10,10 @@ module NoOverlapMerge =
     
     [<Property>]
     let ``grouped temporary value can't be unioned`` (temporaries : Temporary<string> seq) =
+        let actual = (temporaries |> Temporal.toTemporal |> Temporal.merge).Values 
+
         let groups = 
-            (temporaries 
-            |> Temporal.toTemporal 
-            |> Temporal.merge).Values 
+            actual
             |> Seq.groupBy(fun t -> t.Value)
             |> Seq.toList
 
@@ -30,7 +30,8 @@ module NoOverlapMerge =
             
             internalUnion (temporaries |> Seq.toList)
 
-        groups |> List.forall(not << union)
+        let result = groups |> List.forall(not << union)
+        result
 
 [<Arbitrary(typeof<TestData.HelloValidRepresentableTemporal>)>]
 module SameValue =

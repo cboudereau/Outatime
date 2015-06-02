@@ -40,24 +40,24 @@ module Period =
     [<CompiledName("Intersect")>]
     let intersect first second = 
         let (f, s) = sort first second
-        match f.EndDate > s.StartDate with
+        match f.EndDate >= s.StartDate with
         | true -> 
             let startDate = max s.StartDate f.StartDate
             let endDate = min s.EndDate f.EndDate
-            Some { StartDate = startDate
-                   EndDate = endDate }
-        | false -> None
+            { StartDate = startDate
+              EndDate = endDate }
+        | false -> Period.Never
     
     [<CompiledName("Union")>]
     let union first second = 
         let (f, s) = sort first second
-        let startDate = min s.StartDate f.StartDate
-        let endDate = max s.EndDate f.EndDate
         match f.EndDate >= s.StartDate with
         | true -> 
-            Some { StartDate = startDate
-                   EndDate = endDate }
-        | false -> None
+            let startDate = min s.StartDate f.StartDate
+            let endDate = max s.EndDate f.EndDate
+            { StartDate = startDate
+              EndDate = endDate }
+        | false -> Period.Never
 
 type Temporary<'a when 'a : equality> = 
     { Period : Period
@@ -68,13 +68,13 @@ module Temporary =
     [<CompiledName("Intersect")>]
     let intersect first second = 
         match first.Value = second.Value, first.Period |> Period.intersect second.Period with
-        | true, Some p -> Some { first with Period = p }
+        | true, p when p <> Period.Never -> Some { first with Period = p }
         | _ -> None
     
     [<CompiledName("Union")>]
     let union first second = 
         match first.Value = second.Value, Period.union first.Period second.Period with
-        | true, Some p -> Some { first with Period = p }
+        | true, p when p <> Period.Never -> Some { first with Period = p }
         | _ -> None
 
 type Temporal<'a when 'a : equality> = 
@@ -91,8 +91,8 @@ module Temporal =
     let view period temporal = 
         temporal.Values
         |> Seq.map(fun t -> (t.Period |> Period.intersect period, t))
-        |> Seq.filter(fun (o, _) -> o.IsSome)
-        |> Seq.map(fun (p, t) -> { t with Period = p.Value })
+        |> Seq.filter(fun (o, _) -> o <> Period.Never)
+        |> Seq.map(fun (p, t) -> { t with Period = p })
         |> toTemporal
 
     let split length temporal = 

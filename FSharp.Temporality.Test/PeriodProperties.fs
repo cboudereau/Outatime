@@ -5,54 +5,48 @@ open FsCheck.Xunit
 
 open Temporality
 
-[<Arbitrary(typeof<TestData.TwoRandomPeriods>)>]
+[<Arbitrary(typeof<TestData.RandomPeriod>)>]
 module IntersectProperties =
 
     [<Property>]
     let ``Always ∩ Always = Always`` () =
-        Period.Always |> Period.intersect Period.Always = Some(Period.Always)
+        Period.Always |> Period.intersect Period.Always = Period.Always
 
     [<Property>]
-    let ``Always ∩ p = p`` (p1, p2) = 
-        Period.Always |> Period.intersect p1 = Some(p1)
-        && Period.Always |> Period.intersect p2 = Some(p2)
+    let ``Always ∩ p = p`` p = 
+        Period.Always |> Period.intersect p = p
 
     [<Property>]
-    let ``Never ∩ p = None`` (p1, p2) = 
-        Period.Never |> Period.intersect p1 = None
-        && Period.Never |> Period.intersect p2 = None
+    let ``Never ∩ p = Never`` p = 
+        Period.Never |> Period.intersect p = Period.Never
     
     [<Property>]
-    let ``Never ∩ Never = None`` () = 
-        Period.Never |> Period.intersect Period.Never = None
+    let ``Never ∩ Never = Never`` () = 
+        Period.Never |> Period.intersect Period.Never = Period.Never
 
     [<Property>]
-    let ``p ∩ p = p`` (p1, p2) = 
-        p1 |> Period.intersect p1 = Some(p1)
-        && p2 |> Period.intersect p2 = Some(p2) 
+    let ``p ∩ p = p`` p = 
+        p |> Period.intersect p = p
 
-[<Arbitrary(typeof<TestData.TwoRandomPeriods>)>]
+[<Arbitrary(typeof<TestData.RandomPeriod>)>]
 module UnionProperties = 
     
     [<Property>]
     let ``Never ∪ Never = Never``() =
-        Period.Never |> Period.union Period.Never = Some(Period.Never)
+        Period.Never |> Period.union Period.Never = Period.Never
 
     [<Property>]
     let ``Always ∪ Always = Always``()=
-        Period.Always |> Period.union Period.Always = Some(Period.Always)
+        Period.Always |> Period.union Period.Always = Period.Always
 
     [<Property>]
-    let ``Always ∪ P = Always`` (p1,p2) = 
-        Period.Always |> Period.union p1 = Some(Period.Always)
-        && Period.Always |> Period.union p2 = Some(Period.Always)
+    let ``Always ∪ P = Always`` p = 
+        Period.Always |> Period.union p = Period.Always
 
     [<Property>]
-    let ``Never ∪ p = None`` (p1, p2) = 
-        Period.Never |> Period.union p1 = None
-        && Period.Never |> Period.union p2 = None
+    let ``Never ∪ p = None`` p = 
+        Period.Never |> Period.union p = Period.Never
 
     [<Property>]
-    let ``p ∪ p = p`` (p1, p2) = 
-        p1 |> Period.union p1 = Some(p1)
-        && p2 |> Period.union p2 = Some(p2)
+    let ``p ∪ p = p`` p = 
+        p |> Period.union p = p

@@ -9,11 +9,11 @@ let getPeriod d1 d2 =
     { StartDate = minDate
       EndDate = maxDate }
 
-type TwoRandomPeriods = 
+type RandomPeriod = 
     static member Values() = 
         Arb.generate<DateTime>
-        |> Gen.four
-        |> Gen.map (fun (d1, d2, d3, d4) -> (getPeriod d1 d2, getPeriod d3 d4))
+        |> Gen.two
+        |> Gen.map (fun (d1, d2) -> getPeriod d1 d2)
         |> Arb.fromGen
 
 let randomValidPeriodGen = 
