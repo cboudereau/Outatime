@@ -54,9 +54,9 @@
     <Compile Include="PeriodTest.fs" />
     <Compile Include="TestData.fs" />
     <Compile Include="PeriodProperties.fs" />
-    <Compile Include="MergeProperties.fs" />
-    <Compile Include="SplitProperties.fs" />
-    <Compile Include="ViewProperties.fs" />
+    <Compile Include="TemporalMergeProperties.fs" />
+    <Compile Include="TemporalSplitProperties.fs" />
+    <Compile Include="TemporalViewProperties.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FsCheck">

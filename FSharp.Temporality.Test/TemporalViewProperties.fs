@@ -1,4 +1,4 @@
-﻿module ViewProperties
+﻿module TemporalViewProperties
 
 open FsCheck.Xunit
 open Temporality

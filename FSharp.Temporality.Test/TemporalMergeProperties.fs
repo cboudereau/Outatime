@@ -1,4 +1,4 @@
-﻿module MergeProperties
+﻿module TemporalMergeProperties
 
 open FsCheck
 open FsCheck.Xunit

@@ -1,4 +1,4 @@
-﻿module SplitProperties
+﻿module TemporalSplitProperties
 
 open FsCheck
 open FsCheck.Xunit
