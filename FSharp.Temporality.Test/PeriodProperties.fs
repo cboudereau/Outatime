@@ -5,22 +5,9 @@ open FsCheck.Xunit
 
 open Temporality
 
-let getLargestPeriod p1 p2 = 
-    let minStartDate = min p1.StartDate p2.StartDate
-    let maxEndDate = max p1.EndDate p2.EndDate
-    { StartDate = minStartDate
-      EndDate = maxEndDate }
-
 [<Arbitrary(typeof<TestData.TwoRandomPeriods>)>]
 module IntersectProperties =
 
-    [<Property>]
-    let ``max(p1,p2) ∩ p1 = p1, max (p1,p2) ∩ p2 = p2`` (p1, p2) = 
-        let largestPeriod = getLargestPeriod p1 p2
-        match (Period.intersect largestPeriod p1), (Period.intersect largestPeriod p2) with
-        | Some a1, Some a2 -> a1 = p1 && a2 = p2
-        | _ -> false
-    
     [<Property>]
     let ``Always ∩ Always = Always`` () =
         Period.Always |> Period.intersect Period.Always = Some(Period.Always)
@@ -32,9 +19,12 @@ module IntersectProperties =
 
     [<Property>]
     let ``Never ∩ p = None`` (p1, p2) = 
-        match (Period.intersect Period.Never p1), (Period.intersect p2 Period.Never), Period.intersect Period.Never Period.Never with
-        | None, None, None -> true
-        | _ -> false
+        Period.Never |> Period.intersect p1 = None
+        && Period.Never |> Period.intersect p2 = None
+    
+    [<Property>]
+    let ``Never ∩ Never = None`` () = 
+        Period.Never |> Period.intersect Period.Never = None
 
     [<Property>]
     let ``p ∩ p = p`` (p1, p2) = 
