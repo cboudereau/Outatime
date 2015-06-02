@@ -40,7 +40,7 @@ module UnionProperties =
         Period.Always |> Period.union Period.Always = Period.Always
 
     [<Property>]
-    let ``Always ∪ P = Always`` p = 
+    let ``Always ∪ p = Always`` p = 
         Period.Always |> Period.union p = Period.Always
 
     [<Property>]
