@@ -3,22 +3,34 @@
 open FsCheck
 open Temporality
 
-let getPeriod d1 d2 = 
+let getPeriod (d1,d2) = 
     let minDate = min d1 d2
     let maxDate = max d1 d2
     { StartDate = minDate
       EndDate = maxDate }
 
+type EmptyPeriod = 
+    static member Values() =
+        Arb.generate<DateTime>
+        |> Gen.map(fun d -> getPeriod (d,d))
+        |> Arb.fromGen
+
 type RandomPeriod = 
     static member Values() = 
-        Arb.generate<DateTime>
-        |> Gen.two
-        |> Gen.map (fun (d1, d2) -> getPeriod d1 d2)
+        let randomPeriod = 
+            Arb.generate<DateTime>
+            |> Gen.two
+            |> Gen.map (getPeriod)
+        
+        let emptyPeriod = 
+            Arb.generate<DateTime>
+            |> Gen.map(fun d -> getPeriod(d,d))
+
+        Gen.frequency [ (3, randomPeriod); (1, emptyPeriod) ]
         |> Arb.fromGen
 
 let randomValidPeriodGen = 
-    let toPeriod (d1, d2) = getPeriod d1 d2
-    Arb.generate<DateTime * DateTime> |> Gen.map (toPeriod)
+    Arb.generate<DateTime * DateTime> |> Gen.map (getPeriod)
 
 let toTemporaries l = 
     let rec internalToTemporaries s l = 
@@ -100,7 +112,7 @@ type HelloRandomTemporal =
 let randomTemporalGen = 
     Arb.generate<DateTime * DateTime * string>
     |> Gen.map (fun (d1, d2, value) -> 
-           { Period = getPeriod d1 d2
+           { Period = getPeriod (d1, d2)
              Value = value })
     |> Gen.listOf
     |> Gen.map (fun temporaries -> temporaries |> Temporal.toTemporal)

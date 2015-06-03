@@ -37,27 +37,31 @@ module Period =
     [<CompiledName("From")>]
     let from startDate duration = { StartDate = startDate; EndDate = startDate + duration }
 
+    let private maybeContiguous p1 p2 = 
+        let (f,s) = sort p1 p2
+        if f.EndDate >= s.StartDate 
+        then Some (f,s)
+        else None
+
     [<CompiledName("Intersect")>]
     let intersect first second = 
-        let (f, s) = sort first second
-        match f.EndDate >= s.StartDate with
-        | true -> 
+        match maybeContiguous first second with
+        | None -> Period.Never
+        | Some(s, f) -> 
             let startDate = max s.StartDate f.StartDate
             let endDate = min s.EndDate f.EndDate
             { StartDate = startDate
               EndDate = endDate }
-        | false -> Period.Never
     
     [<CompiledName("Union")>]
     let union first second = 
-        let (f, s) = sort first second
-        match f.EndDate >= s.StartDate with
-        | true -> 
+        match maybeContiguous first second with
+        | None -> Period.Never
+        | Some (s, f) -> 
             let startDate = min s.StartDate f.StartDate
             let endDate = max s.EndDate f.EndDate
             { StartDate = startDate
               EndDate = endDate }
-        | false -> Period.Never
 
 type Temporary<'a when 'a : equality> = 
     { Period : Period
