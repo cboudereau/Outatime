@@ -6,12 +6,10 @@ open FsCheck.Xunit
 open Temporality
     
 [<Arbitrary(typeof<TestData.RandomTemporal>)>]
-module RandomTemporaries = 
-
-    let splitPeriod = TimeSpan.forNDays 5
+module SplitTemporaries = 
 
     [<Property>]
-    let ``check that all period are less than split period`` (temporal:Temporal<string>) = 
+    let ``check that all period are less than split period`` (temporal:Temporal<string>) t = 
         (temporal
-        |> Temporal.split splitPeriod).Values
-        |> Seq.forall(fun v -> v.Period.Duration <= splitPeriod)
+        |> Temporal.split t).Values
+        |> Seq.forall(fun v -> v.Period.Duration <= t)

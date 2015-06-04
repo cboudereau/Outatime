@@ -4,7 +4,7 @@ open FsCheck.Xunit
 open Temporality
 
 [<Arbitrary(typeof<TestData.RandomTemporal>)>]
-module RangeProperty = 
+module ViewProperties = 
     [<Property>]
     let ``StartDate of view should be always greater or equal the given viewed startDate period`` period 
         (temporal : Temporal<string>) = 
