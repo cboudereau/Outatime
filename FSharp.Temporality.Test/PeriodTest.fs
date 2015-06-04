@@ -19,7 +19,7 @@ let ``TimeSpan composition test``()=
 let ``Period should be display with math interval notation for half open interval``()=
     let p = { StartDate = jan15 1; EndDate = jan15 2 }
     
-    p.ToString() |> should equal "[1/1/2015 0:00:00, 2/1/2015 0:00:00)" 
+    p.ToString() |> should equal "[01/01/2015 00:00:00, 01/02/2015 00:00:00)" 
 
     Period.Always.ToString() |> should equal "Always"
     Period.Never.ToString() |> should equal "Never"

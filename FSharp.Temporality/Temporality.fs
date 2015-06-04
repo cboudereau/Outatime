@@ -23,10 +23,12 @@ type Period =
     static member Never = { StartDate = DateTime.MinValue; EndDate = DateTime.MinValue }
 
     override this.ToString() = 
+        let datef (d:DateTime) = d.ToString(System.Globalization.CultureInfo.InvariantCulture)
+        
         match this with
         | p when p = Period.Always -> sprintf "Always"
         | p when p = Period.Never -> sprintf "Never"
-        | p -> sprintf "[%A, %A)" p.StartDate p.EndDate
+        | p -> sprintf "[%s, %s)" (datef p.StartDate) (datef p.EndDate)
 
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module Period = 
@@ -126,3 +128,4 @@ module Temporal =
                 | [] -> yield! []
             }
         internalMerge temporal.Values |> toTemporal
+

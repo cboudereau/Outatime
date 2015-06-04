@@ -8,7 +8,7 @@ open Temporality
 [<Arbitrary(typeof<TestData.RandomTemporal>)>]
 module SplitTemporaries = 
 
-    let splitPeriod = TimeSpan.forNDays 5
+    let splitPeriod = System.TimeSpan.FromDays(5.)
 
     [<Property>]
     let ``check that all period are less than split period`` (temporal:Temporal<string>) = 
