@@ -16,7 +16,7 @@ type EmptyPeriod =
         |> Arb.fromGen
 
 type RandomPeriod = 
-    static member Values() = 
+    static member Gen() = 
         let randomPeriod = 
             Arb.generate<DateTime>
             |> Gen.two
@@ -27,6 +27,9 @@ type RandomPeriod =
             |> Gen.map(fun d -> getPeriod(d,d))
 
         Gen.frequency [ (3, randomPeriod); (1, emptyPeriod) ]
+        
+    static member Values() = 
+        RandomPeriod.Gen()
         |> Arb.fromGen
 
 let randomValidPeriodGen = 
@@ -43,6 +46,8 @@ let toTemporaries l =
             | [] -> yield! []
         }
     internalToTemporaries DateTime.MinValue l
+
+let toTemporal l = toTemporaries l |> Temporal.toTemporal
 
 let validTimeSpanGen = 
     Gen.choose (int (TimeSpan.forNever.TotalMilliseconds), int (TimeSpan.forEver.TotalMilliseconds / 150000.)) 
@@ -80,6 +85,30 @@ type NoOverlapTemporaries =
         |> Gen.listOf
         |> Gen.map (toTemporaries)
         |> Arb.fromGen
+
+type RandomTemporal = 
+    static member Gen() =
+        let emptyTemporal = 
+            [ gen { return [] |> Temporal.toTemporal } ]
+            |> Gen.oneof
+        
+        let overlapHelloTemporal = 
+            Gen.map(fun p -> { Period = p; Value = "Hello" }) (RandomPeriod.Gen())
+            |> Gen.listOf
+            |> Gen.map(fun temporaries -> temporaries |> Temporal.toTemporal)
+        let noOverlapTemporal = 
+            [ 1, gen { return "Hello" }
+              2, gen { return "World" } ]
+            |> Gen.frequency 
+            |> Gen.map (fun value -> (value, TimeSpan.FromDays(1.)))
+            |> Gen.listOf
+            |> Gen.map (toTemporal)
+
+        [ emptyTemporal
+          overlapHelloTemporal
+          noOverlapTemporal ]
+        |> Gen.oneof
+    static member Values() = RandomTemporal.Gen() |> Arb.fromGen
 
 type HelloValidRepresentableTemporal = 
     static member Values() = singleValueContiguousTemporalGen "hello" |> Arb.fromGen
