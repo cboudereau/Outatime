@@ -1,6 +1,4 @@
-# FSharp.Temporality
-
-[![Build status](https://ci.appveyor.com/api/projects/status/ejj6vrx6x69aojey?svg=true)](https://ci.appveyor.com/project/cboudereau/fsharp-temporality)
+# FSharp.Temporality [![Build status](https://ci.appveyor.com/api/projects/status/ejj6vrx6x69aojey?svg=true)](https://ci.appveyor.com/project/cboudereau/fsharp-temporality)
 
 You have values depending time and you have to find the right way to merge same values and group them into the largest period?
 FSharp.Temporality is your friend by supplying : 
