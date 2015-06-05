@@ -93,6 +93,7 @@ type Temporal<'a when 'a : equality> =
     { Values: Temporary<'a> list }
 
 module Temporal = 
+    [<CompiledName("ToTemporal")>]
     let toTemporal temporaries = 
         let sortedTemporaries = 
             temporaries
@@ -101,11 +102,13 @@ module Temporal =
             |> Seq.toList
         { Values = sortedTemporaries }
     
-    let view period temporal = 
+    [<CompiledName("View")>]
+    let view<'a when 'a : equality> (period:'a -> Period) (temporal:Temporal<'a>) = 
         temporal.Values
-        |> Seq.map(fun t -> { t with Period = t.Period |> Period.intersect period })
+        |> Seq.map(fun t -> { t with Period = t.Period |> Period.intersect (period t.Value) })
         |> toTemporal
 
+    [<CompiledName("Split")>]
     let split length temporal = 
         let rec internalSplit temporary = 
             seq { 
@@ -119,6 +122,7 @@ module Temporal =
         |> Seq.collect internalSplit
         |> toTemporal
     
+    [<CompiledName("Merge")>]
     let merge temporal = 
         let rec internalMerge temporaries = 
             seq { 
@@ -133,4 +137,3 @@ module Temporal =
                 | [] -> yield! []
             }
         internalMerge temporal.Values |> toTemporal
-
