@@ -21,12 +21,12 @@ let ``Period should be display with math interval notation for half open interva
     
     p.ToString() |> should equal "[01/01/2015 00:00:00, 01/02/2015 00:00:00)" 
 
-    Period.Always.ToString() |> should equal "Always"
-    Period.Never.ToString() |> should equal "Never"
+    Period.Infinite.ToString() |> should equal "Infinite"
+    (Period.Empty (DateTime(2015,1,1))).ToString() |> should equal "Empty"
 
 [<Fact>]
 let ``Temporary should be displayed same as Period``()=
-    let t = { Period = Period.Always; Value = "Hello" }
+    let t = { Period = Period.Infinite; Value = "Hello" }
 
-    t.ToString() |> should equal @"Always : ""Hello"""
+    t.ToString() |> should equal @"Infinite : ""Hello"""
 

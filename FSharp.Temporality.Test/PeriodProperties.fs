@@ -5,24 +5,28 @@ open FsCheck.Xunit
 
 open Temporality
 
+let jan15 d = DateTime(2015,1,d)
+let empty = Period.Empty (jan15 1)
+
 [<Arbitrary(typeof<TestData.RandomPeriod>)>]
 module IntersectProperties =
+    [<Property>]
+    let ``Infinite ∩ Infinite = Infinite`` () =
+        Period.Infinite |> Period.intersect Period.Infinite = Period.Infinite
 
     [<Property>]
-    let ``Always ∩ Always = Always`` () =
-        Period.Always |> Period.intersect Period.Always = Period.Always
+    let ``Infinite ∩ p = p`` p = 
+        Period.Infinite |> Period.intersect p = p
 
     [<Property>]
-    let ``Always ∩ p = p`` p = 
-        Period.Always |> Period.intersect p = p
-
-    [<Property>]
-    let ``Never ∩ p = Never`` p = 
-        Period.Never |> Period.intersect p = Period.Never
+    let ``Empty ∩ p = Empty`` p = 
+        match empty |> Period.intersect p with
+        | Period.Empty _ -> true
+        | _ -> false
     
     [<Property>]
-    let ``Never ∩ Never = Never`` () = 
-        Period.Never |> Period.intersect Period.Never = Period.Never
+    let ``Empty ∩ Empty = Empty`` () = 
+        empty |> Period.intersect empty = empty
 
     [<Property>]
     let ``p ∩ p = p`` p = 
@@ -30,28 +34,22 @@ module IntersectProperties =
 
     [<Property>]
     let ``p1 ∩ p2 ∪ p1 = p1`` p1 p2 =
-        match Period.intersect p1 p2 with
-        | i when i = Period.Never -> Period.union p1 i = Period.Never
-        | i -> Period.union i p1 = p1
+        Period.intersect p1 p2 |> Period.union p1 = p1
 
 [<Arbitrary(typeof<TestData.RandomPeriod>)>]
 module UnionProperties = 
     
     [<Property>]
-    let ``Never ∪ Never = Never``() =
-        Period.Never |> Period.union Period.Never = Period.Never
+    let ``empty ∪ empty = empty``() =
+        empty |> Period.union empty = empty
 
     [<Property>]
-    let ``Always ∪ Always = Always``()=
-        Period.Always |> Period.union Period.Always = Period.Always
+    let ``Infinite ∪ Infinite = Infinite``()=
+        Period.Infinite |> Period.union Period.Infinite = Period.Infinite
 
     [<Property>]
-    let ``Always ∪ p = Always`` p = 
-        Period.Always |> Period.union p = Period.Always
-
-    [<Property>]
-    let ``Never ∪ p = Never`` p = 
-        Period.Never |> Period.union p = Period.Never
+    let ``Infinite ∪ p = Infinite`` p = 
+        Period.Infinite |> Period.union p = Period.Infinite
 
     [<Property>]
     let ``p ∪ p = p`` p = 
@@ -60,5 +58,5 @@ module UnionProperties =
     [<Property>]
     let ``p1 ∪ p2 ∩ p1 = p1`` p1 p2 = 
         match Period.union p1 p2 with
-        | u when u = Period.Never -> Period.intersect p1 p2 = Period.Never
+        | Period.Empty u -> Period.intersect p1 p2 = u
         | u -> Period.intersect u p1 = p1

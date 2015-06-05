@@ -19,19 +19,25 @@ type Period =
     { StartDate : DateTime
       EndDate : DateTime }
     member this.Duration = (this.EndDate - this.StartDate)
-    static member Always = { StartDate = DateTime.MinValue; EndDate = DateTime.MaxValue }
-    static member Never = { StartDate = DateTime.MinValue; EndDate = DateTime.MinValue }
+    static member Infinite = { StartDate = DateTime.MinValue; EndDate = DateTime.MaxValue }
+    static member Empty d = { StartDate = d; EndDate = d }
+
+    static member isInfinite (p:Period) = p.Duration >= TimeSpan.forEver 
+    static member isEmpty (p:Period) = p.Duration = TimeSpan.forNever
 
     override this.ToString() = 
         let datef (d:DateTime) = d.ToString(System.Globalization.CultureInfo.InvariantCulture)
         
         match this with
-        | p when p = Period.Always -> sprintf "Always"
-        | p when p = Period.Never -> sprintf "Never"
+        | p when Period.isInfinite p -> sprintf "Infinite"
+        | p when Period.isEmpty p -> sprintf "Empty"
         | p -> sprintf "[%s, %s)" (datef p.StartDate) (datef p.EndDate)
 
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module Period = 
+    let (|Infinite|_|) p = if Period.isInfinite p then Some p else None
+    let (|Empty|_|) p = if Period.isEmpty p then Some p else None
+    
     let private sort first second = 
         if first.StartDate <= second.StartDate then (first, second)
         else (second, first)
@@ -48,7 +54,7 @@ module Period =
     [<CompiledName("Intersect")>]
     let intersect first second = 
         match maybeContiguous first second with
-        | None -> Period.Never
+        | None -> Period.Empty first.EndDate
         | Some(s, f) -> 
             let startDate = max s.StartDate f.StartDate
             let endDate = min s.EndDate f.EndDate
@@ -58,7 +64,7 @@ module Period =
     [<CompiledName("Union")>]
     let union first second = 
         match maybeContiguous first second with
-        | None -> Period.Never
+        | None -> Period.Empty first.EndDate
         | Some (s, f) -> 
             let startDate = min s.StartDate f.StartDate
             let endDate = max s.EndDate f.EndDate
@@ -74,14 +80,14 @@ module Temporary =
     [<CompiledName("Intersect")>]
     let intersect first second = 
         match first.Value = second.Value, first.Period |> Period.intersect second.Period with
-        | true, p when p <> Period.Never -> Some { first with Period = p }
-        | _ -> None
+        | _, Period.Empty _ | false, _ -> None
+        | true, p -> Some { first with Period = p }
     
     [<CompiledName("Union")>]
     let union first second = 
         match first.Value = second.Value, Period.union first.Period second.Period with
-        | true, p when p <> Period.Never -> Some { first with Period = p }
-        | _ -> None
+        | _, Period.Empty _ | false, _ -> None
+        | true, p -> Some { first with Period = p }
 
 type Temporal<'a when 'a : equality> = 
     { Values: Temporary<'a> list }
@@ -91,14 +97,13 @@ module Temporal =
         let sortedTemporaries = 
             temporaries
             |> Seq.sortBy (fun t -> t.Period.StartDate)
+            |> Seq.filter (fun t -> t.Period |> Period.isEmpty |> not)
             |> Seq.toList
         { Values = sortedTemporaries }
     
     let view period temporal = 
         temporal.Values
-        |> Seq.map(fun t -> (t.Period |> Period.intersect period, t))
-        |> Seq.filter(fun (o, _) -> o <> Period.Never)
-        |> Seq.map(fun (p, t) -> { t with Period = p })
+        |> Seq.map(fun t -> { t with Period = t.Period |> Period.intersect period })
         |> toTemporal
 
     let split length temporal = 

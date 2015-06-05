@@ -11,6 +11,14 @@ let getPeriod (d1,d2) =
 
 type RandomPeriod = 
     static member Gen() = 
+        let beginingPeriod = 
+            Arb.generate<DateTime>
+            |> Gen.map (fun d -> getPeriod(DateTime.MinValue, d))
+
+        let endingPeriod = 
+            Arb.generate<DateTime>
+            |> Gen.map (fun d -> getPeriod(d, DateTime.MaxValue))
+
         let randomPeriod = 
             Arb.generate<DateTime>
             |> Gen.two
@@ -20,7 +28,11 @@ type RandomPeriod =
             Arb.generate<DateTime>
             |> Gen.map(fun d -> getPeriod(d,d))
 
-        Gen.frequency [ (3, randomPeriod); (1, emptyPeriod) ]
+        [ (3, randomPeriod)
+          (1, emptyPeriod)
+          (1, beginingPeriod)
+          (1, endingPeriod) ]
+        |> Gen.frequency 
         
     static member Values() = 
         RandomPeriod.Gen()

@@ -42,7 +42,7 @@ module Merge =
             let twiceNotEqualValue group = 
                 match group with
                 | t1:Temporary<string> :: t2 :: tail -> 
-                    t1.Value <> t2.Value || (t1.Period |> Period.intersect t2.Period = Period.Never)
+                    t1.Value <> t2.Value || (t1.Period |> Period.intersect t2.Period |> Period.isEmpty)
                 | [_] | [] -> true
             
             mergedTemporal.Values 
