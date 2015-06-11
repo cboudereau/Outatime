@@ -21,16 +21,14 @@ type Period =
     member this.Duration = (this.EndDate - this.StartDate)
     static member Infinite = { StartDate = DateTime.MinValue; EndDate = DateTime.MaxValue }
     static member Empty d = { StartDate = d; EndDate = d }
-
-    static member isInfinite (p:Period) = p.Duration >= TimeSpan.forEver 
+    static member isInfinite (p:Period) = p = Period.Infinite
     static member isEmpty (p:Period) = p.Duration = TimeSpan.forNever
 
     override this.ToString() = 
         let datef (d:DateTime) = d.ToString(System.Globalization.CultureInfo.InvariantCulture)
-        
         match this with
         | p when Period.isInfinite p -> sprintf "Infinite"
-        | p when Period.isEmpty p -> sprintf "Empty"
+        | p when Period.isEmpty p -> sprintf "Empty %s" (datef p.StartDate)
         | p -> sprintf "[%s, %s)" (datef p.StartDate) (datef p.EndDate)
 
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
@@ -71,7 +69,7 @@ module Period =
             { StartDate = startDate
               EndDate = endDate }
 
-type Temporary<'a when 'a : equality> = 
+type Temporary<'a> = 
     { Period : Period
       Value : 'a }
     override this.ToString() = sprintf "%O : %A" this.Period this.Value
@@ -102,6 +100,8 @@ module Temporal =
             |> Seq.toList
         { Values = sortedTemporaries }
     
+    let temporaries temporal = temporal.Values
+
     [<CompiledName("View")>]
     let view<'a when 'a : equality> (period:'a -> Period) (temporal:Temporal<'a>) = 
         temporal.Values
@@ -137,3 +137,17 @@ module Temporal =
                 | [] -> yield! []
             }
         internalMerge temporal.Values |> toTemporal
+
+    [<CompiledName("Zip")>]
+    let zip (t1, t2) = 
+        let periods t = t.Values |> Seq.map(fun t -> t.Period)
+
+        t1.Values
+        |> Seq.collect(
+            fun first -> 
+                let p _ = first.Period
+                let zipFirst second = { Period = second.Period; Value = (first.Value, second.Value) }
+                t2 |> view p
+                |> temporaries
+                |> Seq.map(zipFirst))
+        |> toTemporal

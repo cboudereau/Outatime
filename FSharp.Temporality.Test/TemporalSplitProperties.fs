@@ -5,7 +5,7 @@ open FsCheck.Xunit
 
 open Temporality
     
-[<Arbitrary(typeof<TestData.RandomTemporal>)>]
+[<Arbitrary(typeof<TestData.RandomStringTemporal>)>]
 module SplitTemporaries = 
 
     let splitPeriod = System.TimeSpan.FromDays(1000.)

@@ -52,7 +52,7 @@ let toTemporaries l =
 
 let toTemporal l = toTemporaries l |> Temporal.toTemporal
 
-type RandomTemporal = 
+type RandomStringTemporal = 
     static member Gen() =
         let emptyTemporal = 
             [ gen { return [] |> Temporal.toTemporal } ]
@@ -62,6 +62,7 @@ type RandomTemporal =
             Gen.map(fun p -> { Period = p; Value = "Hello" }) (RandomPeriod.Gen())
             |> Gen.listOf
             |> Gen.map(fun temporaries -> temporaries |> Temporal.toTemporal)
+        
         let noOverlapTemporal = 
             [ 1, gen { return "Hello" }
               2, gen { return "World" } ]
@@ -74,4 +75,18 @@ type RandomTemporal =
           overlapHelloTemporal
           noOverlapTemporal ]
         |> Gen.oneof
-    static member Values() = RandomTemporal.Gen() |> Arb.fromGen
+    static member Values() = RandomStringTemporal.Gen() |> Arb.fromGen
+
+type RandomTemporal = 
+    static member Gen<'a when 'a:equality>() = 
+        Arb.from<'a>.Generator     
+        |> Gen.map(fun value -> (value, TimeSpan.FromDays(1.)))
+        |> Gen.listOf
+        |> Gen.map(toTemporal)
+
+type TupleRandomTemporal = 
+    static member Values = 
+        let stringT = RandomTemporal.Gen<string>()
+        let boolT = RandomTemporal.Gen<bool>()
+        Gen.map2(fun t1 t2 -> (t1,t2)) stringT boolT
+        |> Arb.fromGen
