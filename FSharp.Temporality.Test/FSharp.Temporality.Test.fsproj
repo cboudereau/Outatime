@@ -59,8 +59,8 @@
     <Compile Include="TemporalMergeProperties.fs" />
     <Compile Include="TemporalSplitProperties.fs" />
     <Compile Include="TemporalViewProperties.fs" />
-    <Compile Include="TemporalZipTest.fs" />
     <Compile Include="TemporalZipProperties.fs" />
+    <Compile Include="TemporalZipTest.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FsCheck">
