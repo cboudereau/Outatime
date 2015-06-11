@@ -140,8 +140,6 @@ module Temporal =
 
     [<CompiledName("Zip")>]
     let zip (t1, t2) = 
-        let periods t = t.Values |> Seq.map(fun t -> t.Period)
-
         t1.Values
         |> Seq.collect(
             fun first -> 
