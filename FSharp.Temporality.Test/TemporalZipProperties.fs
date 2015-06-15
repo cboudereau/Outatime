@@ -18,7 +18,7 @@ module TestWithRandom =
             | Some _ -> true
             | None -> false
         
-        let anyIntersect temporary temporal = 
+        let anyIntersect temporal temporary = 
             let intersectWithGivenTemporary = intersectWith temporary
             temporal
             |> Temporal.temporaries
@@ -28,7 +28,7 @@ module TestWithRandom =
         let intersectWithGivenTemporals temporary = 
             let (s,b) = temporary.Value
             let toTemporary v = { Period = temporary.Period; Value = v }
-            let anyIntersectWithTemporary t v = anyIntersect (v |> toTemporary) t
+            let anyIntersectWithTemporary t v = v |> toTemporary |> anyIntersect t
             anyIntersectWithTemporary t1 s
             && anyIntersectWithTemporary t2 b
 

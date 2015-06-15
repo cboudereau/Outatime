@@ -108,6 +108,9 @@ module Temporal =
         |> Seq.map(fun t -> { t with Period = t.Period |> Period.intersect (period t.Value) })
         |> toTemporal
 
+    [<CompiledName("Clamp")>]
+    let clamp<'a when 'a : equality> period temporal = view<'a> (fun _ -> period) temporal
+
     [<CompiledName("Split")>]
     let split length temporal = 
         let rec internalSplit temporary = 
