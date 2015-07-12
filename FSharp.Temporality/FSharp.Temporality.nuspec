@@ -4,11 +4,11 @@
    <id>$id$</id>
    <version>$version$</version>
    <title>$id$</title>
-   <authors>$author$</authors>
-   <owners>$author$</owners>
+   <authors>@cboudereau</authors>
+   <owners>@cboudereau</owners>
    <projectUrl>https://github.com/cboudereau/FSharp.Temporality</projectUrl>
    <requireLicenseAcceptance>false</requireLicenseAcceptance>
-   <description>$description$</description>
+   <description>Intersect Values on Time Period</description>
    <summary>When you have to deal with price, restrictions or all kind of value changing over time, it become difficult to reduce the amount of data of your API if you don't have a strategy to merge the values.</summary>
    <releaseNotes>https://github.com/cboudereau/FSharp.Temporality/blob/master/README.md</releaseNotes>
    <copyright>Copyright 2015</copyright>
