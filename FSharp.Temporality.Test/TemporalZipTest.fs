@@ -27,7 +27,3 @@ let ``poc zip temporal``()=
     (temporal1,temporal2) 
     |> Temporal.zip
     |> should equal expected
-
-
-
-

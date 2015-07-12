@@ -1,0 +1,17 @@
+﻿<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+ <metadata>
+   <id>$id$</id>
+   <version>$version$</version>
+   <title>$id$</title>
+   <authors>$author$</authors>
+   <owners>$author$</owners>
+   <projectUrl>https://github.com/cboudereau/FSharp.Temporality</projectUrl>
+   <requireLicenseAcceptance>false</requireLicenseAcceptance>
+   <description>$description$</description>
+   <summary>When you have to deal with price, restrictions or all kind of value changing over time, it become difficult to reduce the amount of data of your API if you don't have a strategy to merge the values.</summary>
+   <releaseNotes>https://github.com/cboudereau/FSharp.Temporality/blob/master/README.md</releaseNotes>
+   <copyright>Copyright 2015</copyright>
+   <tags>FSharp F# Temporality</tags>
+ </metadata>
+</package>

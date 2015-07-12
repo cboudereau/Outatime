@@ -146,9 +146,8 @@ module Temporal =
         t1.Values
         |> Seq.collect(
             fun first -> 
-                let p _ = first.Period
-                let zipFirst second = { Period = second.Period; Value = (first.Value, second.Value) }
-                t2 |> view p
+                let clampFirst second = { Period = second.Period; Value = (first.Value, second.Value) }
+                t2 |> clamp first.Period
                 |> temporaries
-                |> Seq.map(zipFirst))
+                |> Seq.map(clampFirst))
         |> toTemporal
