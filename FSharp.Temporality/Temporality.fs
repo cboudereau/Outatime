@@ -40,8 +40,11 @@ module Period =
         if first.StartDate <= second.StartDate then (first, second)
         else (second, first)
     
+    [<CompiledName("FromDuration")>]
+    let fromDuration startDate duration = { StartDate = startDate; EndDate = startDate + duration }
+
     [<CompiledName("From")>]
-    let from startDate duration = { StartDate = startDate; EndDate = startDate + duration }
+    let from startDate endDate = { StartDate = startDate; EndDate = endDate }
 
     let private maybeContiguous p1 p2 = 
         let (f,s) = sort p1 p2

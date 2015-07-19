@@ -29,17 +29,19 @@ When value are equals and period intersects, then the temporary is merged and nu
 
 	let shouldEqual = should equal
 
+	let jan15 n = (DateTime(2015,1,n))
+
 	[<Xunit.Fact>]
 	let ``simple merge test``()=
 		Given 
-			[ TimeSpan.forNDays 1 |> Period.from (DateTime(2015,1,1)) |> Temporary.create "Hello"
-			  TimeSpan.forNDays 3 |> Period.from (DateTime(2015,1,2)) |> Temporary.create "Hello"
-			  TimeSpan.forNDays 5 |> Period.from (DateTime(2015,1,5)) |> Temporary.create "World"
-			  TimeSpan.forNDays 10 |> Period.from (DateTime(2015,1,10)) |> Temporary.create "World" ]
+			[ Period.from (jan15 01) (jan15 02) |> Temporary.create "Hello"
+			  Period.from (jan15 02) (jan15 05) |> Temporary.create "Hello"
+			  Period.from (jan15 05) (jan15 10) |> Temporary.create "World"
+			  Period.from (jan15 10) (jan15 20) |> Temporary.create "World" ]
 		|> When Temporal.merge
 		|> Then shouldEqual
-			[ TimeSpan.forNDays 4 |> Period.from (DateTime(2015,1,1)) |> Temporary.create "Hello"
-			  TimeSpan.forNDays 15 |> Period.from (DateTime(2015,1,5)) |> Temporary.create "World" ]
+			[ Period.from (jan15 01) (jan15 05) |> Temporary.create "Hello"
+			  Period.from (jan15 05) (jan15 20) |> Temporary.create "World" ]
 	```
 
 ### Split
