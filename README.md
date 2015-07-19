@@ -13,7 +13,7 @@ To build a temporal : just create a Temporary list and then call the Temporal.to
 ### Merge
 When value are equals and period intersects, then the temporary is merged and number of temporaries on a temporal decrease. Eg Given a value "toto" on Given periods 01/01 -> 02/01; 02/01 -> 03/01, then the corresponding merge is "toto" on Given periods 01/01 -> 03/01. Sample : https://github.com/cboudereau/FSharp.Temporality/blob/master/FSharp.Temporality.Test/TemporalMergeProperties.fs
 
-	``fsharp
+	```fsharp
 	open Temporality
 	open FsUnit.Xunit
 
