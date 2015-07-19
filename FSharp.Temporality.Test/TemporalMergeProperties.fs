@@ -6,6 +6,8 @@ open FsCheck.Xunit
 open Temporality
 open FsUnit.Xunit
 
+open System
+
 let Given v = v
 let When f v = 
     v 
@@ -28,7 +30,7 @@ let ``simple merge test``()=
     |> When Temporal.merge
     |> Then shouldEqual
         [ TimeSpan.forNDays 4 |> Period.from (DateTime(2015,1,1)) |> Temporary.create "Hello"
-          TimeSpan.forNDays 10 |> Period.from (DateTime(2015,1,5)) |> Temporary.create "World" ]
+          TimeSpan.forNDays 15 |> Period.from (DateTime(2015,1,5)) |> Temporary.create "World" ]
 
 
 [<Arbitrary(typeof<TestData.RandomStringTemporal>)>]
