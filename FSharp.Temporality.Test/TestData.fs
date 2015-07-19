@@ -43,8 +43,7 @@ let toTemporaries l =
         seq { 
             match l with
             | (value, duration) :: tail -> 
-                yield { Period = Period.from s duration
-                        Value = value }
+                yield Period.from s duration |> Temporary.create value
                 yield! internalToTemporaries (s + duration) tail
             | [] -> yield! []
         }

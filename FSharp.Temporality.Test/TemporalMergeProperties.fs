@@ -4,6 +4,32 @@ open FsCheck
 open FsCheck.Xunit
 
 open Temporality
+open FsUnit.Xunit
+
+let Given v = v
+let When f v = 
+    v 
+    |> Temporal.toTemporal 
+    |> f 
+    |> Temporal.temporaries
+
+let Then check expected actual = 
+    check (expected |> Temporal.toTemporal |> Temporal.temporaries) actual
+
+let shouldEqual = should equal
+
+[<Xunit.Fact>]
+let ``simple merge test``()=
+    Given 
+        [ TimeSpan.forNDays 1 |> Period.from (DateTime(2015,1,1)) |> Temporary.create "Hello"
+          TimeSpan.forNDays 3 |> Period.from (DateTime(2015,1,2)) |> Temporary.create "Hello"
+          TimeSpan.forNDays 5 |> Period.from (DateTime(2015,1,5)) |> Temporary.create "World"
+          TimeSpan.forNDays 10 |> Period.from (DateTime(2015,1,10)) |> Temporary.create "World" ]
+    |> When Temporal.merge
+    |> Then shouldEqual
+        [ TimeSpan.forNDays 4 |> Period.from (DateTime(2015,1,1)) |> Temporary.create "Hello"
+          TimeSpan.forNDays 10 |> Period.from (DateTime(2015,1,5)) |> Temporary.create "World" ]
+
 
 [<Arbitrary(typeof<TestData.RandomStringTemporal>)>]
 module Merge =

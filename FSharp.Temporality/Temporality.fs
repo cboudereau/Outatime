@@ -75,6 +75,9 @@ type Temporary<'a> =
     override this.ToString() = sprintf "%O : %A" this.Period this.Value
 
 module Temporary = 
+    [<CompiledName("Create")>]
+    let create value period = { Period = period; Value = value }
+    
     [<CompiledName("Intersect")>]
     let intersect first second = 
         match first.Value = second.Value, first.Period |> Period.intersect second.Period with
