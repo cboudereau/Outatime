@@ -1,6 +1,6 @@
 # FSharp.Temporality [![Build status](https://ci.appveyor.com/api/projects/status/ejj6vrx6x69aojey?svg=true)](https://ci.appveyor.com/project/cboudereau/fsharp-temporality)
 
-When you have to deal with price, restrictions or all kind of value changing over the time, it becomes difficult to reduce the amount of data of your API If you don't have a strategy to merge the values.
+	When you have to deal with price, restrictions or all kind of value changing over the time, it becomes difficult to reduce the amount of data of your API If you don't have a strategy to merge the values.
 
 ## Maths at Rescue! What are the common value over the time to avoid data repetition
 	FSharp.Temporality has differents principles in order to have the correct design and algorithms : 
