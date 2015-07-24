@@ -20,68 +20,68 @@ To build a temporal : just create a Temporary list and then call the Temporal.to
 ### Merge
 When value are equals and period intersects, then the temporary is merged and number of temporaries on a temporal decrease. Eg Given a value "toto" on Given periods 01/01 -> 02/01; 02/01 -> 03/01, then the corresponding merge is "toto" on Given periods 01/01 -> 03/01. Sample : https://github.com/cboudereau/FSharp.Temporality/blob/master/FSharp.Temporality.Test/TemporalMergeProperties.fs
 
-	```FSharp
-	open Temporality
-	open FsUnit.Xunit
+```fsharp
+open Temporality
+open FsUnit.Xunit
 
-	let Given v = v
-	let When f v = 
-		v 
-		|> Temporal.toTemporal 
-		|> f 
-		|> Temporal.temporaries
+let Given v = v
+let When f v = 
+	v 
+	|> Temporal.toTemporal 
+	|> f 
+	|> Temporal.temporaries
 
-	let Then check expected actual = 
-		check (expected |> Temporal.toTemporal |> Temporal.temporaries) actual
+let Then check expected actual = 
+	check (expected |> Temporal.toTemporal |> Temporal.temporaries) actual
 
-	let shouldEqual = should equal
+let shouldEqual = should equal
 
-	let jan15 n = (DateTime(2015,1,n))
+let jan15 n = (DateTime(2015,1,n))
 
-	[<Xunit.Fact>]
-	let ``simple merge test``()=
-		Given 
-			[ Period.from (jan15 01) (jan15 02) |> Temporary.create "Hello"
-			  Period.from (jan15 02) (jan15 05) |> Temporary.create "Hello"
-			  Period.from (jan15 05) (jan15 10) |> Temporary.create "World"
-			  Period.from (jan15 10) (jan15 20) |> Temporary.create "World" ]
-		|> When Temporal.merge
-		|> Then shouldEqual
-			[ Period.from (jan15 01) (jan15 05) |> Temporary.create "Hello"
-			  Period.from (jan15 05) (jan15 20) |> Temporary.create "World" ]
-	```
+[<Xunit.Fact>]
+let ``simple merge test``()=
+	Given 
+		[ Period.from (jan15 01) (jan15 02) |> Temporary.create "Hello"
+		  Period.from (jan15 02) (jan15 05) |> Temporary.create "Hello"
+		  Period.from (jan15 05) (jan15 10) |> Temporary.create "World"
+		  Period.from (jan15 10) (jan15 20) |> Temporary.create "World" ]
+	|> When Temporal.merge
+	|> Then shouldEqual
+		[ Period.from (jan15 01) (jan15 05) |> Temporary.create "Hello"
+		  Period.from (jan15 05) (jan15 20) |> Temporary.create "World" ]
+```
 
 ### Split
 When need to crop to a period.. Sample : https://github.com/cboudereau/FSharp.Temporality/blob/master/FSharp.Temporality.Test/TemporalSplitProperties.fs
 
-	```FSharp
-		
-	open FsUnit.Xunit
-	open Temporality
+```fsharp
+	
+open FsUnit.Xunit
+open Temporality
 
-	let Given v = v
-	let When f v = 
-		v 
-		|> Temporal.toTemporal 
-		|> f 
-		|> Temporal.temporaries
+let Given v = v
+let When f v = 
+	v 
+	|> Temporal.toTemporal 
+	|> f 
+	|> Temporal.temporaries
 
-	let Then check expected actual = 
-		check (expected |> Temporal.toTemporal |> Temporal.temporaries) actual
+let Then check expected actual = 
+	check (expected |> Temporal.toTemporal |> Temporal.temporaries) actual
 
-	let shouldEqual = should equal
+let shouldEqual = should equal
 
-	let jan15 n = (DateTime(2015,1,n))
+let jan15 n = (DateTime(2015,1,n))
 
-	[<Xunit.Fact>]
-	let ``simple split test``()=
-		Given 
-			[ Period.from (jan15 01) (jan15 11) |> Temporary.create "HelloWorld" ]
-		|> When (TimeSpan.FromDays(5.) |> Temporal.split)
-		|> Then shouldEqual
-			[ Period.from (jan15 01) (jan15 06) |> Temporary.create "HelloWorld"
-			  Period.from (jan15 06) (jan15 11) |> Temporary.create "HelloWorld" ]
-	```
+[<Xunit.Fact>]
+let ``simple split test``()=
+	Given 
+		[ Period.from (jan15 01) (jan15 11) |> Temporary.create "HelloWorld" ]
+	|> When (TimeSpan.FromDays(5.) |> Temporal.split)
+	|> Then shouldEqual
+		[ Period.from (jan15 01) (jan15 06) |> Temporary.create "HelloWorld"
+		  Period.from (jan15 06) (jan15 11) |> Temporary.create "HelloWorld" ]
+```
 	
 ### View
 Given a period and get the corresponding temporaries. period = f(value). https://github.com/cboudereau/FSharp.Temporality/blob/master/FSharp.Temporality.Test/TemporalViewProperties.fs
