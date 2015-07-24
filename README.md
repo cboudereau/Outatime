@@ -3,10 +3,17 @@
 When you have to deal with price, restrictions or all kind of values changing over the time, it becomes difficult to reduce the amount of data of your API If you don't have a strategy to merge the values.
 
 ## Maths at Rescue! What are the common value over the time to avoid data repetition
-FSharp.Temporality has differents principles in order to have the correct design and algorithms : 
-Period based on Mathematics Interval applied to Date with a Start Date and an End Date. The Interval is Half Open, then the period from 01/01 to 02/01 has one day duration.
-Temporary : Is the value at a Period
-Temporal : Is the scope of temporaries and the unit of work of all algorithm. Temporals represent all the values over all periods.
+FSharp.Temporality has differents principles in order to have the correct design and algorithms :
+ 
+### Period 
+Based on Mathematics Interval applied to Date with a Start Date and an End Date. The Interval is Half Open, then the period from 01/01 to 02/01 has one day duration.
+
+### Temporary
+Is the value at a Period
+
+### Temporal
+Is the scope of temporaries and the unit of work of all algorithm. Temporals represent all the values over all periods.
+
 To build a temporal : just create a Temporary list and then call the Temporal.toTemporal
  
 ## Features
