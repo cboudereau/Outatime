@@ -26,13 +26,13 @@ open FsUnit.Xunit
 
 let Given v = v
 let When f v = 
-	v 
-	|> Temporal.toTemporal 
-	|> f 
-	|> Temporal.temporaries
+    v 
+    |> Temporal.toTemporal 
+    |> f 
+    |> Temporal.temporaries
 
 let Then check expected actual = 
-	check (expected |> Temporal.toTemporal |> Temporal.temporaries) actual
+    check (expected |> Temporal.toTemporal |> Temporal.temporaries) actual
 
 let shouldEqual = should equal
 
@@ -40,34 +40,33 @@ let jan15 n = (DateTime(2015,1,n))
 
 [<Xunit.Fact>]
 let ``simple merge test``()=
-	Given 
-		[ Period.from (jan15 01) (jan15 02) |> Temporary.create "Hello"
-		  Period.from (jan15 02) (jan15 05) |> Temporary.create "Hello"
-		  Period.from (jan15 05) (jan15 10) |> Temporary.create "World"
-		  Period.from (jan15 10) (jan15 20) |> Temporary.create "World" ]
-	|> When Temporal.merge
-	|> Then shouldEqual
-		[ Period.from (jan15 01) (jan15 05) |> Temporary.create "Hello"
-		  Period.from (jan15 05) (jan15 20) |> Temporary.create "World" ]
+    Given 
+        [ jan15 01 ==> jan15 02 := "Hello"
+          jan15 02 ==> jan15 05 := "Hello"
+          jan15 05 ==> jan15 10 := "World"
+          jan15 10 ==> jan15 20 := "World" ]
+    |> When Temporal.merge
+    |> Then shouldEqual
+        [ jan15 01 ==> jan15 05 := "Hello"
+          jan15 05 ==> jan15 20 := "World" ]
 ```
 
 ### Split
 When need to crop to a period.. Sample : https://github.com/cboudereau/FSharp.Temporality/blob/master/FSharp.Temporality.Test/TemporalSplitProperties.fs
 
 ```fsharp
-	
 open FsUnit.Xunit
 open Temporality
 
 let Given v = v
 let When f v = 
-	v 
-	|> Temporal.toTemporal 
-	|> f 
-	|> Temporal.temporaries
+    v 
+    |> Temporal.toTemporal 
+    |> f 
+    |> Temporal.temporaries
 
 let Then check expected actual = 
-	check (expected |> Temporal.toTemporal |> Temporal.temporaries) actual
+    check (expected |> Temporal.toTemporal |> Temporal.temporaries) actual
 
 let shouldEqual = should equal
 
@@ -75,12 +74,12 @@ let jan15 n = (DateTime(2015,1,n))
 
 [<Xunit.Fact>]
 let ``simple split test``()=
-	Given 
-		[ Period.from (jan15 01) (jan15 11) |> Temporary.create "HelloWorld" ]
-	|> When (TimeSpan.FromDays(5.) |> Temporal.split)
-	|> Then shouldEqual
-		[ Period.from (jan15 01) (jan15 06) |> Temporary.create "HelloWorld"
-		  Period.from (jan15 06) (jan15 11) |> Temporary.create "HelloWorld" ]
+    Given 
+        [ jan15 01 ==> jan15 11 := "HelloWorld" ]
+    |> When (TimeSpan.FromDays(5.) |> Temporal.split)
+    |> Then shouldEqual
+        [ jan15 01 ==> jan15 06 := "HelloWorld"
+          jan15 06 ==> jan15 11 := "HelloWorld" ]
 ```
 	
 ### View

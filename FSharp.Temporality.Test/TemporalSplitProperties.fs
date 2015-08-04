@@ -23,11 +23,11 @@ let jan15 n = (DateTime(2015,1,n))
 [<Xunit.Fact>]
 let ``simple split test``()=
     Given 
-        [ Period.from (jan15 01) (jan15 11) |> Temporary.create "HelloWorld" ]
+        [ jan15 01 ==> jan15 11 := "HelloWorld" ]
     |> When (TimeSpan.FromDays(5.) |> Temporal.split)
     |> Then shouldEqual
-        [ Period.from (jan15 01) (jan15 06) |> Temporary.create "HelloWorld"
-          Period.from (jan15 06) (jan15 11) |> Temporary.create "HelloWorld" ]
+        [ jan15 01 ==> jan15 06 := "HelloWorld"
+          jan15 06 ==> jan15 11 := "HelloWorld" ]
     
 [<Arbitrary(typeof<TestData.RandomStringTemporal>)>]
 module SplitTemporaries = 
