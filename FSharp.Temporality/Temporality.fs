@@ -151,7 +151,7 @@ module Temporal =
         internalMerge temporal.Values |> toTemporal
 
     [<CompiledName("Zip")>]
-    let zip (t1, t2) = 
+    let zip t1 t2 = 
         t1.Values
         |> Seq.collect(
             fun first -> 

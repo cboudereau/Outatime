@@ -9,8 +9,8 @@ module TestWithRandom =
     let ``Given (t1, t2) zipped then the values should intersect with any t1.Values and t2.Values``(t1:Temporal<string>, t2:Temporal<bool>) =
 
         let zipped = 
-            (t1,t2)
-            |> Temporal.zip
+            t2
+            |> Temporal.zip t1
             |> Temporal.temporaries
         
         let intersectWith t1 t2 = 

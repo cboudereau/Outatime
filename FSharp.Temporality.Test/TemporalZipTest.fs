@@ -7,7 +7,7 @@ open Temporality
 let jan15 day = DateTime(2015, 01, day)
 
 [<Fact>]
-let ``poc zip temporal``()= 
+let ``zip temporal``()= 
     let temporal1 = 
         [ { Period = { StartDate = jan15 1; EndDate = jan15 2 }; Value = "hello" }
           { Period = { StartDate = jan15 2; EndDate = jan15 5 }; Value = "world" } ]
@@ -24,6 +24,6 @@ let ``poc zip temporal``()=
           { Period = { StartDate = jan15 3; EndDate = jan15 5 }; Value = ("world", false) } ]
         |> Temporal.toTemporal
 
-    (temporal1,temporal2) 
-    |> Temporal.zip
+    temporal2
+    |> Temporal.zip temporal1
     |> should equal expected
