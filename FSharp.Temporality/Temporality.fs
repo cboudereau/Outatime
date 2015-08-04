@@ -93,6 +93,9 @@ module Temporary =
         | _, Period.Empty _ | false, _ -> None
         | true, p -> Some { first with Period = p }
 
+let (==>) startDate endDate = { StartDate = startDate; EndDate = endDate }
+let (:=) period value = { Period = period; Value = value }
+
 type Temporal<'a when 'a : equality> = 
     { Values: Temporary<'a> list }
 
