@@ -5,18 +5,7 @@ open FsCheck.Xunit
 
 open FsUnit.Xunit
 open Temporality
-
-let Given v = v
-let When f v = 
-    v 
-    |> Temporal.toTemporal 
-    |> f 
-    |> Temporal.temporaries
-
-let Then check expected actual = 
-    check (expected |> Temporal.toTemporal |> Temporal.temporaries) actual
-
-let shouldEqual = should equal
+open Bdd
 
 let jan15 n = (DateTime(2015,1,n))
 

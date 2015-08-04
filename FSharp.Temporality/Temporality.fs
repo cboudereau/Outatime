@@ -150,6 +150,24 @@ module Temporal =
             }
         internalMerge temporal.Values |> toTemporal
 
+    [<CompiledName("ToContiguous")>]
+    let toContiguous temporal = 
+        let rec contiguous temporaries = 
+            seq {
+                match temporaries with
+                | t1 :: t2 :: tail ->
+                    yield t1.Period := Some t1.Value
+                    if(t2.Period |> Period.intersect t1.Period |> Period.isEmpty) 
+                    then yield t1.Period.EndDate ==> t2.Period.StartDate := None
+                    yield! contiguous (t2 :: tail)
+                | [t1] -> yield t1.Period := Some t1.Value
+                | [] -> yield! []
+            }
+        temporal.Values
+        |> contiguous
+        |> toTemporal
+        
+
     [<CompiledName("Zip")>]
     let zip t1 t2 = 
         t1.Values
