@@ -23,14 +23,14 @@ let jan15 n = (DateTime(2015,1,n))
 [<Xunit.Fact>]
 let ``simple merge test``()=
     Given 
-        [ Period.from (jan15 01) (jan15 02) |> Temporary.create "Hello"
-          Period.from (jan15 02) (jan15 05) |> Temporary.create "Hello"
-          Period.from (jan15 05) (jan15 10) |> Temporary.create "World"
-          Period.from (jan15 10) (jan15 20) |> Temporary.create "World" ]
+        [ jan15 01 ==> jan15 02 := "Hello"
+          jan15 02 ==> jan15 05 := "Hello"
+          jan15 05 ==> jan15 10 := "World"
+          jan15 10 ==> jan15 20 := "World" ]
     |> When Temporal.merge
     |> Then shouldEqual
-        [ Period.from (jan15 01) (jan15 05) |> Temporary.create "Hello"
-          Period.from (jan15 05) (jan15 20) |> Temporary.create "World" ]
+        [ jan15 01 ==> jan15 05 := "Hello"
+          jan15 05 ==> jan15 20 := "World" ]
 
 [<Arbitrary(typeof<TestData.RandomStringTemporal>)>]
 module Merge =
@@ -52,7 +52,7 @@ module Merge =
                     match Temporary.union t1 t2 with
                     | Some _ -> true
                     | None -> internalUnion (t2 :: tail)
-                | [t1] -> false
+                | [_] -> false
                 | [] -> false
             
             internalUnion (temporaries |> Seq.toList)

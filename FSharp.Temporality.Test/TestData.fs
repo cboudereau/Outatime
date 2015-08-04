@@ -6,8 +6,7 @@ open Temporality
 let getPeriod (d1,d2) = 
     let minDate = min d1 d2
     let maxDate = max d1 d2
-    { StartDate = minDate
-      EndDate = maxDate }
+    minDate ==> maxDate
 
 type RandomPeriod = 
     static member Gen() = 
@@ -43,7 +42,7 @@ let toTemporaries l =
         seq { 
             match l with
             | (value, duration) :: tail -> 
-                yield Period.fromDuration s duration |> Temporary.create value
+                yield Period.fromDuration s duration := value
                 yield! internalToTemporaries (s + duration) tail
             | [] -> yield! []
         }
