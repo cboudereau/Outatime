@@ -1,6 +1,5 @@
 ﻿module PeriodProperties
 
-open FsCheck
 open FsCheck.Xunit
 
 open Temporality
