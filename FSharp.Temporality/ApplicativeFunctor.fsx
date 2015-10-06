@@ -26,13 +26,6 @@ type Period =
             | true, _ | _, false -> None
             | _ -> Some i       
          
-        let intersect_old p1 p2 = 
-            if p1.endDate >= p2.startDate 
-            then 
-                { startDate = max p1.startDate p2.startDate
-                  endDate = min p1.endDate p2.endDate }
-                |> Some
-            else None
         Period.sort intersect p1 p2
 
     static member union p1 p2 = 
