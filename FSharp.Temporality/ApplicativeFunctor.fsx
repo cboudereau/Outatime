@@ -30,12 +30,14 @@ type Period =
 
     static member union p1 p2 = 
         let union p1 p2 = 
-            if p1.endDate >= p2.startDate
-            then 
+            let u =
                 { startDate = min p1.startDate p2.startDate
                   endDate = max p1.endDate p2.endDate }
-                |> Some
-            else None
+            
+            match u.startDate = u.endDate, p1.endDate >= p2.startDate with
+            | true, _ | _, false -> None
+            | _ -> Some u
+        
         Period.sort union p1 p2
 
 type Temporary<'a> = 
@@ -204,7 +206,9 @@ price
 //map and apply
 let actual2 = 
     availability
-    <!> [ jan15 4 => jan15 5 := false; jan15 5 => jan15 20 := true ]
+    <!> [ jan15 4 => jan15 4 := false 
+          jan15 4 => jan15 5 := false
+          jan15 5 => jan15 20 := true ]
     <*> [ jan15 2 => jan15 15 := false
           jan15 15 => jan15 16 := true
           jan15 16 => jan15 18 := false
