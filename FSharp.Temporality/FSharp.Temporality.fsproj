@@ -41,6 +41,7 @@
   <ItemGroup>
     <Compile Include="Temporality.fs" />
     <None Include="FSharp.Temporality.nuspec" />
+    <None Include="ApplicativeFunctor.fsx" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.Core">
