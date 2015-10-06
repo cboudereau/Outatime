@@ -3,10 +3,10 @@
 open FsCheck
 open Temporality
 
-let getPeriod (d1,d2) = 
+let getPeriod (d1, d2) = 
     let minDate = min d1 d2
     let maxDate = max d1 d2
-    minDate ==> maxDate
+    minDate => maxDate
 
 type RandomPeriod = 
     static member Gen() = 
@@ -42,13 +42,13 @@ let toTemporaries l =
         seq { 
             match l with
             | (value, duration) :: tail -> 
-                yield Period.fromDuration s duration := value
+                yield  s => s + duration := value
                 yield! internalToTemporaries (s + duration) tail
             | [] -> yield! []
         }
     internalToTemporaries DateTime.MinValue l
 
-let toTemporal l = toTemporaries l |> Temporal.toTemporal
+let toTemporal l = toTemporaries l |> Seq.toList
 
 type RandomTemporal = 
     static member Gen<'a when 'a:equality>() = 
@@ -63,13 +63,13 @@ type RandomTemporal =
 type RandomStringTemporal = 
     static member Gen() =
         let emptyTemporal = 
-            [ gen { return [] |> Temporal.toTemporal } ]
+            [ gen { return [] } ]
             |> Gen.oneof
         
         let overlapHelloTemporal = 
-            Gen.map(fun p -> { Period = p; Value = "Hello" }) (RandomPeriod.Gen())
+            Gen.map(fun p -> p := "Hello") (RandomPeriod.Gen())
             |> Gen.listOf
-            |> Gen.map(fun temporaries -> temporaries |> Temporal.toTemporal)
+            |> Gen.map(fun temporaries -> temporaries)
         
         let noOverlapTemporal = 
             let daysGen = Gen.choose(0, 1000)
