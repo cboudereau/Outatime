@@ -213,5 +213,5 @@ let actual2 =
 actual2 |> print
 
 actual2 
-|> clamp (jan15 4 => jan15 5)
+|> clamp (jan15 3 => jan15 7)
 |> print
