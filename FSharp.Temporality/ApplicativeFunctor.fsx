@@ -17,7 +17,16 @@ type Period =
         else f p2 p1
 
     static member intersect p1 p2 = 
-        let intersect p1 p2 = 
+        let intersect p1 p2 =
+            let i =                 
+                { startDate = max p1.startDate p2.startDate
+                  endDate = min p1.endDate p2.endDate }
+
+            match i.startDate = i.endDate, p1.endDate >= p2.startDate with
+            | true, _ | _, false -> None
+            | _ -> Some i       
+         
+        let intersect_old p1 p2 = 
             if p1.endDate >= p2.startDate 
             then 
                 { startDate = max p1.startDate p2.startDate
@@ -49,6 +58,15 @@ let (:=) period value = { period=period; value=value }
 
 let sort temporaries = temporaries |> Seq.sortBy (fun t -> t.period.startDate)
 let option t = { period=t.period; value = Some t.value }
+
+let clamp period temporaries = 
+    
+    let clamp state temporary = 
+        match Period.intersect period temporary.period with
+        | Some i -> seq { yield! state; yield { period=i; value=temporary.value } }
+        | None -> state
+
+    temporaries |> Seq.fold clamp Seq.empty
 
 let split length temporaries = 
     let rec split t = 
@@ -200,3 +218,7 @@ let actual2 =
           jan15 18 => jan15 23 := true ]
     <*> [ jan15 1 => jan15 22 := 120m ]
 actual2 |> print
+
+actual2 
+|> clamp (jan15 4 => jan15 5)
+|> print
