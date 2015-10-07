@@ -28,17 +28,6 @@ module IntersectProperties =
         | Some u when u = p -> true
         | _ -> false
 
-    [<Property>]
-    let ``p1 ∩ p2 ∪ p1 = p1`` p1 p2 =
-        match Period.intersect p1 p2 with
-        | None when Period.isEmpty p1  -> true
-        | None when Period.isEmpty p2 -> true
-        | Some i -> 
-            match Period.union i p1 with
-            | Some u -> u = p1
-            | None -> false
-        | _ -> true
-
 [<Arbitrary(typeof<TestData.RandomPeriod>)>]
 module UnionProperties = 
     

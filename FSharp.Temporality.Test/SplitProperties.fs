@@ -1,9 +1,6 @@
-﻿module TemporalSplitProperties
+﻿module SplitProperties
 
-open FsCheck
 open FsCheck.Xunit
-
-open FsUnit.Xunit
 open Temporality
 open Bdd
 

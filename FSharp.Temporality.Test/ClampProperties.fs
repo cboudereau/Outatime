@@ -4,7 +4,7 @@ open FsCheck.Xunit
 open Temporality
 
 [<Arbitrary(typeof<TestData.RandomStringTemporal>)>]
-module ViewProperties = 
+module ClampProperties = 
     [<Property>]
     let ``StartDate of view should be always greater or equal the given viewed startDate period`` period (temporaries : string Temporary list) = 
         let windowedTemporal = temporaries |> Temporality.clamp period
