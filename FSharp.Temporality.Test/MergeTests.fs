@@ -58,3 +58,18 @@ let ``given temporaries with overlap on endDate expect a merged temporary``()=
     |> Expect
         [ jan15 01 => jan15 05 := "Hello"
           jan15 06 => jan15 10 := "World" ]
+
+[<Fact>]
+let ``given temporaries with empty period when merge expect temporaries without empty``()=
+    When ``I want to merge temporaries``
+    |> With
+        [ jan15 01 => jan15 01 := "Hello"
+          jan15 01 => jan15 03 := "Hello"
+          jan15 04 => jan15 05 := "Hello"
+          jan15 06 => jan15 10 := "World" ]
+    |> Expect
+        [ jan15 01 => jan15 03 := "Hello"
+          jan15 04 => jan15 05 := "Hello"
+          jan15 06 => jan15 10 := "World" ]
+        
+         
