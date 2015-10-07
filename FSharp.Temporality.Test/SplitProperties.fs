@@ -2,16 +2,26 @@
 
 open FsCheck.Xunit
 open Temporality
+open Xunit
 open Bdd
 
 let jan15 n = (DateTime(2015,1,n))
+let days n = TimeSpan.FromDays(float n)
 
-[<Xunit.Fact>]
+let ``I want to split temporaries`` days temporaries = Temporality.split days temporaries |> Seq.toList
+let ``five days`` = days 5
+
+let add a b = a+b
+
+[<Fact>]
+let ``simple add``() = When add |> With 1 |> And 2 |> Expect 3
+
+[<Fact>]
 let ``simple split test``()=
-    Given 
-        [ jan15 01 => jan15 11 := "HelloWorld" ]
-    |> When (TimeSpan.FromDays(5.) |> Temporality.split)
-    |> Then shouldEqual
+    When ``I want to split temporaries`` 
+    |> For ``five days``
+    |> With [ jan15 01 => jan15 11 := "HelloWorld" ]
+    |> Expect
         [ jan15 01 => jan15 06 := "HelloWorld"
           jan15 06 => jan15 11 := "HelloWorld" ]
     
