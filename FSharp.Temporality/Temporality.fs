@@ -102,7 +102,8 @@ let contiguousO temporaries =
                 | Some _ -> seq { yield current }
                 | None -> 
                     seq{
-                        yield { period={startDate=previous.period.endDate; endDate=current.period.startDate};value=None }
+                        let period = { startDate=previous.period.endDate; endDate=current.period.startDate }
+                        if Period.isEmpty period |> not then yield { period=period;value=None }
                         yield current
                     }
         defaulted, Some current
