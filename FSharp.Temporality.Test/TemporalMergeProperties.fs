@@ -26,7 +26,7 @@ let ``simple merge test``()=
 module Merge =
     
     [<Property>]
-    let ``grouped temporary value can't be unioned`` (temporaries : string Temporary seq) =
+    let ``grouped temporary value can't be unioned`` (temporaries : string Temporary list) =
         let actual = (temporaries |> Temporality.merge)
 
         let groups = 
@@ -50,7 +50,7 @@ module Merge =
         groups |> List.forall(not << union)
 
     [<Property>]
-    let ``temporal with same Hello value is the union`` (temporaries:string Temporary seq) =
+    let ``temporal with same Hello value is the union`` (temporaries:string Temporary list) =
         let mergedTemporal = temporaries |> Temporality.merge
 
         if(temporaries |> Seq.length = 0) 

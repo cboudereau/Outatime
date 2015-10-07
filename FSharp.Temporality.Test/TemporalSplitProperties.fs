@@ -24,7 +24,7 @@ module SplitTemporaries =
     let splitPeriod = System.TimeSpan.FromDays(1000.)
 
     [<Property>]
-    let ``check that all period are less than split period`` (temporaries:string Temporary seq) = 
+    let ``check that all period are less than split period`` (temporaries:string Temporary list) = 
         temporaries
         |> Temporality.split splitPeriod
         |> Seq.forall(fun v -> v.period |> Period.duration <= splitPeriod)

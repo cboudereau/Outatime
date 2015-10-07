@@ -15,22 +15,36 @@ module IntersectProperties =
 
     [<Property>]
     let ``Infinite ∩ p = p`` p = 
-        Period.infinite |> Period.intersect p = Some p
+        
+        match Period.infinite |> Period.intersect p with
+        | None when Period.isEmpty p -> true
+        | Some i when i = p -> true
+        | _ -> false
 
     [<Property>]
     let ``p ∩ p = p`` p = 
-        p |> Period.intersect p = Some p
+        match p |> Period.intersect p with
+        | None when Period.isEmpty p -> true
+        | Some u when u = p -> true
+        | _ -> false
 
     [<Property>]
     let ``p1 ∩ p2 ∪ p1 = p1`` p1 p2 =
-        (Period.intersect p1 p2).Value |> Period.union p1 = (Some p1)
+        match Period.intersect p1 p2 with
+        | None when Period.isEmpty p1  -> true
+        | None when Period.isEmpty p2 -> true
+        | Some i -> 
+            match Period.union i p1 with
+            | Some u -> u = p1
+            | None -> false
+        | _ -> true
 
 [<Arbitrary(typeof<TestData.RandomPeriod>)>]
 module UnionProperties = 
     
     [<Property>]
-    let ``empty ∪ empty = empty``() =
-        empty |> Period.union empty = Some empty
+    let ``empty ∪ empty = None``() =
+        empty |> Period.union empty = None
 
     [<Property>]
     let ``Infinite ∪ Infinite = Infinite``()=
@@ -42,11 +56,7 @@ module UnionProperties =
 
     [<Property>]
     let ``p ∪ p = p`` p = 
-        p |> Period.union p = Some p
-
-    [<Property>]
-    let ``p1 ∪ p2 ∩ p1 = p1`` p1 p2 = 
-        match Period.union p1 p2 with
-        | Some u when u.startDate = u.endDate -> Period.intersect p1 p2 = Some u
-        | Some u -> Period.intersect u p1 = Some p1
-        | None -> false
+        match p |> Period.union p with
+        | None when Period.isEmpty p -> true
+        | Some u when u = p -> true
+        | _ -> false

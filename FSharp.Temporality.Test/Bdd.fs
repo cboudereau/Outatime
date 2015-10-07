@@ -3,7 +3,7 @@ open Temporality
 open FsUnit.Xunit
 
 let Given v = v
-let When f v = v |> f 
+let When f v = v |> f |> Seq.toList
 
 let Then check expected = 
     check expected
