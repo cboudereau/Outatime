@@ -21,7 +21,7 @@ type RateAvailability =
     | Opened of Rate
 
 [<Fact>]
-let ``given multiple temporaries, when apply a function on this expect applied function on any intersection``()=
+let ``given multiple temporaries, when apply a function on this temporaries then expect applied function on any intersection``()=
     let ``project temporaries to rate availability domain`` opening departure availability price = 
         match opening with
         | (Opening.Opened) -> RateAvailability.Opened { departure=departure; availability=availability; price=price }
@@ -30,7 +30,7 @@ let ``given multiple temporaries, when apply a function on this expect applied f
     let ``transform temporaries into request`` temporaries = 
         let request t = 
             match t.value with
-            | None -> sprintf "%O = No Request" t.period
+            | None -> sprintf "%O = No Request (May be put a state monad here)" t.period
             | Some Closed -> sprintf "%O = Closed" t.period
             | Some (Opened rate) -> 
                 let (Availability a) = rate.availability
@@ -61,10 +61,10 @@ let ``given multiple temporaries, when apply a function on this expect applied f
         <*> [ jan15 1  => jan15 22 := Price 120m ]
         |> ``transform temporaries into request``
     |> Expect 
-        [ "[2015/01/02; 2015/01/04[ = No Request"
+        [ "[2015/01/02; 2015/01/04[ = No Request (May be put a state monad here)"
           "[2015/01/04; 2015/01/05[ = Opened with 10 of availibility at 120.00 price and opened to departure"
           "[2015/01/05; 2015/01/15[ = Closed"
-          "[2015/01/15; 2015/01/16[ = No Request"
+          "[2015/01/15; 2015/01/16[ = No Request (May be put a state monad here)"
           "[2015/01/16; 2015/01/18[ = Closed"
           "[2015/01/18; 2015/01/20[ = Closed"
-          "[2015/01/20; 2015/01/22[ = No Request" ]
+          "[2015/01/20; 2015/01/22[ = No Request (May be put a state monad here)" ]
