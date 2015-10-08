@@ -1,6 +1,5 @@
 ﻿module SplitProperties
 
-open FsCheck.Xunit
 open Temporality
 open Xunit
 open Bdd
@@ -19,6 +18,8 @@ let ``given temporaries for a large period when split for n days expect temporar
     |> Expect
         [ jan15 01 => jan15 06 := "HelloWorld"
           jan15 06 => jan15 11 := "HelloWorld" ]
+
+open FsCheck.Xunit
     
 [<Arbitrary(typeof<TestData.RandomStringTemporal>)>]
 module SplitTemporaries = 
