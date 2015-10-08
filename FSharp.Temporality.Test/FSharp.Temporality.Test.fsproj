@@ -50,9 +50,9 @@
   </Choose>
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
-    <Compile Include="AssemblyInfo.fs" />
-    <Content Include="packages.config" />
     <Content Include="app.config" />
+    <Content Include="packages.config" />
+    <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Bdd.fs" />
     <Compile Include="TestData.fs" />
     <Compile Include="ClampProperties.fs" />
@@ -94,6 +94,8 @@
       <HintPath>..\packages\xunit.1.9.2\lib\net20\xunit.dll</HintPath>
       <Private>True</Private>
     </Reference>
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\FSharp.Temporality\FSharp.Temporality.fsproj">
       <Name>FSharp.Temporality</Name>
       <Project>{5b9fba10-9e8f-4cf0-9c00-dfe1011f0d90}</Project>
