@@ -71,6 +71,11 @@ let option temporaries =
     let option t = { period=t.period; value = Some t.value } 
     temporaries |> Seq.map option
 
+let onlySome temporaries =
+    temporaries
+    |> Seq.filter(fun t -> Option.isSome t.value)
+    |> Seq.map(fun t -> t.value.Value)
+
 let clamp period temporaries = 
     
     let clamp state temporary = 
@@ -140,7 +145,9 @@ let merge temporaries =
 
     let union t1 t2 = 
         match t1.value = t2.value, Period.union t1.period t2.period with
-        | false, _ | _, None -> None
+        | false, _ 
+        | _, None -> None
+        | true, Some p when p |> Period.isEmpty -> None
         | true, Some p -> Some { period=p; value=t1.value }
 
     let rec merge temporaries = 
