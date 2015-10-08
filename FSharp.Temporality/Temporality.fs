@@ -67,7 +67,9 @@ let (=>) startDate endDate =
 let (:=) period value = { period=period; value=value }
 
 let sort temporaries = temporaries |> Seq.sortBy (fun t -> t.period.startDate)
-let option t = { period=t.period; value = Some t.value }
+let option temporaries = 
+    let option t = { period=t.period; value = Some t.value } 
+    temporaries |> Seq.map option
 
 let clamp period temporaries = 
     
@@ -112,7 +114,7 @@ let contiguousO temporaries =
     |> fst
     |> Seq.collect it
 
-let contiguous temporaries = temporaries |> Seq.map option |> contiguousO 
+let contiguous temporaries = temporaries |> option |> contiguousO 
 
 let defaultToNoneO temporaries = 
     let foreverO temporaries = 
@@ -132,7 +134,7 @@ let defaultToNoneO temporaries =
 
     temporaries |> contiguousO |> foreverO
 
-let defaultToNone temporaries = temporaries |> Seq.map option |> defaultToNoneO
+let defaultToNone temporaries = temporaries |> option |> defaultToNoneO
 
 let merge temporaries = 
 
