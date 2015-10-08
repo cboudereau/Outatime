@@ -1,4 +1,4 @@
-﻿module TemporaryTests
+﻿module SortTests
 
 open Bdd
 open Xunit

@@ -65,3 +65,9 @@ let ``given overlaped temporaries when default to none expect option overlaped t
           jan15 05 => jan15 10 := Some "World"
           jan15 10 => jan15 20 := Some "World"
           jan15 20 => end' := None ]
+
+[<Fact>]
+let ``given empty temporaries when default to none expect None for ever``()=
+    When ``I want to default missings with None``
+    |> With []
+    |> Expect [ begin' => end' := None ] 

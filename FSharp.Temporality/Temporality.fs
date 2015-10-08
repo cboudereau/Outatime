@@ -114,24 +114,23 @@ let contiguousO temporaries =
 
 let contiguous temporaries = temporaries |> Seq.map option |> contiguousO 
 
-let foreverO temporaries = 
-    match temporaries |> Seq.toList with
-    | [] -> { period={ startDate = DateTime.MinValue; endDate=DateTime.MaxValue}; value=None } |> Seq.singleton
-    | temporaries ->
-        seq{
-            let head = temporaries |> Seq.head
-            let last = temporaries |> Seq.last
+let defaultToNoneO temporaries = 
+    let foreverO temporaries = 
+        match temporaries |> Seq.toList with
+        | [] -> { period={ startDate = DateTime.MinValue; endDate=DateTime.MaxValue}; value=None } |> Seq.singleton
+        | temporaries ->
+            seq{
+                let head = temporaries |> Seq.head
+                let last = temporaries |> Seq.last
 
-            if head.period.startDate <> DateTime.MinValue 
-            then yield { period={ startDate=DateTime.MinValue; endDate=head.period.startDate }; value=None }
-            yield! temporaries
-            if last.period.endDate <> DateTime.MaxValue
-            then yield { period={ startDate=last.period.endDate; endDate=DateTime.MaxValue }; value=None }
-        }
+                if head.period.startDate <> DateTime.MinValue 
+                then yield { period={ startDate=DateTime.MinValue; endDate=head.period.startDate }; value=None }
+                yield! temporaries
+                if last.period.endDate <> DateTime.MaxValue
+                then yield { period={ startDate=last.period.endDate; endDate=DateTime.MaxValue }; value=None }
+            }
 
-let forever temporaries = temporaries |> Seq.map option |> foreverO
-
-let defaultToNoneO temporaries = temporaries |> contiguousO |> foreverO
+    temporaries |> contiguousO |> foreverO
 
 let defaultToNone temporaries = temporaries |> Seq.map option |> defaultToNoneO
 

@@ -63,7 +63,7 @@
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Bdd.fs" />
     <Compile Include="PeriodTests.fs" />
-    <Compile Include="TemporaryTests.fs" />
+    <Compile Include="SortTests.fs" />
     <Compile Include="TestData.fs" />
     <Compile Include="ClampProperties.fs" />
     <Compile Include="DefaultToNoneTests.fs" />
