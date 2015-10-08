@@ -7,6 +7,15 @@ open Temporality
 let jan15 n = DateTime(2015, 1, n)
 
 [<Fact>]
+let ``TimeSpan composition test``()=
+    When TimeSpan.forEver + TimeSpan.forNever |> Expect TimeSpan.forEver
+    When TimeSpan.forEver - TimeSpan.forNever |> Expect TimeSpan.forEver
+    When TimeSpan.forNever - TimeSpan.forNever |> Expect TimeSpan.forNever
+    When TimeSpan.forNever + TimeSpan.forNever |> Expect TimeSpan.forNever
+
+    When DateTime.MaxValue - DateTime.MinValue |> Expect TimeSpan.forEver
+
+[<Fact>]
 let ``timespan facilities tests``()=
     When TimeSpan.forNever
     |> Expect TimeSpan.Zero
