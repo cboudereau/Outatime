@@ -70,6 +70,7 @@
     <Compile Include="MergeTests.fs" />
     <Compile Include="PeriodProperties.fs" />
     <Compile Include="SplitProperties.fs" />
+    <Compile Include="ApplicativeFunctorTests.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FsCheck">
