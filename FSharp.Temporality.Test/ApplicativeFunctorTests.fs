@@ -22,16 +22,21 @@ type RateAvailability =
 
 [<Fact>]
 let ``given multiple temporaries, when apply a function on this temporaries then expect applied function on any intersection``()=
-    let ``project temporaries to rate availability domain`` opening departure availability price = 
+    let ``transform temporaries to rate availability domain`` opening departure availability price = 
         match opening with
-        | (Opening.Opened) -> RateAvailability.Opened { departure=departure; availability=availability; price=price }
-        | (Opening.Closed) -> RateAvailability.Closed
+        | (Opening.Opened) -> 
+            RateAvailability.Opened 
+                { departure=departure; availability=availability; price=price }
+        | (Opening.Closed) -> 
+            RateAvailability.Closed
 
     let ``transform temporaries into request`` temporaries = 
         let request t = 
             match t.value with
-            | None -> sprintf "%O = No Request (May be put a state monad here)" t.period
-            | Some Closed -> sprintf "%O = Closed" t.period
+            | None -> 
+                sprintf "%O = No Request (May be put a state monad here)" t.period
+            | Some Closed -> 
+                sprintf "%O = Closed" t.period
             | Some (Opened rate) -> 
                 let (Availability a) = rate.availability
                 let (Price p) = rate.price
@@ -48,7 +53,7 @@ let ``given multiple temporaries, when apply a function on this temporaries then
         |> Seq.toList
 
     When
-        ``project temporaries to rate availability domain``
+        ``transform temporaries to rate availability domain``
         <!> [ jan15 4  => jan15 5  := Opening.Opened
               jan15 5  => jan15 20 := Opening.Closed ]
 
