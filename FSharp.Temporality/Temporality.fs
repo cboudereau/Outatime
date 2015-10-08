@@ -176,7 +176,7 @@ let apply tfs tvs =
             match Period.intersect tf.period tv.period, tf.value, tv.value with
             | Some i, Some f, Some v -> { period=i; value = Some (f v) } |> Seq.singleton
             | Some i, Some _, _ 
-            | Some i, None, Some _ -> { period=i; value = None } |> Seq.singleton
+            | Some i, _, Some _ -> { period=i; value = None } |> Seq.singleton
             | _ -> Seq.empty
 
         sortedv |> Seq.collect intersect
