@@ -6,13 +6,9 @@ type TimeSpan = System.TimeSpan
 
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module TimeSpan = 
-    [<CompiledName("ForNDays")>]
     let forNDays n = TimeSpan.FromDays(float n)
-    [<CompiledName("ForOneDay")>]
     let forOneDay = forNDays 1
-    [<CompiledName("ForNever")>]
     let forNever = TimeSpan.Zero
-    [<CompiledName("ForEver")>]
     let forEver = DateTime.MaxValue - DateTime.MinValue
 
 type Period = 
@@ -70,11 +66,6 @@ let sort temporaries = temporaries |> Seq.sortBy (fun t -> t.period.startDate)
 let option temporaries = 
     let option t = { period=t.period; value = Some t.value } 
     temporaries |> Seq.map option
-
-let onlySome temporaries =
-    temporaries
-    |> Seq.filter(fun t -> Option.isSome t.value)
-    |> Seq.map(fun t -> t.value.Value)
 
 let clamp period temporaries = 
     
