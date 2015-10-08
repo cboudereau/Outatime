@@ -47,18 +47,7 @@ let toTemporaries l =
             | [] -> yield! []
         }
     internalToTemporaries DateTime.MinValue l
-
-let toTemporal l = toTemporaries l |> Seq.toList
-
-type RandomTemporal = 
-    static member Gen<'a when 'a:equality>() = 
-        let daysArb = Gen.choose (0, 1000)
-        let toValueDays days value = (value, TimeSpan.FromDays(float days))
-
-        Arb.from<'a>.Generator     
-        |> Gen.map2 toValueDays daysArb
-        |> Gen.listOf
-        |> Gen.map(toTemporal)
+    |> Seq.toList
 
 type RandomStringTemporal = 
     static member Gen() =
@@ -79,17 +68,10 @@ type RandomStringTemporal =
             |> Gen.frequency 
             |> Gen.map2 (fun days value -> (value, TimeSpan.FromDays(float days))) daysGen
             |> Gen.listOf
-            |> Gen.map (toTemporal)
+            |> Gen.map (toTemporaries)
 
         [ emptyTemporal
           overlapHelloTemporal
           noOverlapTemporal ]
         |> Gen.oneof
     static member Values() = RandomStringTemporal.Gen() |> Arb.fromGen
-
-type TupleRandomTemporal = 
-    static member Values = 
-        let stringT = RandomTemporal.Gen<string>()
-        let boolT = RandomTemporal.Gen<bool>()
-        Gen.map2(fun t1 t2 -> (t1,t2)) stringT boolT
-        |> Arb.fromGen

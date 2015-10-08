@@ -11,13 +11,8 @@ let days n = TimeSpan.FromDays(float n)
 let ``I want to split temporaries`` days temporaries = Temporality.split days temporaries |> Seq.toList
 let ``five days`` = days 5
 
-let add a b = a+b
-
 [<Fact>]
-let ``simple add``() = When add |> With 1 |> And 2 |> Expect 3
-
-[<Fact>]
-let ``simple split test``()=
+let ``given temporaries for a large period when split for n days expect temporary with n day max period length``()=
     When ``I want to split temporaries`` 
     |> For ``five days``
     |> With [ jan15 01 => jan15 11 := "HelloWorld" ]
