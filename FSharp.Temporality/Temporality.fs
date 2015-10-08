@@ -147,7 +147,6 @@ let merge temporaries =
         match t1.value = t2.value, Period.union t1.period t2.period with
         | false, _ 
         | _, None -> None
-        | true, Some p when p |> Period.isEmpty -> None
         | true, Some p -> Some { period=p; value=t1.value }
 
     let rec merge temporaries = 
@@ -166,16 +165,18 @@ let map f temporaries =
     temporaries 
     |> sort
     |> merge
-    |> defaultToNone 
     |> Seq.map(fun t -> t.period := f t.value)
+    |> defaultToNone 
 
 let apply tfs tvs = 
     let sortedv = tvs |> sort |> merge |> defaultToNone
 
     let apply tf = 
         let intersect tv = 
-            match Period.intersect tf.period tv.period with
-            | Some i -> {period=i; value = tf.value tv.value} |> Seq.singleton
+            match Period.intersect tf.period tv.period, tf.value, tv.value with
+            | Some i, Some f, Some v -> { period=i; value = Some (f v) } |> Seq.singleton
+            | Some i, Some _, _ 
+            | Some i, None, Some _ -> { period=i; value = None } |> Seq.singleton
             | _ -> Seq.empty
 
         sortedv |> Seq.collect intersect
