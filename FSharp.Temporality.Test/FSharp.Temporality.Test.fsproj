@@ -49,6 +49,7 @@
     </Otherwise>
   </Choose>
   <Import Project="$(FSharpTargetsPath)" />
+  <Import Project="..\.nuget\NuGet.targets"/>
   <ItemGroup>
     <Content Include="app.config" />
     <Content Include="packages.config" />
