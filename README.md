@@ -74,7 +74,7 @@ let ``given multiple temporaries, when apply a function on this temporaries then
         <*> [ jan15 1  => jan15 22 := Price 120m ]
         |> ``transform temporaries into request``
     |> Expect 
-        [ "[2015/01/02; 2015/01/04[ = No Request (May be put a state monad here)"
+        [ "[2015/01/01; 2015/01/04[ = No Request (May be put a state monad here)"
           "[2015/01/04; 2015/01/05[ = Opened with 10 of availibility at 120.00 price and opened to departure"
           "[2015/01/05; 2015/01/15[ = Closed"
           "[2015/01/15; 2015/01/16[ = No Request (May be put a state monad here)"
