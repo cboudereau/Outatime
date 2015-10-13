@@ -62,7 +62,7 @@ let (=>) startDate endDate =
 
 let (:=) period value = { period=period; value=value }
 
-let sort temporaries = temporaries |> Seq.sortBy (fun t -> t.period.startDate)
+let sort temporaries = temporaries |> Seq.sortBy (fun t -> t.period.startDate, t.period.endDate)
 let option temporaries = 
     let option t = { period=t.period; value = Some t.value } 
     temporaries |> Seq.map option
@@ -163,28 +163,27 @@ let apply tfs tvs =
     let sortedv = tvs |> sort |> merge |> Seq.toList
 
     let apply tf = 
-        
         let folder state tv = 
-            
             match Period.intersect tf.period tv.period, tf.value, tv.value with
-            | Some i, Some f, Some v -> 
-                seq {
-                    yield! state
-                    yield i := Some (f v)
-                }
+            | Some i, Some f, Some v -> seq { yield! state; yield i := Some (f v) }
             | _ -> state
                 
         sortedv |> defaultToNone Period.infinite |> Seq.fold folder Seq.empty
 
     let applied = tfs |> defaultToNoneO Period.infinite |> Seq.collect apply
     
-    match sortedv |> List.tryHead, sortedv |> List.tryLast, tfs |> Seq.tryHead, tfs |> Seq.tryLast with
-    | Some headV, Some lastV, Some headA, Some lastA ->
-        let largestPeriod = min headV.period.startDate headA.period.startDate => max lastV.period.endDate lastA.period.endDate
-        applied |> defaultToNoneO largestPeriod
-    | Some headV, Some lastV, None, None -> seq { yield headV.period.startDate => lastV.period.endDate := None }
+    let allPeriods = 
+        let p t = t.period
+        seq { yield! sortedv |> Seq.map p; yield! tfs |> Seq.map p }
+    
+    let largestPeriod periods = 
+        if periods |> Seq.isEmpty then None
+        else Some (periods |> Seq.map (fun p -> p.startDate) |> Seq.min => (periods |> Seq.map(fun p -> p.endDate) |> Seq.max))
+
+    match largestPeriod allPeriods, applied |> Seq.isEmpty with
+    | Some p, false -> applied |> defaultToNoneO p
+    | Some p, true -> seq { yield p := None }
     | _ -> applied
 
-        
 let (<!>) = map
 let (<*>) = apply
