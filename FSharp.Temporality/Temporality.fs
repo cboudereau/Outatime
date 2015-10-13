@@ -157,7 +157,6 @@ let map f temporaries =
     |> sort
     |> merge
     |> Seq.map(fun t -> t.period := f t.value)
-//    |> defaultToNone Period.infinite
     |> contiguous
 
 let apply tfs tvs = 
@@ -167,24 +166,23 @@ let apply tfs tvs =
         
         let folder state tv = 
             
-            match Period.intersect tf.period tv.period, tf.value with
-            | Some i, Some f -> 
+            match Period.intersect tf.period tv.period, tf.value, tv.value with
+            | Some i, Some f, Some v -> 
                 seq {
                     yield! state
-                    yield i := Some (f tv.value)
+                    yield i := Some (f v)
                 }
             | _ -> state
                 
-        sortedv |> Seq.fold folder Seq.empty
+        sortedv |> defaultToNone Period.infinite |> Seq.fold folder Seq.empty
 
-    let applied = tfs |> Seq.collect apply
+    let applied = tfs |> defaultToNoneO Period.infinite |> Seq.collect apply
     
     match sortedv |> List.tryHead, sortedv |> List.tryLast, applied |> Seq.tryHead, applied |> Seq.tryLast with
     | Some headV, Some lastV, Some headA, Some lastA ->
         let largestPeriod = min headV.period.startDate headA.period.startDate => max lastV.period.endDate lastA.period.endDate
-        
         applied |> defaultToNoneO largestPeriod
-                
+    | Some headV, Some lastV, None, None -> seq { yield headV.period.startDate => lastV.period.endDate := None }
     | _ -> applied
 
         
