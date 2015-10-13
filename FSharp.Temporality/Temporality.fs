@@ -112,25 +112,25 @@ let contiguousO temporaries =
 
 let contiguous temporaries = temporaries |> option |> contiguousO 
 
-let defaultToNoneO temporaries = 
+let defaultToNoneO period temporaries = 
     let foreverO temporaries = 
         match temporaries |> Seq.toList with
-        | [] -> { period={ startDate = DateTime.MinValue; endDate=DateTime.MaxValue}; value=None } |> Seq.singleton
+        | [] -> { period={ startDate = period.startDate; endDate=period.endDate}; value=None } |> Seq.singleton
         | temporaries ->
             seq{
                 let head = temporaries |> Seq.head
                 let last = temporaries |> Seq.last
 
-                if head.period.startDate <> DateTime.MinValue 
-                then yield { period={ startDate=DateTime.MinValue; endDate=head.period.startDate }; value=None }
+                if head.period.startDate <> period.startDate 
+                then yield { period={ startDate=period.startDate; endDate=head.period.startDate }; value=None }
                 yield! temporaries
-                if last.period.endDate <> DateTime.MaxValue
-                then yield { period={ startDate=last.period.endDate; endDate=DateTime.MaxValue }; value=None }
+                if last.period.endDate <> period.endDate
+                then yield { period={ startDate=last.period.endDate; endDate=period.endDate }; value=None }
             }
 
     temporaries |> contiguousO |> foreverO
 
-let defaultToNone temporaries = temporaries |> option |> defaultToNoneO
+let defaultToNone period = option >> defaultToNoneO period
 
 let merge temporaries = 
 
@@ -157,22 +157,36 @@ let map f temporaries =
     |> sort
     |> merge
     |> Seq.map(fun t -> t.period := f t.value)
-    |> defaultToNone 
+//    |> defaultToNone Period.infinite
+    |> contiguous
 
 let apply tfs tvs = 
-    let sortedv = tvs |> sort |> merge |> defaultToNone
+    let sortedv = tvs |> sort |> merge |> Seq.toList
 
     let apply tf = 
-        let intersect tv = 
-            match Period.intersect tf.period tv.period, tf.value, tv.value with
-            | Some i, Some f, Some v -> { period=i; value = Some (f v) } |> Seq.singleton
-            | Some i, Some _, _ 
-            | Some i, _, Some _ -> { period=i; value = None } |> Seq.singleton
-            | _ -> Seq.empty
+        
+        let folder state tv = 
+            
+            match Period.intersect tf.period tv.period, tf.value with
+            | Some i, Some f -> 
+                seq {
+                    yield! state
+                    yield i := Some (f tv.value)
+                }
+            | _ -> state
+                
+        sortedv |> Seq.fold folder Seq.empty
 
-        sortedv |> Seq.collect intersect
+    let applied = tfs |> Seq.collect apply
+    
+    match sortedv |> List.tryHead, sortedv |> List.tryLast, applied |> Seq.tryHead, applied |> Seq.tryLast with
+    | Some headV, Some lastV, Some headA, Some lastA ->
+        let largestPeriod = min headV.period.startDate headA.period.startDate => max lastV.period.endDate lastA.period.endDate
+        
+        applied |> defaultToNoneO largestPeriod
+                
+    | _ -> applied
 
-    tfs |> Seq.collect apply
         
 let (<!>) = map
 let (<*>) = apply

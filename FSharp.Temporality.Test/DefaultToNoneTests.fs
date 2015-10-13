@@ -7,7 +7,7 @@ open Xunit
 let begin' = DateTime.MinValue
 let end' = DateTime.MaxValue
 let jan15 n = (DateTime(2015,1,n))
-let ``I want to default missings with None`` = Temporality.defaultToNone >> Seq.toList
+let ``I want to default missings with None`` = Temporality.defaultToNone Period.infinite >> Seq.toList
 
 let ``I want option contiguous temporary`` temporaries = Temporality.contiguous temporaries |> Seq.toList
 
