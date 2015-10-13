@@ -178,7 +178,7 @@ let apply tfs tvs =
 
     let applied = tfs |> defaultToNoneO Period.infinite |> Seq.collect apply
     
-    match sortedv |> List.tryHead, sortedv |> List.tryLast, applied |> Seq.tryHead, applied |> Seq.tryLast with
+    match sortedv |> List.tryHead, sortedv |> List.tryLast, tfs |> Seq.tryHead, tfs |> Seq.tryLast with
     | Some headV, Some lastV, Some headA, Some lastA ->
         let largestPeriod = min headV.period.startDate headA.period.startDate => max lastV.period.endDate lastA.period.endDate
         applied |> defaultToNoneO largestPeriod

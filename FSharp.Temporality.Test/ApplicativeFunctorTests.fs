@@ -77,7 +77,7 @@ let ``given partial map empty temporaries expect temporaries``()=
 
         <*> [ jan15 1  => jan15 22 := Price 120m ]
         |> ``transform temporaries into request``
-    |> Expect [ "[2015/01/01; 2015/01/22[ = No Request (May be put a state monad here for not contiguous case)" ]
+    |> Expect [ "[2015/01/01; 2015/01/23[ = No Request (May be put a state monad here for not contiguous case)" ]
 
 [<Fact>]
 let ``given partial applied empty temporaries expect temporaries``()=
@@ -109,6 +109,59 @@ let ``given partial applied empty temporaries expect temporaries``()=
         |> ``transform temporaries into request``
     |> Expect [ "[2015/01/01; 2015/01/22[ = No Request (May be put a state monad here for not contiguous case)" ]
 
+//Write sample with empty period and refactor period with largest and EMpty active pattern
+
+
+//TODO : See this case later (after not contiguous periods)
+//[<Fact>]
+let ``given temporaries with empty periods must fail``()=
+    When
+        ``transform temporaries to rate availability domain``
+        <!> [ jan15 4  => jan15 4  := Opening.Opened
+              jan15 5  => jan15 5 := Opening.Closed ]
+
+        <*> [ jan15 2  => jan15 2 := OpenedToDeparture
+              jan15 16 => jan15 16 := OpenedToDeparture ]
+
+        <*> [ jan15 1  => jan15 1 := Availability 10 ]
+
+        <*> [ jan15 3  => jan15 3 := Price 120m ]
+        |> ``transform temporaries into request``
+    |> Expect []
+    
+
+[<Fact>]
+let ``given multiple temporaries without intersection, when apply a function on this temporaries then expect none value with the largest period``()=
+
+    When
+        ``transform temporaries to rate availability domain``
+        <!> [ jan15 4  => jan15 5  := Opening.Opened
+              jan15 5  => jan15 20 := Opening.Closed ]
+
+        <*> [ jan15 20  => jan15 25 := OpenedToDeparture ]
+
+        <*> [ jan15 26  => jan15 27 := Availability 10 ]
+
+        <*> [ jan15 29  => jan15 30 := Price 120m ]
+        |> ``transform temporaries into request``
+    |> Expect 
+        [ "[2015/01/04; 2015/01/30[ = No Request (May be put a state monad here for not contiguous case)" ]
+
+    When
+        ``transform temporaries to rate availability domain``
+        <!> [ jan15 29  => jan15 30  := Opening.Opened ]
+
+        <*> [ jan15 20  => jan15 25 := OpenedToDeparture ]
+
+        <*> [ jan15 26  => jan15 27 := Availability 10 ]
+
+        <*> [ jan15 4  => jan15 5 := Price 120m ]
+        |> ``transform temporaries into request``
+    |> Expect 
+        [ "[2015/01/04; 2015/01/30[ = No Request (May be put a state monad here for not contiguous case)" ]
+
+
+
 [<Fact>]
 let ``given multiple temporaries, when apply a function on this temporaries then expect applied function on any intersection``()=
 
@@ -132,4 +185,4 @@ let ``given multiple temporaries, when apply a function on this temporaries then
           "[2015/01/15; 2015/01/16[ = No Request (May be put a state monad here for not contiguous case)"
           "[2015/01/16; 2015/01/18[ = Closed"
           "[2015/01/18; 2015/01/20[ = Closed"
-          "[2015/01/20; 2015/01/22[ = No Request (May be put a state monad here for not contiguous case)" ]
+          "[2015/01/20; 2015/01/23[ = No Request (May be put a state monad here for not contiguous case)" ]
