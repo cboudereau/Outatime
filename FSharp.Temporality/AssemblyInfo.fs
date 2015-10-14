@@ -8,9 +8,9 @@ open System.Runtime.InteropServices
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [<assembly: AssemblyTitle("FSharp.Temporality")>]
-[<assembly: AssemblyDescription("")>]
+[<assembly: AssemblyDescription("An applicative functor for temporaries (ie: value over the time) to apply function on intersection")>]
 [<assembly: AssemblyConfiguration("")>]
-[<assembly: AssemblyCompany("")>]
+[<assembly: AssemblyCompany("@cboudereau")>]
 [<assembly: AssemblyProduct("FSharp.Temporality")>]
 [<assembly: AssemblyCopyright("Copyright ©  2015")>]
 [<assembly: AssemblyTrademark("")>]
