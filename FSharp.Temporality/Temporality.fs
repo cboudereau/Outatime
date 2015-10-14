@@ -161,14 +161,14 @@ let map f temporaries =
 
 let apply tfs tvs = 
     let sortedv = tvs |> sort |> merge |> Seq.toList
-
+    let defaultedv = sortedv |> defaultToNone Period.infinite
     let apply tf = 
-        let folder state tv = 
+        let intersect state tv = 
             match Period.intersect tf.period tv.period, tf.value, tv.value with
             | Some i, Some f, Some v -> seq { yield! state; yield i := Some (f v) }
             | _ -> state
                 
-        sortedv |> defaultToNone Period.infinite |> Seq.fold folder Seq.empty
+        defaultedv |> Seq.fold intersect Seq.empty
 
     let applied = tfs |> defaultToNoneO Period.infinite |> Seq.collect apply
     

@@ -52,7 +52,6 @@
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Temporality.fs" />
-    <None Include="FSharp.Temporality.nuspec" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
