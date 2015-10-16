@@ -1,163 +1,104 @@
-// --------------------------------------------------------------------------------------
-// FAKE build script 
-// --------------------------------------------------------------------------------------
-
 #r @"packages/FAKE/tools/FakeLib.dll"
 open Fake 
-open Fake.Git
 open Fake.AssemblyInfoFile
 open Fake.ReleaseNotesHelper
 open System
 
-let projects = [|"FSharp.Temporality"|]
+type Project = 
+    { name:string
+      summary:string
+      description:string
+      authors:string list
+      tags:string }
 
+let project = "FSharp.Temporality"
 let summary = "An applicative functor for temporaries (ie: value over the time) to apply function on intersection"
 let description = "An applicative functor for temporaries (ie: value over the time) to apply function on intersection"
 let authors = ["@cboudereau"]
 let tags = "F# fsharp temporality applicative functor"
 
-let solutionFile  = "FSharp.Temporality"
+let projects = [ { name=project; summary=summary; authors=authors; tags=tags; description=description } ]
 
-let testAssemblies = "tests/**/bin/Release/*.Tests*.dll"
-let gitHome = "https://github.com/cboudereau"
-let gitName = "FSharp.Temporality"
 let cloneUrl = "https://github.com/cboudereau/FSharp.Temporality.git"
 let nugetDir = "./nuget/"
+let outDir = "./bin/"
+let testDir = "./test/"
 
 // Read additional information from the release notes document
 Environment.CurrentDirectory <- __SOURCE_DIRECTORY__
 let release = parseReleaseNotes (IO.File.ReadAllLines "RELEASE_NOTES.md")
 
+Target "Clean" (fun _ ->
+    CleanDirs [outDir; testDir; nugetDir]
+)
+
 // Generate assembly info files with the right version & up-to-date information
 Target "AssemblyInfo" (fun _ ->
   for project in projects do
-    let fileName = "src/" + project + "/AssemblyInfo.fs"
+    let fileName = project.name + "/AssemblyInfo.fs"
     CreateFSharpAssemblyInfo fileName
-        [ Attribute.Title project
-          Attribute.Product project
-          Attribute.Description summary
+        [ Attribute.Title project.name
+          Attribute.Product project.name
+          Attribute.Description project.summary
           Attribute.Version release.AssemblyVersion
           Attribute.FileVersion release.AssemblyVersion ] 
 )
 
-// --------------------------------------------------------------------------------------
-// Clean build results & restore NuGet packages
-
-Target "Clean" (fun _ ->
-    CleanDirs ["bin"; "temp"; nugetDir]
-)
-
-Target "CleanDocs" (fun _ ->
-    CleanDirs ["docs/output"]
-)
-
-// --------------------------------------------------------------------------------------
-// Build library & test project
-
 Target "Build" (fun _ ->
-    !! (solutionFile + ".sln")
-    |> MSBuildRelease "" "Rebuild"
+    projects 
+    |> List.iter(fun p ->
+        !! ( p.name + ".fsproj")
+        |> MSBuildRelease outDir "Rebuild"
+        |> ignore)
+
+    !! ("*Test.fsproj")
+    |> MSBuildRelease testDir "Rebuild"
     |> ignore
-
-    !! (solutionFile + ".Tests.sln")
-    |> MSBuildRelease "" "Rebuild"
-    |> ignore
 )
 
-// --------------------------------------------------------------------------------------
-// Run the unit tests using test runner & kill test runner when complete
+open System.Diagnostics
 
-Target "RunTests" (fun _ ->
-    ActivateFinalTarget "CloseTestRunner"
-
-    !! testAssemblies
-    |> NUnit (fun p ->
-        { p with
-            DisableShadowCopy = true
-            TimeOut = TimeSpan.FromMinutes 20.
-            OutputFile = "TestResults.xml" })
+Target "Tests" (fun _ ->
+    let runner = findToolInSubPath "xunit.console.clr4.exe" (currentDirectory @@ "tools" @@ "xUnit")
+    let xunit t =
+        let xunitInfo t (info:ProcessStartInfo) = 
+            info.FileName <- runner
+            info.Arguments <- sprintf "'%s' /appveyor" t
+        ExecProcess (xunitInfo t) (TimeSpan.FromMinutes(30.)) = 0
+    
+    !! (testDir + "*Test.dll")
+    |> Seq.iter (xunit >> ignore)
 )
-
-FinalTarget "CloseTestRunner" (fun _ ->  
-    ProcessHelper.killProcess "nunit-agent.exe"
-)
-
-// --------------------------------------------------------------------------------------
-// Build a NuGet package
 
 Target "NuGet" (fun _ ->
     // Format the description to fit on a single line (remove \r\n and double-spaces)
-    let description = description.Replace("\r", "")
-                                 .Replace("\n", "")
-                                 .Replace("  ", " ")
-    let project = projects.[0]
+    let description project = project.description.Replace("\r", "").Replace("\n", "").Replace("  ", " ")
 
-    let nugetDocsDir = nugetDir @@ "docs"
-    let nugetlibDir = nugetDir @@ "lib/net40"
-
-    CleanDir nugetDocsDir
-    CleanDir nugetlibDir
-        
-    CopyDir nugetlibDir "bin" (fun file -> file.Contains "FSharp.Core." |> not)
-    CopyDir nugetDocsDir "./docs/output" allFiles
-    
-    NuGet (fun p -> 
-        { p with   
-            Authors = authors
-            Project = project
-            Summary = summary
-            Description = description
-            Version = release.NugetVersion
-            ReleaseNotes = release.Notes |> toLines
-            Tags = tags
-            OutputPath = nugetDir
-            AccessKey = getBuildParamOrDefault "nugetkey" ""
-            Publish = hasBuildParam "nugetkey"
-            Dependencies = [] })
-        (project + ".nuspec")
+    projects
+    |> Seq.iter(fun project ->
+        NuGet (fun p -> 
+            { p with
+                Authors = project.authors
+                Project = project.name
+                Summary = project.summary
+                Description = project |> description
+                Version = release.NugetVersion
+                ReleaseNotes = release.Notes |> toLines
+                Tags = tags
+                OutputPath = nugetDir
+                AccessKey = getBuildParamOrDefault "nugetkey" ""
+                Publish = hasBuildParam "nugetkey"
+                Dependencies = [] })
+            (project.name + ".nuspec"))
 )
-
-// --------------------------------------------------------------------------------------
-// Generate the documentation
-
-Target "GenerateDocs" (fun _ ->
-    executeFSIWithArgs "docs/tools" "generate.fsx" ["--define:RELEASE"] [] |> ignore
-)
-
-// --------------------------------------------------------------------------------------
-// Release Scripts
-
-Target "ReleaseDocs" (fun _ ->
-    let ghPages      = "gh-pages"
-    let ghPagesLocal = "temp/gh-pages"
-    Repository.clone "temp" (cloneUrl) ghPages
-    Branches.checkoutBranch ghPagesLocal ghPages
-    fullclean "temp/gh-pages"
-    CopyRecursive "docs/output" ghPagesLocal true |> printfn "%A"
-    CommandHelper.runSimpleGitCommand ghPagesLocal "add ." |> printfn "%s"
-    let cmd = sprintf """commit -a -m "Update generated documentation for version %s""" release.NugetVersion
-    CommandHelper.runSimpleGitCommand ghPagesLocal cmd |> printfn "%s"
-    Branches.push ghPagesLocal
-)
-
-Target "Release" DoNothing
-
-// --------------------------------------------------------------------------------------
-// Run all targets by default. Invoke 'build <Target>' to override
 
 Target "All" DoNothing
 
-"Clean"
-  ==> "AssemblyInfo"
-  ==> "Build"
-  ==> "RunTests"
-  ==> "All"
-
 "All" 
-  ==> "CleanDocs"
-  ==> "GenerateDocs"
-  ==> "ReleaseDocs"
-  ==> "NuGet"
-  ==> "Release"
+  ==> "Clean"
+  ==> "AssemblyInfo"
+//  ==> "Build"
+//  ==> "Tests"
+//  ==> "NuGet"
 
 RunTargetOrDefault "All"

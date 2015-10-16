@@ -50,7 +50,6 @@
   </Choose>
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
-    <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Temporality.fs" />
   </ItemGroup>
   <ItemGroup>
