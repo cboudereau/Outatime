@@ -5,7 +5,7 @@
     <version>@build.number@</version>
     <authors>@authors@</authors>
     <owners>@authors@</owners>
-    <projectUrl>https://github.com/cboudereau/FSharp.Temporality</projectUrl>
+    <projectUrl>https://github.com/cboudereau/Outatime</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <summary>@summary@</summary>
     <description>@description@</description>
