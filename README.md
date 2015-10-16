@@ -1,9 +1,9 @@
-# FSharp.Temporality [![Build status](https://ci.appveyor.com/api/projects/status/ejj6vrx6x69aojey?svg=true)](https://ci.appveyor.com/project/cboudereau/fsharp-temporality)
+# Outatime [![Build status](https://ci.appveyor.com/api/projects/status/ejj6vrx6x69aojey?svg=true)](https://ci.appveyor.com/project/cboudereau/outatime)
 
 When you have to deal with price, restrictions or all kind of values changing over the time, it becomes difficult to reduce the amount of data of your API If you don't have a strategy to merge the values.
 
 ## Maths at Rescue! What are the common value over the time to avoid data repetition
-FSharp.Temporality has differents principles in order to have the correct design and algorithms :
+Outatime has differents principles in order to have the correct design and algorithms :
 
 ## Applicative functor at the rescue but it is promise it is not difficult it is an evidence!
 ```fsharp
@@ -11,7 +11,7 @@ module ApplicativeFunctorTests
 
 open Bdd
 open Xunit
-open Temporality
+open Outatime
 
 let jan15 d = DateTime(2015, 1, d)
 
@@ -91,15 +91,15 @@ Is the value at a Period
 
 ## Features
 ### Merge
-When value are equals and period intersects, then the temporary is merged and number of temporaries on a temporal decrease. Eg Given a value "toto" on Given periods 01/01 -> 02/01; 02/01 -> 03/01, then the corresponding merge is "toto" on Given periods 01/01 -> 03/01. Sample : https://github.com/cboudereau/FSharp.Temporality/blob/master/FSharp.Temporality.Test/TemporalMergeProperties.fs
+When value are equals and period intersects, then the temporary is merged and number of temporaries on a temporal decrease. Eg Given a value "toto" on Given periods 01/01 -> 02/01; 02/01 -> 03/01, then the corresponding merge is "toto" on Given periods 01/01 -> 03/01. Sample : https://github.com/cboudereau/Outatime/blob/master/Outatime.Test/TemporalMergeProperties.fs
 
 ```fsharp
-open Temporality
+open Outatime
 open Bdd
 open Xunit
 
 let jan15 n = (DateTime(2015,1,n))
-let ``I want to merge temporaries`` = Temporality.merge >> Seq.toList
+let ``I want to merge temporaries`` = Outatime.merge >> Seq.toList
 
 [<Fact>]
 let ``given contiguous temporary expect a merged temporary``()=
@@ -118,14 +118,14 @@ let ``given contiguous temporary expect a merged temporary``()=
 When need to crop to a period..
 
 ```fsharp
-open Temporality
+open Outatime
 open Xunit
 open Bdd
 
 let jan15 n = (DateTime(2015,1,n))
 let days n = TimeSpan.FromDays(float n)
 
-let ``I want to split temporaries`` days temporaries = Temporality.split days temporaries |> Seq.toList
+let ``I want to split temporaries`` days temporaries = Outatime.split days temporaries |> Seq.toList
 let ``five days`` = days 5
 
 [<Fact>]
@@ -143,5 +143,5 @@ Given a period and get the corresponding temporaries.
 
 ## QA
 ### Writen with property based testing driven dev
-FSharp.Temporality is fully written with property based testing and FSCheck https://github.com/fscheck/FsCheck
-All properties are based on Interval Mathematics principles : https://github.com/cboudereau/FSharp.Temporality/blob/master/FSharp.Temporality.Test/PeriodProperties.fs
+Outatime is fully written with property based testing and FSCheck https://github.com/fscheck/FsCheck
+All properties are based on Interval Mathematics principles : https://github.com/cboudereau/Outatime/blob/master/Outatime.Test/PeriodProperties.fs

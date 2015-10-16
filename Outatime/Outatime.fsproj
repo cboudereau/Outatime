@@ -8,7 +8,7 @@
     <ProjectGuid>5b9fba10-9e8f-4cf0-9c00-dfe1011f0d90</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>FSharp.Temporality</RootNamespace>
-    <AssemblyName>FSharp.Temporality</AssemblyName>
+    <AssemblyName>Outatime</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <TargetFSharpCoreVersion>4.4.0.0</TargetFSharpCoreVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -22,7 +22,7 @@
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Debug\FSharp.Temporality.XML</DocumentationFile>
+    <DocumentationFile>bin\Debug\FSharp.Outatime.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -31,7 +31,7 @@
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Release\FSharp.Temporality.XML</DocumentationFile>
+    <DocumentationFile>bin\Release\FSharp.Outatime.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
@@ -50,7 +50,7 @@
   </Choose>
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
-    <Compile Include="Temporality.fs" />
+    <Compile Include="Outatime.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />

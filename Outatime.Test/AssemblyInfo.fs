@@ -1,4 +1,4 @@
-﻿namespace FSharp.Temporality.Test.AssemblyInfo
+﻿namespace FSharp.Outatime.Test.AssemblyInfo
 
 open System.Reflection
 open System.Runtime.CompilerServices
@@ -7,11 +7,11 @@ open System.Runtime.InteropServices
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[<assembly: AssemblyTitle("FSharp.Temporality.Test")>]
+[<assembly: AssemblyTitle("FSharp.Outatime.Test")>]
 [<assembly: AssemblyDescription("")>]
 [<assembly: AssemblyConfiguration("")>]
 [<assembly: AssemblyCompany("")>]
-[<assembly: AssemblyProduct("FSharp.Temporality.Test")>]
+[<assembly: AssemblyProduct("FSharp.Outatime.Test")>]
 [<assembly: AssemblyCopyright("Copyright ©  2015")>]
 [<assembly: AssemblyTrademark("")>]
 [<assembly: AssemblyCulture("")>]

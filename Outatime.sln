@@ -10,9 +10,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{3D2823
 		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.Temporality.Test", "FSharp.Temporality.Test\FSharp.Temporality.Test.fsproj", "{AB96222B-0AC0-4EEE-A707-20B8779D8C55}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Outatime.Test", "Outatime.Test\Outatime.Test.fsproj", "{AB96222B-0AC0-4EEE-A707-20B8779D8C55}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.Temporality", "FSharp.Temporality\FSharp.Temporality.fsproj", "{5B9FBA10-9E8F-4CF0-9C00-DFE1011F0D90}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Outatime", "Outatime\Outatime.fsproj", "{5B9FBA10-9E8F-4CF0-9C00-DFE1011F0D90}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".paket", ".paket", "{72D0A17F-5324-40A8-B5EC-AAE779B0D70A}"
 	ProjectSection(SolutionItems) = preProject

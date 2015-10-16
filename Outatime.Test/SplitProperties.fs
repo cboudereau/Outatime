@@ -1,13 +1,13 @@
 ﻿module SplitProperties
 
-open Temporality
+open Outatime
 open Xunit
 open Bdd
 
 let jan15 n = (DateTime(2015,1,n))
 let days n = TimeSpan.FromDays(float n)
 
-let ``I want to split temporaries`` days temporaries = Temporality.split days temporaries |> Seq.toList
+let ``I want to split temporaries`` days temporaries = Outatime.split days temporaries |> Seq.toList
 let ``five days`` = days 5
 
 [<Fact>]
@@ -29,5 +29,5 @@ module SplitTemporaries =
     [<Property>]
     let ``check that all period are less than split period`` (temporaries:string Temporary list) = 
         temporaries
-        |> Temporality.split splitPeriod
+        |> Outatime.split splitPeriod
         |> Seq.forall(fun v -> v.period |> Period.length <= splitPeriod)

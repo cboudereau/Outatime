@@ -1,7 +1,7 @@
 ﻿module TestData
 
 open FsCheck
-open Temporality
+open Outatime
 
 let getPeriod (d1, d2) = 
     let minDate = min d1 d2

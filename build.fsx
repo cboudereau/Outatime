@@ -12,15 +12,14 @@ type Project =
       tags:string
       framework:string }
 
-let project = "FSharp.Temporality"
-let summary = "An applicative functor for temporaries (ie: value over the time) to apply function on intersection"
-let description = "An applicative functor for temporaries (ie: value over the time) to apply function on intersection"
+let project = "Outatime"
+let summary = "An applicative functor for temporaries (ie: value over the time) to apply function on time intersection"
+let description = "An applicative functor for temporaries (ie: value over the time) to apply function on time intersection"
 let authors = ["@cboudereau"]
 let tags = "F# fsharp temporality applicative functor"
 
 let projects = [ { name=project; summary=summary; authors=authors; tags=tags; description=description; framework="net452" } ]
 
-let cloneUrl = "https://github.com/cboudereau/FSharp.Temporality.git"
 let nugetDir = "./nuget/"
 let outDir = "./bin/"
 let testDir = "./test/"
@@ -35,29 +34,29 @@ Target "Clean" (fun _ ->
 
 // Generate assembly info files with the right version & up-to-date information
 Target "AssemblyInfo" (fun _ ->
-  for project in projects do
-    let fileName = project.name + "/AssemblyInfo.fs"
-    printfn "%s" fileName
-    CreateFSharpAssemblyInfo fileName
-        [ Attribute.Title project.name
-          Attribute.Product project.name
-          Attribute.Description project.summary
-          Attribute.Version release.AssemblyVersion
-          Attribute.FileVersion release.AssemblyVersion ] 
+    for project in projects do
+        let fileName = project.name + "/AssemblyInfo.fs"
+        printfn "%s" fileName
+        CreateFSharpAssemblyInfo fileName
+            [ Attribute.Title project.name
+              Attribute.Product project.name
+              Attribute.Description project.summary
+              Attribute.Version release.AssemblyVersion
+              Attribute.FileVersion release.AssemblyVersion ] 
 )
 
 Target "Build" (fun _ ->
     projects 
     |> List.iter(fun p ->
         !! ( p.name + "/" + p.name + ".*proj")
-        |> MSBuildRelease (outDir + "/" + p.name) "Rebuild"
+        |> MSBuildRelease (outDir + "/" + p.name) "Build"
         |> ignore)
 )
 
 open Fake.Testing.XUnit2
 Target "Tests" (fun _ ->
     !! ("**/*Test.*proj")
-    |> MSBuildRelease testDir "Rebuild"
+    |> MSBuildRelease testDir "Build"
     |> ignore
 
     !! (testDir + "*Test.dll")
@@ -65,7 +64,6 @@ Target "Tests" (fun _ ->
 )
 
 Target "NuGet" (fun _ ->
-    // Format the description to fit on a single line (remove \r\n and double-spaces)
     let description project = project.description.Replace("\r", "").Replace("\n", "").Replace("  ", " ")
 
     projects
@@ -84,7 +82,6 @@ Target "NuGet" (fun _ ->
                 AccessKey = getBuildParamOrDefault "nugetkey" ""
                 Publish = hasBuildParam "nugetkey"
                 Dependencies = [] })
-//            (project.name + "/" + project.name + ".nuspec"))
             ("template.nuspec"))
 )
 

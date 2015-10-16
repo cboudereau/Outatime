@@ -8,7 +8,7 @@
     <ProjectGuid>ab96222b-0ac0-4eee-a707-20b8779d8c55</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>FSharp.Temporality.Test</RootNamespace>
-    <AssemblyName>FSharp.Temporality.Test</AssemblyName>
+    <AssemblyName>Outatime.Test</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <TargetFSharpCoreVersion>4.4.0.0</TargetFSharpCoreVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -71,8 +71,8 @@
     <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\FSharp.Temporality\FSharp.Temporality.fsproj">
-      <Name>FSharp.Temporality</Name>
+    <ProjectReference Include="..\Outatime\Outatime.fsproj">
+      <Name>Outatime</Name>
       <Project>{5b9fba10-9e8f-4cf0-9c00-dfe1011f0d90}</Project>
       <Private>True</Private>
     </ProjectReference>

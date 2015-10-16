@@ -2,7 +2,7 @@
 
 open Bdd
 open Xunit
-open Temporality
+open Outatime
 
 let jan15 n = DateTime(2015, 1, n)
 
@@ -16,7 +16,7 @@ let ``temporary display period and value``()=
 
 [<Fact>]
 let ``when sort temporaries expect temporaries sorted by start date``()=
-    let ``I want to sort temporaries`` = Temporality.sort >> Seq.toList
+    let ``I want to sort temporaries`` = Outatime.sort >> Seq.toList
     
     When ``I want to sort temporaries``
     |> With

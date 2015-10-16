@@ -2,7 +2,7 @@
 
 open FsCheck.Xunit
 
-open Temporality
+open Outatime
 
 let jan15 d = DateTime(2015,1,d)
 let empty = jan15 1 => jan15 1

@@ -1,4 +1,4 @@
-﻿module Temporality
+﻿module Outatime
 
 type DateTime = System.DateTime
 

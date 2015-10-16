@@ -1,15 +1,15 @@
 ﻿module DefaultToNoneTests
 
-open Temporality
+open Outatime
 open Bdd
 open Xunit
 
 let begin' = DateTime.MinValue
 let end' = DateTime.MaxValue
 let jan15 n = (DateTime(2015,1,n))
-let ``I want to default missings with None`` = Temporality.defaultToNone Period.infinite >> Seq.toList
+let ``I want to default missings with None`` = Outatime.defaultToNone Period.infinite >> Seq.toList
 
-let ``I want option contiguous temporary`` temporaries = Temporality.contiguous temporaries |> Seq.toList
+let ``I want option contiguous temporary`` temporaries = Outatime.contiguous temporaries |> Seq.toList
 
 [<Fact>]
 let ``given temporaries expect a contiguous temporaries``()=

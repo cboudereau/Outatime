@@ -2,7 +2,7 @@
 
 open Bdd
 open Xunit
-open Temporality
+open Outatime
 
 let jan15 d = DateTime(2015, 1, d)
 

@@ -1,11 +1,11 @@
 ﻿module MergeTests
 
-open Temporality
+open Outatime
 open Bdd
 open Xunit
 
 let jan15 n = (DateTime(2015,1,n))
-let ``I want to merge temporaries`` = Temporality.merge >> Seq.toList
+let ``I want to merge temporaries`` = Outatime.merge >> Seq.toList
 
 [<Fact>]
 let ``given contiguous temporary expect a merged temporary``()=
