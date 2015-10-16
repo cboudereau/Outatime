@@ -36,6 +36,7 @@ Target "Clean" (fun _ ->
 Target "AssemblyInfo" (fun _ ->
   for project in projects do
     let fileName = project.name + "/AssemblyInfo.fs"
+    printfn "%s" fileName
     CreateFSharpAssemblyInfo fileName
         [ Attribute.Title project.name
           Attribute.Product project.name
@@ -47,11 +48,11 @@ Target "AssemblyInfo" (fun _ ->
 Target "Build" (fun _ ->
     projects 
     |> List.iter(fun p ->
-        !! ( p.name + ".fsproj")
+        !! ( p.name + "/" + p.name + ".fsproj")
         |> MSBuildRelease outDir "Rebuild"
         |> ignore)
 
-    !! ("*Test.fsproj")
+    !! ("**/*Test.fsproj")
     |> MSBuildRelease testDir "Rebuild"
     |> ignore
 )
@@ -94,11 +95,11 @@ Target "NuGet" (fun _ ->
 
 Target "All" DoNothing
 
-"All" 
-  ==> "Clean"
-  ==> "AssemblyInfo"
-//  ==> "Build"
-//  ==> "Tests"
+"Clean"
+==> "AssemblyInfo"
+==> "Build"
+==> "Tests"
 //  ==> "NuGet"
+==> "All"
 
 RunTargetOrDefault "All"

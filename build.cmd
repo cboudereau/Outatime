@@ -1,14 +1,17 @@
 @echo off
 cls
 
-.paket\paket.bootstrapper.exe prerelease
-if errorlevel 1 (
-  exit /b %errorlevel%
-)
+if NOT EXIST .paket\paket.exe (
+	echo "not exist"
+	.paket\paket.bootstrapper.exe prerelease
+	if errorlevel 1 (
+	  exit /b %errorlevel%
+	)
+	)
 
-.paket\paket.exe  install --hard
+.paket\paket.exe install
 if errorlevel 1 (
-  exit /b %errorlevel%
+   exit /b %errorlevel%
 )
 
 packages\FAKE\tools\FAKE.exe build.fsx %*
