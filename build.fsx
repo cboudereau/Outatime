@@ -49,14 +49,14 @@ Target "AssemblyInfo" (fun _ ->
 Target "Build" (fun _ ->
     projects 
     |> List.iter(fun p ->
-        !! ( p.name + "/" + p.name + ".fsproj")
+        !! ( p.name + "/" + p.name + ".*proj")
         |> MSBuildRelease (outDir + "/" + p.name) "Rebuild"
         |> ignore)
 )
 
 open Fake.Testing.XUnit2
 Target "Tests" (fun _ ->
-    !! ("**/*Test.fsproj")
+    !! ("**/*Test.*proj")
     |> MSBuildRelease testDir "Rebuild"
     |> ignore
 
