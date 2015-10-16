@@ -9,7 +9,8 @@ type Project =
       summary:string
       description:string
       authors:string list
-      tags:string }
+      tags:string
+      framework:string }
 
 let project = "FSharp.Temporality"
 let summary = "An applicative functor for temporaries (ie: value over the time) to apply function on intersection"
@@ -17,7 +18,7 @@ let description = "An applicative functor for temporaries (ie: value over the ti
 let authors = ["@cboudereau"]
 let tags = "F# fsharp temporality applicative functor"
 
-let projects = [ { name=project; summary=summary; authors=authors; tags=tags; description=description } ]
+let projects = [ { name=project; summary=summary; authors=authors; tags=tags; description=description; framework="net452" } ]
 
 let cloneUrl = "https://github.com/cboudereau/FSharp.Temporality.git"
 let nugetDir = "./nuget/"
@@ -49,16 +50,16 @@ Target "Build" (fun _ ->
     projects 
     |> List.iter(fun p ->
         !! ( p.name + "/" + p.name + ".fsproj")
-        |> MSBuildRelease outDir "Rebuild"
+        |> MSBuildRelease (outDir + "/" + p.name) "Rebuild"
         |> ignore)
-
-    !! ("**/*Test.fsproj")
-    |> MSBuildRelease testDir "Rebuild"
-    |> ignore
 )
 
 open Fake.Testing.XUnit2
 Target "Tests" (fun _ ->
+    !! ("**/*Test.fsproj")
+    |> MSBuildRelease testDir "Rebuild"
+    |> ignore
+
     !! (testDir + "*Test.dll")
     |> xUnit2 (fun p -> { p with ShadowCopy=true; ForceAppVeyor=true; Parallel=ParallelMode.All })
 )
@@ -66,9 +67,11 @@ Target "Tests" (fun _ ->
 Target "NuGet" (fun _ ->
     // Format the description to fit on a single line (remove \r\n and double-spaces)
     let description project = project.description.Replace("\r", "").Replace("\n", "").Replace("  ", " ")
+    
 
     projects
     |> Seq.iter(fun project ->
+        CopyDir (nugetDir + "/lib/" + project.framework) (outDir + "/" + project.name) (fun file -> file.Contains "FSharp.Core." |> not)
         NuGet (fun p -> 
             { p with
                 Authors = project.authors
@@ -82,7 +85,7 @@ Target "NuGet" (fun _ ->
                 AccessKey = getBuildParamOrDefault "nugetkey" ""
                 Publish = hasBuildParam "nugetkey"
                 Dependencies = [] })
-            (project.name + ".nuspec"))
+            (project.name + "/" + project.name + ".nuspec"))
 )
 
 Target "All" DoNothing
@@ -91,7 +94,7 @@ Target "All" DoNothing
 ==> "AssemblyInfo"
 ==> "Build"
 ==> "Tests"
-//  ==> "NuGet"
+==> "NuGet"
 ==> "All"
 
 RunTargetOrDefault "All"
