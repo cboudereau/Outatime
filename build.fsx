@@ -67,7 +67,6 @@ Target "Tests" (fun _ ->
 Target "NuGet" (fun _ ->
     // Format the description to fit on a single line (remove \r\n and double-spaces)
     let description project = project.description.Replace("\r", "").Replace("\n", "").Replace("  ", " ")
-    
 
     projects
     |> Seq.iter(fun project ->

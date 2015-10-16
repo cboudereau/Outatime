@@ -1,0 +1,13 @@
+NUGET
+  remote: https://nuget.org/api/v2
+  specs:
+    FAKE (4.7.1)
+    FsCheck (2.0.3) - framework: >= net452
+      FSharp.Core (>= 3.1.2.1)
+    FsCheck.Xunit (2.0.3) - framework: >= net452
+      FsCheck (>= 2.0.3)
+      xunit (>= 1.9.2)
+    FSharp.Core (4.0.0.1) - framework: >= net452
+    NuGet.CommandLine (2.8.6)
+    xunit (1.9.2) - framework: >= net452
+    xunit.runner.console (2.1.0)

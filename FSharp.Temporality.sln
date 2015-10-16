@@ -19,6 +19,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".paket", ".paket", "{72D0A1
 		.paket\paket.bootstrapper.exe = .paket\paket.bootstrapper.exe
 		paket.dependencies = paket.dependencies
 		.paket\paket.exe = .paket\paket.exe
+		paket.lock = paket.lock
 		.paket\paket.targets = .paket\paket.targets
 	EndProjectSection
 EndProject
