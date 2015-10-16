@@ -1,4 +1,4 @@
-# Outatime [![Build status](https://ci.appveyor.com/api/projects/status/ejj6vrx6x69aojey?svg=true)](https://ci.appveyor.com/project/cboudereau/outatime)
+# Outatime [![Build status](https://ci.appveyor.com/api/projects/status/v3f2gj9602e82ia4?svg=true)](https://ci.appveyor.com/project/cboudereau/outatime)
 
 When you have to deal with price, restrictions or all kind of values changing over the time, it becomes difficult to reduce the amount of data of your API If you don't have a strategy to merge the values.
 
