@@ -39,7 +39,7 @@ let ``when display period expect math representation``()=
 [<Fact>]
 let ``infinite period must be between DateTime.MinValue and DateTime.MaxValue``()=
     
-    When Period.infinite
+    When infinite
     |> Expect { startDate=DateTime.MinValue; endDate=DateTime.MaxValue }
 
 [<Fact>]
@@ -49,7 +49,7 @@ let ``given 2 unsorted periods expect sorted periods``()=
 
     let its p1 p2 = (p1, p2)
 
-    let ``I want to sort periods`` = Period.sort its
+    let ``I want to sort periods`` = sortP its
 
     When ``I want to sort periods``
     |> With p1

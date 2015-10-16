@@ -11,20 +11,20 @@ let empty = jan15 1 => jan15 1
 module IntersectProperties =
     [<Property>]
     let ``Infinite ∩ Infinite = Infinite`` () =
-        Period.infinite |> Period.intersect Period.infinite = Some Period.infinite
+        infinite |> intersect infinite = Some infinite
 
     [<Property>]
     let ``Infinite ∩ p = p`` p = 
         
-        match Period.infinite |> Period.intersect p with
-        | None when Period.isEmpty p -> true
+        match infinite |> intersect p with
+        | None when isEmpty p -> true
         | Some i when i = p -> true
         | _ -> false
 
     [<Property>]
     let ``p ∩ p = p`` p = 
-        match p |> Period.intersect p with
-        | None when Period.isEmpty p -> true
+        match p |> intersect p with
+        | None when isEmpty p -> true
         | Some u when u = p -> true
         | _ -> false
 
@@ -33,19 +33,19 @@ module UnionProperties =
     
     [<Property>]
     let ``empty ∪ empty = None``() =
-        empty |> Period.union empty = None
+        empty |> union empty = None
 
     [<Property>]
     let ``Infinite ∪ Infinite = Infinite``()=
-        Period.infinite |> Period.union Period.infinite = Some Period.infinite
+        infinite |> union infinite = Some infinite
 
     [<Property>]
     let ``Infinite ∪ p = Infinite`` p = 
-        Period.infinite |> Period.union p = Some Period.infinite
+        infinite |> union p = Some infinite
 
     [<Property>]
     let ``p ∪ p = p`` p = 
-        match p |> Period.union p with
-        | None when Period.isEmpty p -> true
+        match p |> union p with
+        | None when isEmpty p -> true
         | Some u when u = p -> true
         | _ -> false

@@ -30,4 +30,4 @@ module SplitTemporaries =
     let ``check that all period are less than split period`` (temporaries:string Temporary list) = 
         temporaries
         |> Outatime.split splitPeriod
-        |> Seq.forall(fun v -> v.period |> Period.length <= splitPeriod)
+        |> Seq.forall(fun v -> v.period |> duration <= splitPeriod)
