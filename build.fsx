@@ -57,18 +57,10 @@ Target "Build" (fun _ ->
     |> ignore
 )
 
-open System.Diagnostics
-
+open Fake.Testing.XUnit2
 Target "Tests" (fun _ ->
-    let runner = findToolInSubPath "xunit.console.clr4.exe" (currentDirectory @@ "tools" @@ "xUnit")
-    let xunit t =
-        let xunitInfo t (info:ProcessStartInfo) = 
-            info.FileName <- runner
-            info.Arguments <- sprintf "'%s' /appveyor" t
-        ExecProcess (xunitInfo t) (TimeSpan.FromMinutes(30.)) = 0
-    
     !! (testDir + "*Test.dll")
-    |> Seq.iter (xunit >> ignore)
+    |> xUnit2 (fun p -> { p with ShadowCopy=true; ForceAppVeyor=true; Parallel=ParallelMode.All })
 )
 
 Target "NuGet" (fun _ ->
