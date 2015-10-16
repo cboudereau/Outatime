@@ -6,6 +6,7 @@
     <authors>@authors@</authors>
     <owners>@authors@</owners>
     <projectUrl>https://github.com/cboudereau/Outatime</projectUrl>
+    <iconUrl>https://github.com/cboudereau/Outatime/icon.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <summary>@summary@</summary>
     <description>@description@</description>
