@@ -57,6 +57,32 @@
   </Target>
   -->
   <Import Project="..\.paket\paket.targets" />
+  <ItemGroup>
+    <Content Include="app.config" />
+    <None Include="paket.references" />
+    <Compile Include="AssemblyInfo.fs" />
+    <Compile Include="Bdd.fs" />
+    <Compile Include="PeriodTests.fs" />
+    <Compile Include="SortTests.fs" />
+    <Compile Include="TestData.fs" />
+    <Compile Include="ClampProperties.fs" />
+    <Compile Include="DefaultToNoneTests.fs" />
+    <Compile Include="MergeTests.fs" />
+    <Compile Include="PeriodProperties.fs" />
+    <Compile Include="SplitProperties.fs" />
+    <Compile Include="ApplicativeFunctorTests.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="mscorlib" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Numerics" />
+    <ProjectReference Include="..\Outatime\Outatime.fsproj">
+      <Name>Outatime</Name>
+      <Project>{5b9fba10-9e8f-4cf0-9c00-dfe1011f0d90}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+  </ItemGroup>
   <Choose>
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6')">
       <ItemGroup>
@@ -101,30 +127,4 @@
       </ItemGroup>
     </When>
   </Choose>
-  <ItemGroup>
-    <Content Include="app.config" />
-    <None Include="paket.references" />
-    <Compile Include="AssemblyInfo.fs" />
-    <Compile Include="Bdd.fs" />
-    <Compile Include="PeriodTests.fs" />
-    <Compile Include="SortTests.fs" />
-    <Compile Include="TestData.fs" />
-    <Compile Include="ClampProperties.fs" />
-    <Compile Include="DefaultToNoneTests.fs" />
-    <Compile Include="MergeTests.fs" />
-    <Compile Include="PeriodProperties.fs" />
-    <Compile Include="SplitProperties.fs" />
-    <Compile Include="ApplicativeFunctorTests.fs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="mscorlib" />
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Numerics" />
-    <ProjectReference Include="..\Outatime\Outatime.fsproj">
-      <Name>Outatime</Name>
-      <Project>{5b9fba10-9e8f-4cf0-9c00-dfe1011f0d90}</Project>
-      <Private>True</Private>
-    </ProjectReference>
-  </ItemGroup>
 </Project>
