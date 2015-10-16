@@ -19,7 +19,7 @@ type Period =
         sprintf "[%s; %s[" (this.startDate |> toString) (this.endDate |> toString)
     
     static member infinite = { startDate=DateTime.MinValue; endDate=DateTime.MaxValue }
-    static member duration p = p.endDate - p.startDate
+    static member length p = p.endDate - p.startDate
 
     static member sort f p1 p2 = 
         if p1.startDate <= p2.startDate then f p1 p2
@@ -29,13 +29,13 @@ type Period =
 
     static member intersect p1 p2 = 
         let intersect p1 p2 =
-            let i =                 
+            let i =
                 { startDate = max p1.startDate p2.startDate
                   endDate = min p1.endDate p2.endDate }
 
             match i |> Period.isEmpty, p1.endDate >= p2.startDate with
             | true, _ | _, false -> None
-            | _ -> Some i       
+            | _ -> Some i
          
         Period.sort intersect p1 p2
 
@@ -79,7 +79,7 @@ let clamp period temporaries =
 let split length temporaries = 
     let rec split t = 
         seq{
-            if t.period |> Period.duration <= length then yield t
+            if t.period |> Period.length <= length then yield t
             else
                 let next = t.period.startDate + length
                 yield { t with period = { t.period with endDate = next } }

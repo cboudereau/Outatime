@@ -84,7 +84,8 @@ Target "NuGet" (fun _ ->
                 AccessKey = getBuildParamOrDefault "nugetkey" ""
                 Publish = hasBuildParam "nugetkey"
                 Dependencies = [] })
-            (project.name + "/" + project.name + ".nuspec"))
+//            (project.name + "/" + project.name + ".nuspec"))
+            ("template.nuspec"))
 )
 
 Target "All" DoNothing

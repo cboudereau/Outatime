@@ -51,7 +51,6 @@
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
     <Compile Include="Temporality.fs" />
-    <None Include="FSharp.Temporality.nuspec" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
