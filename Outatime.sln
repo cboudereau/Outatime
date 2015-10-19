@@ -20,10 +20,21 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".build", ".build", "{7AEC13
 	ProjectSection(SolutionItems) = preProject
 		build.cmd = build.cmd
 		build.fsx = build.fsx
-		icon.jpg = icon.jpg
+		icon.png = icon.png
 		README.md = README.md
 		RELEASE_NOTES.md = RELEASE_NOTES.md
 		template.nuspec = template.nuspec
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{275D40C2-78E3-4127-BA6A-CF0FE4983572}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "content", "content", "{506C56FB-9BC6-45B7-8A62-125AAD1D2036}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "files", "files", "{EF0B912C-9180-4A9C-BDC7-8BD56F980B4D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{CCAF6DAA-14CD-49AD-9389-F6E95571CD0E}"
+	ProjectSection(SolutionItems) = preProject
+		docs\tools\generate.fsx = docs\tools\generate.fsx
 	EndProjectSection
 EndProject
 Global
@@ -43,5 +54,10 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{506C56FB-9BC6-45B7-8A62-125AAD1D2036} = {275D40C2-78E3-4127-BA6A-CF0FE4983572}
+		{EF0B912C-9180-4A9C-BDC7-8BD56F980B4D} = {275D40C2-78E3-4127-BA6A-CF0FE4983572}
+		{CCAF6DAA-14CD-49AD-9389-F6E95571CD0E} = {275D40C2-78E3-4127-BA6A-CF0FE4983572}
 	EndGlobalSection
 EndGlobal
