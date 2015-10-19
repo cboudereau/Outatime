@@ -1,6 +1,7 @@
 source https://www.nuget.org/api/v2/
 
 nuget FAKE
+nuget FSharp.Formatting
 nuget Nuget.CommandLine
 nuget FsCheck 2.0.3 framework: >= net452
 nuget FsCheck.Xunit 2.0.3 framework: >= net452

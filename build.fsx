@@ -35,7 +35,7 @@ Target "Clean" (fun _ ->
 // Generate assembly info files with the right version & up-to-date information
 Target "AssemblyInfo" (fun _ ->
     for project in projects do
-        let fileName = project.name + "/AssemblyInfo.fs"
+        let fileName = "src" @@ project.name @@ "/AssemblyInfo.fs"
         printfn "%s" fileName
         CreateFSharpAssemblyInfo fileName
             [ Attribute.Title project.name
@@ -48,8 +48,8 @@ Target "AssemblyInfo" (fun _ ->
 Target "Build" (fun _ ->
     projects 
     |> List.iter(fun p ->
-        !! ( p.name + "/" + p.name + ".*proj")
-        |> MSBuildRelease (outDir + "/" + p.name) "Build"
+        !! ( "src" @@ p.name @@ p.name + ".*proj")
+        |> MSBuildRelease (outDir @@ p.name) "Build"
         |> ignore)
 )
 
@@ -59,7 +59,7 @@ Target "Tests" (fun _ ->
     |> MSBuildRelease testDir "Build"
     |> ignore
 
-    !! (testDir + "*Test.dll")
+    !! (testDir @@ "*Test.dll")
     |> xUnit2 (fun p -> { p with ShadowCopy=true; ForceAppVeyor=true; Parallel=ParallelMode.All })
 )
 
@@ -68,7 +68,7 @@ Target "NuGet" (fun _ ->
 
     projects
     |> Seq.iter(fun project ->
-        CopyDir (nugetDir + "/lib/" + project.framework) (outDir + "/" + project.name) (fun file -> file.Contains "FSharp.Core." |> not)
+        CopyDir (nugetDir @@ "/lib/" @@ project.framework) (outDir @@ project.name) (fun file -> file.Contains "FSharp.Core." |> not)
         NuGet (fun p -> 
             { p with
                 Authors = project.authors

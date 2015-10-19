@@ -3,16 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{3D282343-3479-424E-982E-6EAE423C4FC8}"
-	ProjectSection(SolutionItems) = preProject
-		.nuget\NuGet.Config = .nuget\NuGet.Config
-		.nuget\NuGet.exe = .nuget\NuGet.exe
-		.nuget\NuGet.targets = .nuget\NuGet.targets
-	EndProjectSection
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Outatime.Test", "src\Outatime.Test\Outatime.Test.fsproj", "{AB96222B-0AC0-4EEE-A707-20B8779D8C55}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Outatime.Test", "Outatime.Test\Outatime.Test.fsproj", "{AB96222B-0AC0-4EEE-A707-20B8779D8C55}"
-EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Outatime", "Outatime\Outatime.fsproj", "{5B9FBA10-9E8F-4CF0-9C00-DFE1011F0D90}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Outatime", "src\Outatime\Outatime.fsproj", "{5B9FBA10-9E8F-4CF0-9C00-DFE1011F0D90}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".paket", ".paket", "{72D0A17F-5324-40A8-B5EC-AAE779B0D70A}"
 	ProjectSection(SolutionItems) = preProject
