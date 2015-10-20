@@ -37,93 +37,32 @@
         </div>
         <article class="markdown-body">
           <h1>
-<a id="outatime-" class="anchor" href="#outatime-" aria-hidden="true"><span class="octicon octicon-link"></span></a>Outatime <a href="https://ci.appveyor.com/project/cboudereau/outatime"><img src="https://ci.appveyor.com/api/projects/status/v3f2gj9602e82ia4?svg=true" alt="Build status"></a>
+<a id="outatime--" class="anchor" href="#outatime--" aria-hidden="true"><span class="octicon octicon-link"></span></a>Outatime <a href="https://ci.appveyor.com/project/cboudereau/outatime"><img src="https://ci.appveyor.com/api/projects/status/v3f2gj9602e82ia4?svg=true" alt="Build status"></a> <a href="https://www.nuget.org/packages/Outatime/"><img src="http://img.shields.io/nuget/v/Outatime.svg?style=flat" alt="NuGet Status"></a>
 </h1>
 
-<p>When you have to deal with price, restrictions or all kind of values changing over the time, it becomes difficult to reduce the amount of data of your API If you don't have a strategy to merge the values.</p>
+<p>![Outatime] <a href="https://raw.githubusercontent.com/cboudereau/Outatime/master/intro.png">https://raw.githubusercontent.com/cboudereau/Outatime/master/intro.png</a>)</p>
+
+<h1></h1>
+
+<h2>
+<a id="introduction" class="anchor" href="#introduction" aria-hidden="true"><span class="octicon octicon-link"></span></a>Introduction</h2>
+
+<p>When you have a lots of values changing over the time in a planning, it become difficult to deal with it day per day. The solution is to group the same values and merge period.
+On way is having the temporary (type containing value on a period) everywhere but: you have the domain complexity everywhere and if you have to compose another domain you will have more wrapped types.</p>
+
+<p>To simplify and compose functionalities, Outatime give an applicative functor approach. 
+Instead of having the wrapped type everywhere, a function containing all values as parameter is binded to values changing over the time. The domain is out of the time</p>
+
+<h2>
+<a id="how-it-works" class="anchor" href="#how-it-works" aria-hidden="true"><span class="octicon octicon-link"></span></a>How it works</h2>
+
+<p>By using merge function, intersection period, and finding the largest period for missing values, a function is applied each time you give the temporaries. 
+Each time the value is the function applied (given a function with n parameter, expect a function with n-1 parameter).</p>
 
 <h2>
 <a id="maths-at-rescue-what-are-the-common-value-over-the-time-to-avoid-data-repetition" class="anchor" href="#maths-at-rescue-what-are-the-common-value-over-the-time-to-avoid-data-repetition" aria-hidden="true"><span class="octicon octicon-link"></span></a>Maths at Rescue! What are the common value over the time to avoid data repetition</h2>
 
-<p>Outatime has differents principles in order to have the correct design and algorithms :</p>
-
-<h2>
-<a id="applicative-functor-at-the-rescue-but-it-is-promise-it-is-not-difficult-it-is-an-evidence" class="anchor" href="#applicative-functor-at-the-rescue-but-it-is-promise-it-is-not-difficult-it-is-an-evidence" aria-hidden="true"><span class="octicon octicon-link"></span></a>Applicative functor at the rescue but it is promise it is not difficult it is an evidence!</h2>
-
-<div class="highlight highlight-source-fsharp"><pre><span class="pl-en"><span class="pl-k">module</span> <span class="pl-en">ApplicativeFunctorTests</span></span>
-
-<span class="pl-k">open</span> <span class="pl-en">Bdd</span>
-<span class="pl-k">open</span> <span class="pl-en">Xunit</span>
-<span class="pl-k">open</span> <span class="pl-en">Outatime</span>
-
-<span class="pl-k">let</span> <span class="pl-smi">jan15</span> <span class="pl-v">d</span> <span class="pl-k">=</span> DateTime(<span class="pl-c1">2015</span>, <span class="pl-c1">1</span>, d)
-
-<span class="pl-k">type</span> <span class="pl-en">Opening </span><span class="pl-k">=</span> Opened <span class="pl-k">|</span> Closed
-<span class="pl-k">type</span> <span class="pl-en">Departure </span><span class="pl-k">=</span> OpenedToDeparture <span class="pl-k">|</span> ClosedToDeparture
-<span class="pl-k">type</span> <span class="pl-en">Availability </span><span class="pl-k">=</span> Availability <span class="pl-k">of</span> int
-<span class="pl-k">type</span> <span class="pl-en">Price </span><span class="pl-k">=</span> Price <span class="pl-k">of</span> decimal
-
-<span class="pl-k">type</span> <span class="pl-en">Rate </span><span class="pl-k">=</span> 
-    <span class="pl-k">{</span> departure<span class="pl-k">:</span> Departure
-      availability<span class="pl-k">:</span> Availability
-      price<span class="pl-k">:</span> Price <span class="pl-k">}</span>
-
-<span class="pl-k">type</span> <span class="pl-en">RateAvailability </span><span class="pl-k">=</span> 
-    <span class="pl-k">|</span> Closed
-    <span class="pl-k">|</span> Opened <span class="pl-k">of</span> Rate
-
-<span class="pl-c1">[&lt;Fact&gt;]</span>
-let <span class="pl-smi"><span class="pl-smi">``</span>given multiple temporaries, when apply a function on this temporaries then expect applied function on any intersection<span class="pl-s">``</span></span><span class="pl-c1">()</span><span class="pl-k">=</span>
-    let <span class="pl-smi"><span class="pl-smi">``</span>transform temporaries to rate availability domain<span class="pl-s">``</span></span> opening departure availability price <span class="pl-k">=</span> 
-        <span class="pl-k">match</span> opening <span class="pl-k">with</span>
-        <span class="pl-k">|</span> (Opening.Opened) <span class="pl-k">-&gt;</span> 
-            RateAvailability.Opened 
-                <span class="pl-k">{</span> departure<span class="pl-k">=</span>departure<span class="pl-k">;</span> availability<span class="pl-k">=</span>availability<span class="pl-k">;</span> price<span class="pl-k">=</span>price <span class="pl-k">}</span>
-        <span class="pl-k">|</span> (Opening.Closed) <span class="pl-k">-&gt;</span> 
-            RateAvailability.Closed
-
-    let <span class="pl-smi"><span class="pl-smi">``</span>transform temporaries into request<span class="pl-s">``</span></span> temporaries <span class="pl-k">=</span> 
-        <span class="pl-k">let</span> <span class="pl-smi">request</span> <span class="pl-v">t</span> <span class="pl-k">=</span> 
-            <span class="pl-k">match</span> t.value <span class="pl-k">with</span>
-            <span class="pl-k">|</span> None <span class="pl-k">-&gt;</span> 
-                sprintf <span class="pl-s"><span class="pl-pds">"</span>%O = No Request (May be put a state monad here)<span class="pl-pds">"</span></span> t.period
-            <span class="pl-k">|</span> Some Closed <span class="pl-k">-&gt;</span> 
-                sprintf <span class="pl-s"><span class="pl-pds">"</span>%O = Closed<span class="pl-pds">"</span></span> t.period
-            <span class="pl-k">|</span> Some (Opened rate) <span class="pl-k">-&gt;</span> 
-                let (Availability a) <span class="pl-k">=</span> rate.availability
-                let (Price p) <span class="pl-k">=</span> rate.price
-                <span class="pl-k">let</span> <span class="pl-smi">d</span> <span class="pl-k">=</span> 
-                    <span class="pl-k">match</span> rate.departure <span class="pl-k">with</span>
-                    <span class="pl-k">|</span> ClosedToDeparture <span class="pl-k">-&gt;</span> <span class="pl-s"><span class="pl-pds">"</span>closed to departure<span class="pl-pds">"</span></span>
-                    <span class="pl-k">|</span> OpenedToDeparture <span class="pl-k">-&gt;</span> <span class="pl-s"><span class="pl-pds">"</span>opened to departure<span class="pl-pds">"</span></span>
-
-                sprintf <span class="pl-s"><span class="pl-pds">"</span>%O = Opened with %i of availibility at %.2f price and %s<span class="pl-pds">"</span></span> t.period a p d
-
-        temporaries 
-        <span class="pl-k">|&gt;</span> Seq.map request
-        <span class="pl-k">|&gt;</span> Seq.toList
-
-    When
-        <span class="pl-smi"><span class="pl-smi">``</span>transform temporaries to rate availability domain<span class="pl-s">``</span></span>
-        <span class="pl-k">&lt;!&gt;</span> <span class="pl-k">[</span> jan15 <span class="pl-c1">4</span>  <span class="pl-k">=&gt;</span> jan15 <span class="pl-c1">5</span>  <span class="pl-k">:=</span> Opening.Opened
-              jan15 <span class="pl-c1">5</span>  <span class="pl-k">=&gt;</span> jan15 <span class="pl-c1">20</span> <span class="pl-k">:=</span> Opening.Closed <span class="pl-k">]</span>
-
-        <span class="pl-k">&lt;*&gt;</span> <span class="pl-k">[</span> jan15 <span class="pl-c1">2</span>  <span class="pl-k">=&gt;</span> jan15 <span class="pl-c1">15</span> <span class="pl-k">:=</span> OpenedToDeparture
-              jan15 <span class="pl-c1">16</span> <span class="pl-k">=&gt;</span> jan15 <span class="pl-c1">18</span> <span class="pl-k">:=</span> OpenedToDeparture
-              jan15 <span class="pl-c1">18</span> <span class="pl-k">=&gt;</span> jan15 <span class="pl-c1">23</span> <span class="pl-k">:=</span> ClosedToDeparture <span class="pl-k">]</span>
-
-        <span class="pl-k">&lt;*&gt;</span> <span class="pl-k">[</span> jan15 <span class="pl-c1">1</span>  <span class="pl-k">=&gt;</span> jan15 <span class="pl-c1">22</span> <span class="pl-k">:=</span> Availability <span class="pl-c1">10</span> <span class="pl-k">]</span>
-
-        <span class="pl-k">&lt;*&gt;</span> <span class="pl-k">[</span> jan15 <span class="pl-c1">1</span>  <span class="pl-k">=&gt;</span> jan15 <span class="pl-c1">22</span> <span class="pl-k">:=</span> Price <span class="pl-c1">120</span>m <span class="pl-k">]</span>
-        <span class="pl-k">|&gt;</span> <span class="pl-smi"><span class="pl-smi">``</span>transform temporaries into request<span class="pl-s">``</span></span>
-    <span class="pl-k">|&gt;</span> Expect 
-        <span class="pl-k">[</span> <span class="pl-s"><span class="pl-pds">"</span>[2015/01/01; 2015/01/04[ = No Request (May be put a state monad here)<span class="pl-pds">"</span></span>
-          <span class="pl-s"><span class="pl-pds">"</span>[2015/01/04; 2015/01/05[ = Opened with 10 of availibility at 120.00 price and opened to departure<span class="pl-pds">"</span></span>
-          <span class="pl-s"><span class="pl-pds">"</span>[2015/01/05; 2015/01/15[ = Closed<span class="pl-pds">"</span></span>
-          <span class="pl-s"><span class="pl-pds">"</span>[2015/01/15; 2015/01/16[ = No Request (May be put a state monad here)<span class="pl-pds">"</span></span>
-          <span class="pl-s"><span class="pl-pds">"</span>[2015/01/16; 2015/01/18[ = Closed<span class="pl-pds">"</span></span>
-          <span class="pl-s"><span class="pl-pds">"</span>[2015/01/18; 2015/01/20[ = Closed<span class="pl-pds">"</span></span>
-          <span class="pl-s"><span class="pl-pds">"</span>[2015/01/20; 2015/01/23[ = No Request (May be put a state monad here)<span class="pl-pds">"</span></span> <span class="pl-k">]</span></pre></div>
+<p>Outatime has differents principles in order to have the correct design and algorithms</p>
 
 <h3>
 <a id="period" class="anchor" href="#period" aria-hidden="true"><span class="octicon octicon-link"></span></a>Period</h3>
@@ -134,9 +73,6 @@ let <span class="pl-smi"><span class="pl-smi">``</span>given multiple temporarie
 <a id="temporary" class="anchor" href="#temporary" aria-hidden="true"><span class="octicon octicon-link"></span></a>Temporary</h3>
 
 <p>Is the value at a Period</p>
-
-<h2>
-<a id="features" class="anchor" href="#features" aria-hidden="true"><span class="octicon octicon-link"></span></a>Features</h2>
 
 <h3>
 <a id="merge" class="anchor" href="#merge" aria-hidden="true"><span class="octicon octicon-link"></span></a>Merge</h3>
@@ -199,6 +135,117 @@ let <span class="pl-smi"><span class="pl-smi">``</span>given temporaries for a l
 
 <p>Outatime is fully written with property based testing and FSCheck <a href="https://github.com/fscheck/FsCheck">https://github.com/fscheck/FsCheck</a>
 All properties are based on Interval Mathematics principles : <a href="https://github.com/cboudereau/Outatime/blob/master/Outatime.Test/PeriodProperties.fs">https://github.com/cboudereau/Outatime/blob/master/Outatime.Test/PeriodProperties.fs</a></p>
+
+<h2>
+<a id="applicative-functor" class="anchor" href="#applicative-functor" aria-hidden="true"><span class="octicon octicon-link"></span></a>Applicative functor</h2>
+
+<p>As describe in the introduction part, an applicative functor can be use in order to have a domain out of the time.</p>
+
+<div class="highlight highlight-source-fsharp"><pre><span class="pl-en"><span class="pl-k">module</span> <span class="pl-en">ReadmeSample</span></span>
+
+<span class="pl-k">open</span> <span class="pl-en">Outatime</span>
+<span class="pl-k">open</span> <span class="pl-en">Xunit</span>
+
+<span class="pl-c">//Simple BDD functions</span>
+<span class="pl-k">let</span> <span class="pl-smi">When</span> <span class="pl-v">f</span> <span class="pl-k">=</span> f
+<span class="pl-k">let</span> <span class="pl-smi">With</span> <span class="pl-v">v</span> <span class="pl-v">f</span> <span class="pl-k">=</span> f v
+<span class="pl-k">let</span> <span class="pl-smi">For</span> <span class="pl-k">=</span> With
+<span class="pl-k">let</span> <span class="pl-smi">And</span> <span class="pl-k">=</span> With
+<span class="pl-k">let</span> <span class="pl-smi">Then</span> <span class="pl-v">check</span> <span class="pl-v">expected</span> <span class="pl-k">=</span> check expected
+
+<span class="pl-k">let</span> <span class="pl-smi">shouldEqual</span>&lt;<span class="pl-v">'a</span>&gt; (<span class="pl-v">expected</span>:<span class="pl-v">'a</span>) (<span class="pl-v">actual</span>:<span class="pl-v">'a</span>) <span class="pl-k">=</span> Assert.Equal(expected, actual)
+
+<span class="pl-k">let</span> <span class="pl-smi">Expect</span>&lt;<span class="pl-v">'a</span>&gt; <span class="pl-k">=</span> Then shouldEqual<span class="pl-k">&lt;</span>'a<span class="pl-k">&gt;</span>
+
+<span class="pl-k">let</span> <span class="pl-smi">shouldBeEmpty</span> <span class="pl-v">actual</span> <span class="pl-k">=</span> Assert.Equal(<span class="pl-c1">0</span>, actual <span class="pl-k">|&gt;</span> Seq.length)
+
+<span class="pl-k">let</span> <span class="pl-smi">jan15</span> <span class="pl-v">d</span> <span class="pl-k">=</span> DateTime(<span class="pl-c1">2015</span>, <span class="pl-c1">1</span>, d)
+
+<span class="pl-c">//A domain sample</span>
+<span class="pl-k">type</span> <span class="pl-en">Opening </span><span class="pl-k">=</span> Opened <span class="pl-k">|</span> Closed
+<span class="pl-k">type</span> <span class="pl-en">Departure </span><span class="pl-k">=</span> OpenedToDeparture <span class="pl-k">|</span> ClosedToDeparture
+<span class="pl-k">type</span> <span class="pl-en">Availability </span><span class="pl-k">=</span> Availability <span class="pl-k">of</span> int
+<span class="pl-k">type</span> <span class="pl-en">Price </span><span class="pl-k">=</span> Price <span class="pl-k">of</span> decimal
+
+<span class="pl-k">type</span> <span class="pl-en">Rate </span><span class="pl-k">=</span> 
+    <span class="pl-k">{</span> departure<span class="pl-k">:</span> Departure
+      availability<span class="pl-k">:</span> Availability
+      price<span class="pl-k">:</span> Price <span class="pl-k">}</span>
+
+<span class="pl-k">type</span> <span class="pl-en">RateAvailability </span><span class="pl-k">=</span> 
+    <span class="pl-k">|</span> Closed
+    <span class="pl-k">|</span> Opened <span class="pl-k">of</span> Rate
+
+let <span class="pl-smi"><span class="pl-smi">``</span>transform temporaries to rate availability domain<span class="pl-s">``</span></span> opening departure availability price <span class="pl-k">=</span> 
+    <span class="pl-k">match</span> opening <span class="pl-k">with</span>
+    <span class="pl-k">|</span> (Opening.Opened) <span class="pl-k">-&gt;</span> 
+        RateAvailability.Opened 
+            <span class="pl-k">{</span> departure<span class="pl-k">=</span>departure<span class="pl-k">;</span> availability<span class="pl-k">=</span>availability<span class="pl-k">;</span> price<span class="pl-k">=</span>price <span class="pl-k">}</span>
+    <span class="pl-k">|</span> (Opening.Closed) <span class="pl-k">-&gt;</span> 
+        RateAvailability.Closed
+
+let <span class="pl-smi"><span class="pl-smi">``</span>transform temporaries into request<span class="pl-s">``</span></span> temporaries <span class="pl-k">=</span> 
+    <span class="pl-k">let</span> <span class="pl-smi">request</span> <span class="pl-v">t</span> <span class="pl-k">=</span> 
+        <span class="pl-k">match</span> t.value <span class="pl-k">with</span>
+        <span class="pl-k">|</span> None <span class="pl-k">-&gt;</span> 
+            sprintf <span class="pl-s"><span class="pl-pds">"</span>%O = No Request (May be put a state monad here for not contiguous case)<span class="pl-pds">"</span></span> t.period
+        <span class="pl-k">|</span> Some Closed <span class="pl-k">-&gt;</span> 
+            sprintf <span class="pl-s"><span class="pl-pds">"</span>%O = Closed<span class="pl-pds">"</span></span> t.period
+        <span class="pl-k">|</span> Some (Opened rate) <span class="pl-k">-&gt;</span> 
+            let (Availability a) <span class="pl-k">=</span> rate.availability
+            let (Price p) <span class="pl-k">=</span> rate.price
+            <span class="pl-k">let</span> <span class="pl-smi">d</span> <span class="pl-k">=</span> 
+                <span class="pl-k">match</span> rate.departure <span class="pl-k">with</span>
+                <span class="pl-k">|</span> ClosedToDeparture <span class="pl-k">-&gt;</span> <span class="pl-s"><span class="pl-pds">"</span>closed to departure<span class="pl-pds">"</span></span>
+                <span class="pl-k">|</span> OpenedToDeparture <span class="pl-k">-&gt;</span> <span class="pl-s"><span class="pl-pds">"</span>opened to departure<span class="pl-pds">"</span></span>
+
+            sprintf <span class="pl-s"><span class="pl-pds">"</span>%O = Opened with %i of availibility at %.2f price and %s<span class="pl-pds">"</span></span> t.period a p d
+
+    temporaries 
+    <span class="pl-k">|&gt;</span> Seq.map request
+    <span class="pl-k">|&gt;</span> Seq.toList
+
+<span class="pl-c1">[&lt;Fact&gt;]</span>
+let <span class="pl-smi"><span class="pl-smi">``</span>given temporaries with no intersections or empty periods expect the largest period with none value<span class="pl-s">``</span></span><span class="pl-c1">()</span><span class="pl-k">=</span>
+    When
+        <span class="pl-smi"><span class="pl-smi">``</span>transform temporaries to rate availability domain<span class="pl-s">``</span></span>
+        <span class="pl-k">&lt;!&gt;</span> <span class="pl-k">[</span> jan15 <span class="pl-c1">4</span>  <span class="pl-k">=&gt;</span> jan15 <span class="pl-c1">4</span>  <span class="pl-k">:=</span> Opening.Opened
+              jan15 <span class="pl-c1">5</span>  <span class="pl-k">=&gt;</span> jan15 <span class="pl-c1">5</span> <span class="pl-k">:=</span> Opening.Closed <span class="pl-k">]</span>
+
+        <span class="pl-k">&lt;*&gt;</span> <span class="pl-k">[</span> jan15 <span class="pl-c1">1</span> <span class="pl-k">=&gt;</span> jan15 <span class="pl-c1">16</span> <span class="pl-k">:=</span> OpenedToDeparture
+              jan15 <span class="pl-c1">2</span>  <span class="pl-k">=&gt;</span> jan15 <span class="pl-c1">2</span> <span class="pl-k">:=</span> OpenedToDeparture <span class="pl-k">]</span>
+
+        <span class="pl-k">&lt;*&gt;</span> <span class="pl-k">[</span> jan15 <span class="pl-c1">1</span>  <span class="pl-k">=&gt;</span> jan15 <span class="pl-c1">1</span> <span class="pl-k">:=</span> Availability <span class="pl-c1">10</span> <span class="pl-k">]</span>
+
+        <span class="pl-k">&lt;*&gt;</span> <span class="pl-k">[</span> jan15 <span class="pl-c1">3</span>  <span class="pl-k">=&gt;</span> jan15 <span class="pl-c1">3</span> <span class="pl-k">:=</span> Price <span class="pl-c1">120</span>m <span class="pl-k">]</span>
+        <span class="pl-k">|&gt;</span> <span class="pl-smi"><span class="pl-smi">``</span>transform temporaries into request<span class="pl-s">``</span></span>
+    <span class="pl-k">|&gt;</span> Expect <span class="pl-k">[</span><span class="pl-s"><span class="pl-pds">"</span>[2015/01/01; 2015/01/16[ = No Request (May be put a state monad here for not contiguous case)<span class="pl-pds">"</span></span><span class="pl-k">]</span>
+
+
+<span class="pl-c1">[&lt;Fact&gt;]</span>
+let <span class="pl-smi"><span class="pl-smi">``</span>given multiple temporaries, when apply a function on this temporaries then expect applied function on any intersection<span class="pl-s">``</span></span><span class="pl-c1">()</span><span class="pl-k">=</span>
+
+    When
+        <span class="pl-smi"><span class="pl-smi">``</span>transform temporaries to rate availability domain<span class="pl-s">``</span></span>
+        <span class="pl-k">&lt;!&gt;</span> <span class="pl-k">[</span> jan15 <span class="pl-c1">4</span>  <span class="pl-k">=&gt;</span> jan15 <span class="pl-c1">5</span>  <span class="pl-k">:=</span> Opening.Opened
+              jan15 <span class="pl-c1">5</span>  <span class="pl-k">=&gt;</span> jan15 <span class="pl-c1">20</span> <span class="pl-k">:=</span> Opening.Closed <span class="pl-k">]</span>
+
+        <span class="pl-k">&lt;*&gt;</span> <span class="pl-k">[</span> jan15 <span class="pl-c1">2</span>  <span class="pl-k">=&gt;</span> jan15 <span class="pl-c1">15</span> <span class="pl-k">:=</span> OpenedToDeparture
+              jan15 <span class="pl-c1">16</span> <span class="pl-k">=&gt;</span> jan15 <span class="pl-c1">18</span> <span class="pl-k">:=</span> OpenedToDeparture
+              jan15 <span class="pl-c1">18</span> <span class="pl-k">=&gt;</span> jan15 <span class="pl-c1">23</span> <span class="pl-k">:=</span> ClosedToDeparture <span class="pl-k">]</span>
+
+        <span class="pl-k">&lt;*&gt;</span> <span class="pl-k">[</span> jan15 <span class="pl-c1">1</span>  <span class="pl-k">=&gt;</span> jan15 <span class="pl-c1">22</span> <span class="pl-k">:=</span> Availability <span class="pl-c1">10</span> <span class="pl-k">]</span>
+
+        <span class="pl-k">&lt;*&gt;</span> <span class="pl-k">[</span> jan15 <span class="pl-c1">1</span>  <span class="pl-k">=&gt;</span> jan15 <span class="pl-c1">22</span> <span class="pl-k">:=</span> Price <span class="pl-c1">120</span>m <span class="pl-k">]</span>
+        <span class="pl-k">|&gt;</span> <span class="pl-smi"><span class="pl-smi">``</span>transform temporaries into request<span class="pl-s">``</span></span>
+    <span class="pl-k">|&gt;</span> Expect 
+        <span class="pl-k">[</span> <span class="pl-s"><span class="pl-pds">"</span>[2015/01/01; 2015/01/04[ = No Request (May be put a state monad here for not contiguous case)<span class="pl-pds">"</span></span>
+          <span class="pl-s"><span class="pl-pds">"</span>[2015/01/04; 2015/01/05[ = Opened with 10 of availibility at 120.00 price and opened to departure<span class="pl-pds">"</span></span>
+          <span class="pl-s"><span class="pl-pds">"</span>[2015/01/05; 2015/01/15[ = Closed<span class="pl-pds">"</span></span>
+          <span class="pl-s"><span class="pl-pds">"</span>[2015/01/15; 2015/01/16[ = No Request (May be put a state monad here for not contiguous case)<span class="pl-pds">"</span></span>
+          <span class="pl-s"><span class="pl-pds">"</span>[2015/01/16; 2015/01/18[ = Closed<span class="pl-pds">"</span></span>
+          <span class="pl-s"><span class="pl-pds">"</span>[2015/01/18; 2015/01/20[ = Closed<span class="pl-pds">"</span></span>
+          <span class="pl-s"><span class="pl-pds">"</span>[2015/01/20; 2015/01/23[ = No Request (May be put a state monad here for not contiguous case)<span class="pl-pds">"</span></span> <span class="pl-k">]</span></pre></div>
         </article>
       </div>
     </div>
