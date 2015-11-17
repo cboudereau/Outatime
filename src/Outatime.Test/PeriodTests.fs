@@ -28,7 +28,7 @@ let ``timespan facilities tests``()=
 
 [<Fact>]
 let ``when display period expect math representation``()=
-    let period = { startDate =  jan15 1; endDate=jan15 2 }
+    let period = { StartDate =  jan15 1; EndDate=jan15 2 }
 
     let ``display a period`` period = period.ToString()
 
@@ -40,7 +40,7 @@ let ``when display period expect math representation``()=
 let ``infinite period must be between DateTime.MinValue and DateTime.MaxValue``()=
     
     When infinite
-    |> Expect { startDate=DateTime.MinValue; endDate=DateTime.MaxValue }
+    |> Expect { StartDate=DateTime.MinValue; EndDate=DateTime.MaxValue }
 
 [<Fact>]
 let ``given 2 unsorted periods expect sorted periods``()=
