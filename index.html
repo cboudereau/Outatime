@@ -1,42 +1,25 @@
-<!doctype html>
-<!-- The Time Machine GitHub pages theme was designed and developed by Jon Rohan, on Feb 7, 2012. -->
-<!-- Follow him for fun. http://twitter.com/jonrohan. Tail his code on https://github.com/jonrohan -->
-<html>
-<head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>Outatime by cboudereau</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">Outatime</h1>
+      <h2 class="project-tagline"></h2>
+      <a href="https://github.com/cboudereau/Outatime" class="btn">View on GitHub</a>
+      <a href="https://github.com/cboudereau/Outatime/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/cboudereau/Outatime/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
 
-  <link rel="stylesheet" href="stylesheets/stylesheet.css" media="screen">
-  <link rel="stylesheet" href="stylesheets/github-dark.css">
-  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-  <script type="text/javascript" src="javascripts/script.js"></script>
-
-  <title>Outatime</title>
-  <meta name="description" content="">
-
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-
-</head>
-
-<body>
-
-  <div class="wrapper">
-    <header>
-      <h1 class="title">Outatime</h1>
-    </header>
-    <div id="container">
-      <p class="tagline"></p>
-      <div id="main" role="main">
-        <div class="download-bar">
-        <div class="inner">
-          <a href="https://github.com/cboudereau/Outatime/tarball/master" class="download-button tar"><span>Download</span></a>
-          <a href="https://github.com/cboudereau/Outatime/zipball/master" class="download-button zip"><span>Download</span></a>
-          <a href="https://github.com/cboudereau/Outatime" class="code">View Outatime on GitHub</a>
-        </div>
-        <span class="blc"></span><span class="trc"></span>
-        </div>
-        <article class="markdown-body">
-          <h1>
+    <section class="main-content">
+      <h1>
 <a id="outatime--" class="anchor" href="#outatime--" aria-hidden="true"><span class="octicon octicon-link"></span></a>Outatime <a href="https://ci.appveyor.com/project/cboudereau/outatime"><img src="https://ci.appveyor.com/api/projects/status/v3f2gj9602e82ia4?svg=true" alt="Build status"></a> <a href="https://www.nuget.org/packages/Outatime/"><img src="http://img.shields.io/nuget/v/Outatime.svg?style=flat" alt="NuGet Status"></a>
 </h1>
 
@@ -168,38 +151,41 @@ All properties are based on Interval Mathematics principles : <a href="https://g
 <span class="pl-k">type</span> <span class="pl-en">Price </span><span class="pl-k">=</span> Price <span class="pl-k">of</span> decimal
 
 <span class="pl-k">type</span> <span class="pl-en">Rate </span><span class="pl-k">=</span> 
-    <span class="pl-k">{</span> departure<span class="pl-k">:</span> Departure
-      availability<span class="pl-k">:</span> Availability
-      price<span class="pl-k">:</span> Price <span class="pl-k">}</span>
+    <span class="pl-k">{</span> Departure<span class="pl-k">:</span> Departure
+      Availability<span class="pl-k">:</span> Availability
+      Price<span class="pl-k">:</span> Price <span class="pl-k">}</span>
 
 <span class="pl-k">type</span> <span class="pl-en">RateAvailability </span><span class="pl-k">=</span> 
     <span class="pl-k">|</span> Closed
     <span class="pl-k">|</span> Opened <span class="pl-k">of</span> Rate
 
-let <span class="pl-smi"><span class="pl-smi">``</span>transform temporaries to rate availability domain<span class="pl-s">``</span></span> opening departure availability price <span class="pl-k">=</span> 
-    <span class="pl-k">match</span> opening <span class="pl-k">with</span>
-    <span class="pl-k">|</span> (Opening.Opened) <span class="pl-k">-&gt;</span> 
-        RateAvailability.Opened 
-            <span class="pl-k">{</span> departure<span class="pl-k">=</span>departure<span class="pl-k">;</span> availability<span class="pl-k">=</span>availability<span class="pl-k">;</span> price<span class="pl-k">=</span>price <span class="pl-k">}</span>
-    <span class="pl-k">|</span> (Opening.Closed) <span class="pl-k">-&gt;</span> 
-        RateAvailability.Closed
+let <span class="pl-smi"><span class="pl-smi">``</span>transform temporaries to rate availability domain<span class="pl-s">``</span></span> openingO departureO availabilityO priceO <span class="pl-k">=</span> 
+    <span class="pl-k">match</span> openingO, departureO, availabilityO, priceO <span class="pl-k">with</span>
+    <span class="pl-k">|</span> Some opening, Some departure, Some availability, Some price <span class="pl-k">-&gt;</span> 
+        <span class="pl-k">match</span> opening <span class="pl-k">with</span>
+        <span class="pl-k">|</span> Opening.Opened <span class="pl-k">-&gt;</span>
+            RateAvailability.Opened 
+                <span class="pl-k">{</span> Departure<span class="pl-k">=</span>departure<span class="pl-k">;</span> Availability<span class="pl-k">=</span>availability<span class="pl-k">;</span> Price<span class="pl-k">=</span>price <span class="pl-k">}</span>
+            <span class="pl-k">|&gt;</span> Some
+        <span class="pl-k">|</span> Opening.Closed <span class="pl-k">-&gt;</span> Some RateAvailability.Closed
+    <span class="pl-k">|</span> <span class="pl-k">_</span> <span class="pl-k">-&gt;</span> None
 
 let <span class="pl-smi"><span class="pl-smi">``</span>transform temporaries into request<span class="pl-s">``</span></span> temporaries <span class="pl-k">=</span> 
     <span class="pl-k">let</span> <span class="pl-smi">request</span> <span class="pl-v">t</span> <span class="pl-k">=</span> 
-        <span class="pl-k">match</span> t.value <span class="pl-k">with</span>
+        <span class="pl-k">match</span> t.Value <span class="pl-k">with</span>
         <span class="pl-k">|</span> None <span class="pl-k">-&gt;</span> 
-            sprintf <span class="pl-s"><span class="pl-pds">"</span>%O = No Request (May be put a state monad here for not contiguous case)<span class="pl-pds">"</span></span> t.period
+            sprintf <span class="pl-pds">"</span><span class="pl-s"><span class="pl-c1">%O</span> = No Request (May be put a state monad here for not contiguous case)</span><span class="pl-pds">"</span> t.Period
         <span class="pl-k">|</span> Some Closed <span class="pl-k">-&gt;</span> 
-            sprintf <span class="pl-s"><span class="pl-pds">"</span>%O = Closed<span class="pl-pds">"</span></span> t.period
+            sprintf <span class="pl-pds">"</span><span class="pl-s"><span class="pl-c1">%O</span> = Closed</span><span class="pl-pds">"</span> t.Period
         <span class="pl-k">|</span> Some (Opened rate) <span class="pl-k">-&gt;</span> 
-            let (Availability a) <span class="pl-k">=</span> rate.availability
-            let (Price p) <span class="pl-k">=</span> rate.price
+            let (Availability a) <span class="pl-k">=</span> rate.Availability
+            let (Price p) <span class="pl-k">=</span> rate.Price
             <span class="pl-k">let</span> <span class="pl-smi">d</span> <span class="pl-k">=</span> 
-                <span class="pl-k">match</span> rate.departure <span class="pl-k">with</span>
+                <span class="pl-k">match</span> rate.Departure <span class="pl-k">with</span>
                 <span class="pl-k">|</span> ClosedToDeparture <span class="pl-k">-&gt;</span> <span class="pl-s"><span class="pl-pds">"</span>closed to departure<span class="pl-pds">"</span></span>
                 <span class="pl-k">|</span> OpenedToDeparture <span class="pl-k">-&gt;</span> <span class="pl-s"><span class="pl-pds">"</span>opened to departure<span class="pl-pds">"</span></span>
 
-            sprintf <span class="pl-s"><span class="pl-pds">"</span>%O = Opened with %i of availibility at %.2f price and %s<span class="pl-pds">"</span></span> t.period a p d
+            sprintf <span class="pl-pds">"</span><span class="pl-s"><span class="pl-c1">%O</span> = Opened with <span class="pl-c1">%i</span> of availibility at <span class="pl-c1">%.2f</span> price and <span class="pl-c1">%s</span></span><span class="pl-pds">"</span> t.Period a p d
 
     temporaries 
     <span class="pl-k">|&gt;</span> Seq.map request
@@ -217,7 +203,7 @@ let <span class="pl-smi"><span class="pl-smi">``</span>given temporaries with no
 
         <span class="pl-k">&lt;*&gt;</span> <span class="pl-k">[</span> jan15 <span class="pl-c1">1</span>  <span class="pl-k">=&gt;</span> jan15 <span class="pl-c1">1</span> <span class="pl-k">:=</span> Availability <span class="pl-c1">10</span> <span class="pl-k">]</span>
 
-        <span class="pl-k">&lt;*&gt;</span> <span class="pl-k">[</span> jan15 <span class="pl-c1">3</span>  <span class="pl-k">=&gt;</span> jan15 <span class="pl-c1">3</span> <span class="pl-k">:=</span> Price <span class="pl-c1">120</span>m <span class="pl-k">]</span>
+        <span class="pl-k">&lt;*</span>?<span class="pl-k">&gt;</span> <span class="pl-k">[</span> jan15 <span class="pl-c1">3</span>  <span class="pl-k">=&gt;</span> jan15 <span class="pl-c1">3</span> <span class="pl-k">:=</span> Price <span class="pl-c1">120</span>m <span class="pl-k">]</span>
         <span class="pl-k">|&gt;</span> <span class="pl-smi"><span class="pl-smi">``</span>transform temporaries into request<span class="pl-s">``</span></span>
     <span class="pl-k">|&gt;</span> Expect <span class="pl-k">[</span><span class="pl-s"><span class="pl-pds">"</span>[2015/01/01; 2015/01/16[ = No Request (May be put a state monad here for not contiguous case)<span class="pl-pds">"</span></span><span class="pl-k">]</span>
 
@@ -236,36 +222,24 @@ let <span class="pl-smi"><span class="pl-smi">``</span>given multiple temporarie
 
         <span class="pl-k">&lt;*&gt;</span> <span class="pl-k">[</span> jan15 <span class="pl-c1">1</span>  <span class="pl-k">=&gt;</span> jan15 <span class="pl-c1">22</span> <span class="pl-k">:=</span> Availability <span class="pl-c1">10</span> <span class="pl-k">]</span>
 
-        <span class="pl-k">&lt;*&gt;</span> <span class="pl-k">[</span> jan15 <span class="pl-c1">1</span>  <span class="pl-k">=&gt;</span> jan15 <span class="pl-c1">22</span> <span class="pl-k">:=</span> Price <span class="pl-c1">120</span>m <span class="pl-k">]</span>
+        <span class="pl-k">&lt;*</span>?<span class="pl-k">&gt;</span> <span class="pl-k">[</span> jan15 <span class="pl-c1">1</span>  <span class="pl-k">=&gt;</span> jan15 <span class="pl-c1">22</span> <span class="pl-k">:=</span> Price <span class="pl-c1">120</span>m <span class="pl-k">]</span>
         <span class="pl-k">|&gt;</span> <span class="pl-smi"><span class="pl-smi">``</span>transform temporaries into request<span class="pl-s">``</span></span>
     <span class="pl-k">|&gt;</span> Expect 
         <span class="pl-k">[</span> <span class="pl-s"><span class="pl-pds">"</span>[2015/01/01; 2015/01/04[ = No Request (May be put a state monad here for not contiguous case)<span class="pl-pds">"</span></span>
           <span class="pl-s"><span class="pl-pds">"</span>[2015/01/04; 2015/01/05[ = Opened with 10 of availibility at 120.00 price and opened to departure<span class="pl-pds">"</span></span>
           <span class="pl-s"><span class="pl-pds">"</span>[2015/01/05; 2015/01/15[ = Closed<span class="pl-pds">"</span></span>
           <span class="pl-s"><span class="pl-pds">"</span>[2015/01/15; 2015/01/16[ = No Request (May be put a state monad here for not contiguous case)<span class="pl-pds">"</span></span>
-          <span class="pl-s"><span class="pl-pds">"</span>[2015/01/16; 2015/01/18[ = Closed<span class="pl-pds">"</span></span>
-          <span class="pl-s"><span class="pl-pds">"</span>[2015/01/18; 2015/01/20[ = Closed<span class="pl-pds">"</span></span>
+          <span class="pl-s"><span class="pl-pds">"</span>[2015/01/16; 2015/01/20[ = Closed<span class="pl-pds">"</span></span>
           <span class="pl-s"><span class="pl-pds">"</span>[2015/01/20; 2015/01/23[ = No Request (May be put a state monad here for not contiguous case)<span class="pl-pds">"</span></span> <span class="pl-k">]</span></pre></div>
-        </article>
-      </div>
-    </div>
-    <footer>
-      <div class="owner">
-      <p><a href="https://github.com/cboudereau" class="avatar"><img src="https://avatars1.githubusercontent.com/u/2091863?v=3&amp;s=60" width="48" height="48"></a> <a href="https://github.com/cboudereau">cboudereau</a> maintains <a href="https://github.com/cboudereau/Outatime">Outatime</a></p>
 
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/cboudereau/Outatime">Outatime</a> is maintained by <a href="https://github.com/cboudereau">cboudereau</a>.</span>
 
-      </div>
-      <div class="creds">
-        <small>This page generated using <a href="https://pages.github.com/">GitHub Pages</a><br>theme by <a href="https://twitter.com/jonrohan/">Jon Rohan</a></small>
-      </div>
-    </footer>
-  </div>
-  <div class="current-section">
-    <a href="#top">Scroll to top</a>
-    <a href="https://github.com/cboudereau/Outatime/tarball/master" class="tar">tar</a><a href="https://github.com/cboudereau/Outatime/zipball/master" class="zip">zip</a><a href="" class="code">source code</a>
-    <p class="name"></p>
-  </div>
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
 
   
-</body>
+  </body>
 </html>
