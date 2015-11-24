@@ -106,3 +106,23 @@ let ``given multiple temporaries, when apply a function on this temporaries then
           "[2015/01/16; 2015/01/20[ = Closed"
           "[2015/01/20; 2015/01/23[ = No Request (May be put a state monad here for not contiguous case)" ]
 
+module Planning = 
+    type Temporaries<'a> = 'a Temporary seq
+
+    type RoomCode = RoomCode of string
+    type Availability = Availability of int
+    type Room = 
+        { RoomCode : RoomCode
+          Availabilities : Availability Temporaries }
+
+    type RateCode = RateCode of string
+    type Price = Price of decimal
+    type Rate = 
+        { RateCode : RateCode
+          Prices : Price Temporaries }
+
+    type RoomRate = 
+        { RoomCode : RoomCode
+          RateCode : RateCode
+          Prices : Price Temporaries
+          Availabilities : Availability Temporaries }
