@@ -109,20 +109,69 @@ let ``given multiple temporaries, when apply a function on this temporaries then
 module Planning = 
     type Temporaries<'a> = 'a Temporary seq
 
-    type RoomCode = RoomCode of string
-    type Availability = Availability of int
-    type Room = 
-        { RoomCode : RoomCode
-          Availabilities : Availability Temporaries }
-
     type RateCode = RateCode of string
     type Price = Price of decimal
+    
     type Rate = 
         { RateCode : RateCode
           Prices : Price Temporaries }
 
-    type RoomRate = 
+    type Rates = Rate seq
+
+    type RoomCode = RoomCode of string
+    type Availability = Availability of int
+    type Room = 
+        { RoomCode : RoomCode
+          Availabilities : Availability Temporaries
+          Rates : Rates }
+
+    type Rooms = Room seq
+
+    //Could be technical
+    let transpose (rates:Map<RateCode, Price Temporaries>) : Map<RateCode, Price> Temporaries = 
+        
+        let r = 
+            rates 
+            |> Map.toSeq
+            |> Seq.collect(fun (rateCode, prices) -> 
+                prices
+                |> Seq.map (fun t -> t.Period := (rateCode, t.Value)))
+        
+        failwith "not yet implemented"
+
+    type RoomRate =
         { RoomCode : RoomCode
           RateCode : RateCode
-          Prices : Price Temporaries
-          Availabilities : Availability Temporaries }
+          Availability : Availability
+          Price : Price }
+
+    //Don't use this, just for example use unwind into an applicative functor
+    let allotment unwinder (roomCode : RoomCode) (availabilities:Availability Temporaries) (rates: Map<RateCode, Price> Temporaries) : RoomRate Temporaries = 
+        failwith "not yet implemented"
+
+    //Transform each room to this
+    let unwind (roomCode : RoomCode) (Availability availability) (rates: Map<RateCode, Price>) : RoomRate seq = 
+        
+        let allRates = rates |> Map.toSeq
+        
+        let (stock, remain) = 
+            let numberOfRate = allRates |> Seq.length
+            availability / numberOfRate, availability % numberOfRate
+        
+        let takeOne stock = 
+            if stock > 0 then 1, (stock - 1)
+            else 0, 0
+
+        let unwind (stock, remain) (rateCode, price) = 
+            
+            let (s, nstock) = takeOne stock
+            let (r, nremain) = takeOne remain
+
+            let roomRate = 
+                { RoomCode = roomCode
+                  RateCode = rateCode
+                  Availability = Availability (s + r) 
+                  Price = price }
+            (roomRate, (nstock, nremain))
+        
+        allRates |> Seq.mapFold unwind (stock, remain) |> fst
