@@ -51,6 +51,7 @@
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
     <Compile Include="Outatime.fs" />
+    <None Include="Poc.fsx" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
