@@ -13,17 +13,17 @@ let actual =
                jan15 7 => jan15 21 := Price 75m]) ] |> Map.ofList
 
 let expected = 
-    [ jan15  1 => jan15  2 := ([ ("R1", Price 100m) ])
+    [ jan15  1 => jan15  2 := ([ ("R1", Price 100m) ] |> Map.ofList)
 
       jan15  3 => jan15  5 := ([ ("R1", Price 120m)
-                                 ("R2", Price  80m) ])
+                                 ("R2", Price  80m) ] |> Map.ofList)
 
-      jan15  5 => jan15  7 := ([ ("R1", Price 120m) ])
+      jan15  5 => jan15  7 := ([ ("R1", Price 120m) ] |> Map.ofList)
 
       jan15  7 => jan15 20 := ([ ("R1", Price 120m)
-                                 ("R2", Price  75m) ])
+                                 ("R2", Price  75m) ] |> Map.ofList)
 
-      jan15 20 => jan15 21 := ([ ("R2", Price  75m) ]) ]
+      jan15 20 => jan15 21 := ([ ("R2", Price  75m) ] |> Map.ofList) ]
 
 //First transform string * (price temporary list) into (string * price) temporary list
 
@@ -37,7 +37,6 @@ let toMap map =
     
     let minStart t = t |> Seq.map(fun ts -> ts.Period.StartDate) |> Seq.min
     let maxEnd t = t |> Seq.map(fun ts -> ts.Period.EndDate) |> Seq.max
-    
     let aggregate state t =
         seq { 
             match state |> Outatime.clamp t.Period with
@@ -64,6 +63,8 @@ let toMap map =
     |> Seq.fold aggregate Seq.empty
     |> Seq.map(fun t -> t.Period := (t.Value |> Map.ofSeq))
 
-actual
-|> toMap
-|> Seq.iter (printfn "%A")
+let result = actual |> toMap |> Seq.toList
+
+result |> Seq.iter (printfn "%A")
+
+result = expected
