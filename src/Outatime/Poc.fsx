@@ -33,7 +33,7 @@ let toMap map =
     let transpose map = 
         map
         |> Map.toSeq
-        |> Seq.collect (fun (k, temps) -> temps |> Seq.map(fun t -> t.Period := (k, t.Value)) |> Outatime.sort)
+        |> Seq.collect (fun (k, temporaries) -> temporaries |> Seq.map(fun t -> t.Period := (k, t.Value)) |> Outatime.sort)
     
     let minStart t = t |> Seq.map(fun ts -> ts.Period.StartDate) |> Seq.min
     let maxEnd t = t |> Seq.map(fun ts -> ts.Period.EndDate) |> Seq.max
