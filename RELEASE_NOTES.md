@@ -1,3 +1,10 @@
+## New in 0.1.10 (Released 2015/12/10)
+* traverse map : 
+	Map<'a, 'b Temporary #seq> -> Map<'a, 'b> Temporary seq
+	see : http://fsharpforfunandprofit.com/posts/elevated-world-4/#traverse
+	Aggregate accross time intersection, in order to have coherence and applicative functor approach.
+	A usefull simple sample can be found into TraverseTests.
+
 ## New in 0.1.9 (Released 2015/11/17)
 * Applicative functor : function is now an n option type parameter function in order to get a better feedback on missing value on period
 

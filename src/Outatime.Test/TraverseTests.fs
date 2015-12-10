@@ -26,10 +26,10 @@ type Room =
 
 let jan15 d = System.DateTime(2015, 1, d, 0, 0, 0, System.DateTimeKind.Utc)
 
-
-//Here it is the simplest repartition, in addition, add closed and max sales on rates...
 module Repartition = 
     let fullStock avail _ _ = avail
+    
+    //Here it is the simplest repartition, in addition, add closed and max sales on rates... (there is a bug, find it!)
     let rateLevel avail n i = 
         match avail with
         | Closed -> Closed
@@ -90,7 +90,6 @@ let double =
 
 [<Fact>]
 let ``tranpose avp model to partner model with rate level repartition`` ()=
-
     When 
         [ single
           double ]
