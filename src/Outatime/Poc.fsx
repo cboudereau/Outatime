@@ -1,4 +1,6 @@
-﻿#load "Outatime.fs"
+﻿#load "Partial.fs"
+#load "Partials.fs"
+#load "Outatime.fs"
 
 open Outatime
 
