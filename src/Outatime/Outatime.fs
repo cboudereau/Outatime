@@ -1,47 +1,5 @@
 ﻿module Outatime
 
-module Partial = 
-    type Partial<'a> = 
-        | Applied of 'a
-        | Defaulted of 'a
-    
-    let unlift = function
-        | Applied v
-        | Defaulted v -> v 
-
-    let liftf f = function
-        | Some v -> Partial.Applied (v |> Some |> f) 
-        | None -> Partial.Defaulted (None |> f)
-    
-    let combine f first second = 
-        match first, second with
-        | Partial.Applied f', Some s'
-        | Partial.Defaulted f', Some s' -> Partial.Applied (f f' (Some s'))
-        | Partial.Applied f', None -> Partial.Applied (f f' None)
-        | Partial.Defaulted f', None -> Partial.Defaulted (f f' None)
-
-module Partials = 
-    let unlift partials = partials |> Seq.map Partial.unlift    
-    let ltrim partials = 
-        let ltrim state p = 
-            seq {
-                match state |> Seq.isEmpty, p with
-                | true, Partial.Applied a -> yield Partial.Applied a
-                | true, Partial.Defaulted _ -> yield! state
-                | _, i -> yield! state; yield i }
-        partials |> Seq.fold ltrim Seq.empty
-
-    let rtrim partials = 
-        let rtrim p state = 
-            seq {
-                match state |> Seq.isEmpty, p with
-                | true, Partial.Applied a -> yield Partial.Applied a
-                | true, Partial.Defaulted _ -> yield! Seq.empty
-                | _, i -> yield i; yield! state }
-        Seq.empty |> Seq.foldBack rtrim partials
-
-    let trim partials = partials |> ltrim |> rtrim
-
 type DateTime = System.DateTime
 
 type TimeSpan = System.TimeSpan
