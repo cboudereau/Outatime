@@ -25,10 +25,6 @@ let expected =
 
       jan15 20 => jan15 21 := ([ ("R2", Price  75m) ] |> Map.ofList) ]
 
-//First transform string * (price temporary list) into (string * price) temporary list
-
-    
-//take the (string * price) temporary list and make a list on each temporary intersection
 let toMap map = 
     let transpose map = 
         map
@@ -62,7 +58,7 @@ let toMap map =
     |> transpose
     |> Seq.fold aggregate Seq.empty
     |> Seq.map(fun t -> t.Period := (t.Value |> Map.ofSeq))
-
+//Here may be merge
 let result = actual |> toMap |> Seq.toList
 
 result |> Seq.iter (printfn "%A")

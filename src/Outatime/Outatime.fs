@@ -152,71 +152,79 @@ let merge temporaries =
         }
     temporaries |> Seq.toList |> merge
 
-type Partial<'a> = 
-    | Applied of 'a
-    | Defaulted of 'a
+module Partial = 
+    type Partial<'a> = 
+        | Applied of 'a
+        | Defaulted of 'a
+    
+    let unlift = function
+        | Applied v
+        | Defaulted v -> v 
+
+    let liftf f = function
+        | Some v -> Partial.Applied (v |> Some |> f) 
+        | None -> Partial.Defaulted (None |> f)
+    
+    let combine f first second = 
+        match first, second with
+        | Partial.Applied f', Some s'
+        | Partial.Defaulted f', Some s' -> Partial.Applied (f f' (Some s'))
+        | Partial.Applied f', None -> Partial.Applied (f f' None)
+        | Partial.Defaulted f', None -> Partial.Defaulted (f f' None)
+
+module Partials = 
+    let unlift partials = partials |> Seq.map Partial.unlift    
+    let ltrim partials = 
+        let ltrim state p = 
+            seq {
+                match state |> Seq.isEmpty, p with
+                | true, Partial.Applied a -> yield Partial.Applied a
+                | true, Partial.Defaulted _ -> yield! state
+                | _, i -> yield! state; yield i }
+        partials |> Seq.fold ltrim Seq.empty
+
+    let rtrim partials = 
+        let rtrim p state = 
+            seq {
+                match state |> Seq.isEmpty, p with
+                | true, Partial.Applied a -> yield Partial.Applied a
+                | true, Partial.Defaulted _ -> yield! Seq.empty
+                | _, i -> yield i; yield! state }
+        Seq.empty |> Seq.foldBack rtrim partials
+
+    let trim partials = partials |> ltrim |> rtrim
+
+let private liftf f temporaries = temporaries |> Seq.map (fun t -> Partial.liftf (f t.Period) t.Value)
 
 let map f temporaries = 
-    let apply t = 
-        match t.Value with
-        | Some v -> Applied (t.Period := v |> Some |> f) 
-        | None -> Defaulted (t.Period := None |> f )
-
+    let liftedf period v = period := (f v)
+    
     temporaries
     |> sort
     |> merge
     |> defaultToNone infinite
-    |> Seq.map apply
+    |> liftf liftedf
 
 let apply tfs tvs = 
     
     let defaultedv = tvs |> sort |> merge |> defaultToNone infinite |> Seq.toList
+    
+    let unliftp t = 
+        let p t = t.Period
+        t |> Partial.unlift |> p
+    
+    let liftc period tf v = period := (tf.Value v)
 
     let combinef tf = 
-        let combinev tv = 
-            match tf, tv.Value with
-            | Applied t, Some v
-            | Defaulted t, Some v -> Applied (tv.Period := t.Value (Some v))
-            | Applied t, None -> Applied (tv.Period := t.Value None)
-            | Defaulted t, None -> Defaulted (tv.Period := t.Value None)
-
-        let period = function
-            | Defaulted t
-            | Applied t -> t.Period
+        let combinev tv = Partial.combine (liftc tv.Period) tf tv.Value
 
         defaultedv 
-        |> clamp (period tf)
+        |> clamp (unliftp tf)
         |> Seq.map combinev
 
     tfs |> Seq.collect combinef
 
-let unwrap partials = 
-    let unwrapP = function
-        | Applied v
-        | Defaulted v -> v
-    partials |> Seq.map unwrapP
-
-let ltrim partials = 
-    let ltrim state p = 
-        seq {
-            match state |> Seq.isEmpty, p with
-            | true, Applied a -> yield Applied a
-            | true, Defaulted _ -> yield! state
-            | _, i -> yield! state; yield i }
-    partials |> Seq.fold ltrim Seq.empty
-
-let rtrim partials = 
-    let rtrim p state = 
-        seq {
-            match state |> Seq.isEmpty, p with
-            | true, Applied a -> yield Applied a
-            | true, Defaulted _ -> yield! Seq.empty
-            | _, i -> yield i; yield! state }
-    Seq.empty |> Seq.foldBack rtrim partials
-
-let trim partials = partials |> ltrim |> rtrim
-
-let applyf tfs tvs = apply tfs tvs |> trim |> unwrap |> merge
+let applyf tfs tvs = apply tfs tvs |> Partials.trim |> Partials.unlift |> merge
 
 let (<!>) = map
 let (<*>) = apply
