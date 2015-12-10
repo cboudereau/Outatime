@@ -184,6 +184,41 @@ let apply tfs tvs =
 
 let applyf tfs tvs = apply tfs tvs |> Partials.trim |> Partials.unlift |> merge
 
+let traverse map = 
+    let transpose map = 
+        map
+        |> Map.toSeq
+        |> Seq.collect (fun (k, temporaries) -> temporaries |> Seq.map(fun t -> t.Period := (k, t.Value)) |> sort)
+    
+    let minStart t = t |> Seq.map(fun ts -> ts.Period.StartDate) |> Seq.min
+    let maxEnd t = t |> Seq.map(fun ts -> ts.Period.EndDate) |> Seq.max
+    let aggregate state t =
+        seq { 
+            match state |> clamp t.Period with
+            | i when i |> Seq.isEmpty -> 
+                yield! state
+                yield t.Period := (t.Value |> Seq.singleton)
+            | i -> 
+                let mins = state |> minStart
+                let maxs = state |> maxEnd
+                
+                if t.Period.StartDate < mins then yield t.Period.StartDate => mins := (t.Value |> Seq.singleton)
+
+                yield! state |> clamp (infinite.StartDate => (i |> minStart))
+
+                yield! i |> Seq.map(fun ti -> ti.Period := seq { yield! ti.Value; yield t.Value })
+
+                yield! state |> clamp (i |> maxEnd => infinite.EndDate)
+
+                if t.Period.EndDate > maxs then yield maxs => t.Period.EndDate := (t.Value |> Seq.singleton)
+         }
+    
+    map
+    |> transpose
+    |> Seq.fold aggregate Seq.empty
+    |> Seq.map(fun t -> t.Period := (t.Value |> Map.ofSeq))
+    |> merge
+
 let (<!>) = map
 let (<*>) = apply
 let (<*?>) = applyf
