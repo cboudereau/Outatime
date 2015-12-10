@@ -56,6 +56,8 @@ type Temporary<'a> =
       Value : 'a }
     override this.ToString() = sprintf "%O = %O" this.Period this.Value
 
+type Temporaries<'a> = Temporary<'a> seq
+
 let (=>) startDate endDate = 
     { StartDate = startDate
       EndDate = endDate }

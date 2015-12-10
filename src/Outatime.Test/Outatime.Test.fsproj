@@ -71,6 +71,7 @@
     <Compile Include="PeriodProperties.fs" />
     <Compile Include="SplitProperties.fs" />
     <Compile Include="ApplicativeFunctorTests.fs" />
+    <Compile Include="TraverseTests.fs" />
     <Compile Include="ReadmeSample.fs" />
   </ItemGroup>
   <ItemGroup>
