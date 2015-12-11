@@ -109,13 +109,10 @@ let double =
 
 [<Fact>]
 let ``tranpose avp model to partner model with rate level repartition`` ()=
-    let r = 
+    When 
         [ single
           double ]
         |> Seq.collect (transposeRoom Repartition.rateLevel)
-
-    When 
-        r
         |> Seq.collect Partner.toRequest
         |> Seq.toList
     |> Expect 
