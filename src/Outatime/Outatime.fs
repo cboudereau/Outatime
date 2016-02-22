@@ -134,25 +134,58 @@ let defaultToNoneO period temporaries =
 
 let defaultToNone period = option >> defaultToNoneO period
 
+let (|Always|_|) p = if p = infinite then Some p else None
+
+let (|Equals|_|) p1 p2 = if p1 = p2 then Some p1 else None
+
+let (|Exists|Empty|) p = 
+    if p |> isEmpty then Empty
+    else Exists p
+
+let (|Intersect|_|) p1 p2 =
+    let intersect p1 p2 = 
+        let i =
+            { StartDate = max p1.StartDate p2.StartDate
+              EndDate = min p1.EndDate p2.EndDate }
+        match i, p1.EndDate >= p2.StartDate with
+        | Exists _, true -> Some i
+        | _ -> None
+    sortP intersect p1 p2
+
+let (|Union|_|) p1 p2 =
+    let union p1 p2 = 
+        let u =
+            { StartDate = min p1.StartDate p2.StartDate
+              EndDate = max p1.EndDate p2.EndDate }
+
+        match u |> isEmpty, p1.EndDate >= p2.StartDate with
+        | false, true -> Some u
+        | _ -> None
+    sortP union p1 p2
+
+let (|Merged|_|) t1 t2 = 
+    match t1.Value = t2.Value, t1.Period with
+    | true, Union t2.Period p -> Some { Period=p; Value=t1.Value }
+    | _ -> None
+
 let merge temporaries = 
+    let enumerator = (temporaries:#seq<_>).GetEnumerator()
 
-    let union t1 t2 = 
-        match t1.Value = t2.Value, union t1.Period t2.Period with
-        | false, _ 
-        | _, None -> None
-        | true, Some p -> Some { Period=p; Value=t1.Value }
-
-    let rec merge temporaries = 
-        seq{
-            match temporaries with
-            | t1::t2::tail ->
-                match union t1 t2 with
-                | Some u -> yield! merge (u::tail)
-                | None -> yield t1; yield! merge (t2::tail)
-            | [t] -> yield t
-            | [] -> yield! Seq.empty
-        }
-    temporaries |> Seq.toList |> merge
+    let rec merge previous = 
+        seq {
+            match enumerator.MoveNext(), previous with
+            | true, None -> yield! enumerator.Current |> Some |> merge
+            | true, Some t1 -> 
+                let t2 = enumerator.Current
+                match t2 with
+                | Merged t1 u -> yield! u |> Some |> merge
+                | _ -> yield t1; yield! t2 |> Some |> merge
+            | false, last -> 
+                enumerator.Dispose()
+                match last with
+                | Some t -> yield t;
+                | None -> yield! Seq.empty }
+    merge None
 
 let private liftf f temporaries = temporaries |> Seq.map (fun t -> Partial.liftf (f t.Period) t.Value)
 

@@ -1,3 +1,5 @@
+## New in 1.0 (Released 2015/12/10)
+* enhanced merge function, avoid toList
 ## New in 0.1.10 (Released 2015/12/10)
 * traverse map : 
 	Map<'a, 'b Temporary #seq> -> Map<'a, 'b> Temporary seq
