@@ -20,7 +20,7 @@
 
     <section class="main-content">
       <h1>
-<a id="outatime--" class="anchor" href="#outatime--" aria-hidden="true"><span class="octicon octicon-link"></span></a>Outatime <a href="https://ci.appveyor.com/project/cboudereau/outatime"><img src="https://ci.appveyor.com/api/projects/status/v3f2gj9602e82ia4?svg=true" alt="Build status"></a> <a href="https://www.nuget.org/packages/Outatime/"><img src="http://img.shields.io/nuget/v/Outatime.svg?style=flat" alt="NuGet Status"></a>
+<a id="outatime--" class="anchor" href="#outatime--" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Outatime <a href="https://ci.appveyor.com/project/cboudereau/outatime"><img src="https://ci.appveyor.com/api/projects/status/v3f2gj9602e82ia4?svg=true" alt="Build status"></a> <a href="https://www.nuget.org/packages/Outatime/"><img src="http://img.shields.io/nuget/v/Outatime.svg?style=flat" alt="NuGet Status"></a>
 </h1>
 
 <p><img src="https://raw.githubusercontent.com/cboudereau/Outatime/master/intro.jpg" alt="Outatime"></p>
@@ -28,7 +28,7 @@
 <h1></h1>
 
 <h2>
-<a id="introduction" class="anchor" href="#introduction" aria-hidden="true"><span class="octicon octicon-link"></span></a>Introduction</h2>
+<a id="introduction" class="anchor" href="#introduction" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Introduction</h2>
 
 <p>When you have a lots of values changing over the time in a planning, it become difficult to deal with it day per day. The solution is to group the same values and merge period.
 On way is having the temporary (type containing value on a period) everywhere but: you have the domain complexity everywhere and if you have to compose another domain you will have more wrapped types.</p>
@@ -37,30 +37,30 @@ On way is having the temporary (type containing value on a period) everywhere bu
 Instead of having the wrapped type everywhere, a function containing all values as parameter is binded to values changing over the time. The domain is out of the time</p>
 
 <h2>
-<a id="how-it-works" class="anchor" href="#how-it-works" aria-hidden="true"><span class="octicon octicon-link"></span></a>How it works</h2>
+<a id="how-it-works" class="anchor" href="#how-it-works" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>How it works</h2>
 
 <p>By using merge function, intersection period, and finding the largest period for missing values, a function is applied each time you give the temporaries. 
 Each time the value is the function applied (given a function with n parameter, expect a function with n-1 parameter).</p>
 
 <h2>
-<a id="maths-at-rescue-what-are-the-common-value-over-the-time-to-avoid-data-repetition" class="anchor" href="#maths-at-rescue-what-are-the-common-value-over-the-time-to-avoid-data-repetition" aria-hidden="true"><span class="octicon octicon-link"></span></a>Maths at Rescue! What are the common value over the time to avoid data repetition</h2>
+<a id="maths-at-rescue-what-are-the-common-value-over-the-time-to-avoid-data-repetition" class="anchor" href="#maths-at-rescue-what-are-the-common-value-over-the-time-to-avoid-data-repetition" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Maths at Rescue! What are the common value over the time to avoid data repetition</h2>
 
 <p>Outatime has differents principles in order to have the correct design and algorithms</p>
 
 <h3>
-<a id="period" class="anchor" href="#period" aria-hidden="true"><span class="octicon octicon-link"></span></a>Period</h3>
+<a id="period" class="anchor" href="#period" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Period</h3>
 
 <p>Based on Mathematics Interval applied to Date with a Start Date and an End Date. The Interval is Half Open, then the period from 01/01 to 02/01 has one day duration.</p>
 
 <h3>
-<a id="temporary" class="anchor" href="#temporary" aria-hidden="true"><span class="octicon octicon-link"></span></a>Temporary</h3>
+<a id="temporary" class="anchor" href="#temporary" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Temporary</h3>
 
 <p>Is the value at a Period</p>
 
 <h3>
-<a id="merge" class="anchor" href="#merge" aria-hidden="true"><span class="octicon octicon-link"></span></a>Merge</h3>
+<a id="merge" class="anchor" href="#merge" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Merge</h3>
 
-<p>When value are equals and period intersects, then the temporary is merged and number of temporaries on a temporal decrease. Eg Given a value "toto" on Given periods 01/01 -&gt; 02/01; 02/01 -&gt; 03/01, then the corresponding merge is "toto" on Given periods 01/01 -&gt; 03/01. Sample : <a href="https://github.com/cboudereau/Outatime/blob/master/Outatime.Test/TemporalMergeProperties.fs">https://github.com/cboudereau/Outatime/blob/master/Outatime.Test/TemporalMergeProperties.fs</a></p>
+<p>When value are equals and period intersects, then the temporary is merged and number of temporaries on a temporal decrease. Eg Given a value "toto" on Given periods 01/01 -&gt; 02/01; 02/01 -&gt; 03/01, then the corresponding merge is "toto" on Given periods 01/01 -&gt; 03/01. Sample : <a href="https://github.com/cboudereau/Outatime/blob/master/src/Outatime.Test/MergeTests.fs">https://github.com/cboudereau/Outatime/blob/master/src/Outatime.Test/MergeTests.fs</a></p>
 
 <div class="highlight highlight-source-fsharp"><pre><span class="pl-k">open</span> <span class="pl-en">Outatime</span>
 <span class="pl-k">open</span> <span class="pl-en">Bdd</span>
@@ -82,7 +82,7 @@ let <span class="pl-smi"><span class="pl-smi">``</span>given contiguous temporar
           jan15 <span class="pl-c1">05</span> <span class="pl-k">=&gt;</span> jan15 <span class="pl-c1">20</span> <span class="pl-k">:=</span> <span class="pl-s"><span class="pl-pds">"</span>World<span class="pl-pds">"</span></span> <span class="pl-k">]</span></pre></div>
 
 <h3>
-<a id="split" class="anchor" href="#split" aria-hidden="true"><span class="octicon octicon-link"></span></a>Split</h3>
+<a id="split" class="anchor" href="#split" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Split</h3>
 
 <p>When need to crop to a period..</p>
 
@@ -106,21 +106,21 @@ let <span class="pl-smi"><span class="pl-smi">``</span>given temporaries for a l
           jan15 <span class="pl-c1">06</span> <span class="pl-k">=&gt;</span> jan15 <span class="pl-c1">11</span> <span class="pl-k">:=</span> <span class="pl-s"><span class="pl-pds">"</span>HelloWorld<span class="pl-pds">"</span></span> <span class="pl-k">]</span></pre></div>
 
 <h3>
-<a id="clamp" class="anchor" href="#clamp" aria-hidden="true"><span class="octicon octicon-link"></span></a>Clamp</h3>
+<a id="clamp" class="anchor" href="#clamp" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Clamp</h3>
 
 <p>Given a period and get the corresponding temporaries.</p>
 
 <h2>
-<a id="qa" class="anchor" href="#qa" aria-hidden="true"><span class="octicon octicon-link"></span></a>QA</h2>
+<a id="qa" class="anchor" href="#qa" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>QA</h2>
 
 <h3>
-<a id="writen-with-property-based-testing-driven-dev" class="anchor" href="#writen-with-property-based-testing-driven-dev" aria-hidden="true"><span class="octicon octicon-link"></span></a>Writen with property based testing driven dev</h3>
+<a id="writen-with-property-based-testing-driven-dev" class="anchor" href="#writen-with-property-based-testing-driven-dev" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Writen with property based testing driven dev</h3>
 
 <p>Outatime is fully written with property based testing and FSCheck <a href="https://github.com/fscheck/FsCheck">https://github.com/fscheck/FsCheck</a>
-All properties are based on Interval Mathematics principles : <a href="https://github.com/cboudereau/Outatime/blob/master/Outatime.Test/PeriodProperties.fs">https://github.com/cboudereau/Outatime/blob/master/Outatime.Test/PeriodProperties.fs</a></p>
+All properties are based on Interval Mathematics principles : <a href="https://github.com/cboudereau/Outatime/blob/master/src/Outatime.Test/PeriodProperties.fs">https://github.com/cboudereau/Outatime/blob/master/src/Outatime.Test/PeriodProperties.fs</a></p>
 
 <h2>
-<a id="applicative-functor" class="anchor" href="#applicative-functor" aria-hidden="true"><span class="octicon octicon-link"></span></a>Applicative functor</h2>
+<a id="applicative-functor" class="anchor" href="#applicative-functor" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Applicative functor</h2>
 
 <p>As describe in the introduction part, an applicative functor can be use in order to have a domain out of the time.</p>
 
