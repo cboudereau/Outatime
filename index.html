@@ -67,11 +67,12 @@ Each time the value is the function applied (given a function with n parameter, 
 <span class="pl-k">open</span> <span class="pl-en">Xunit</span>
 
 <span class="pl-k">let</span> <span class="pl-smi">jan15</span> <span class="pl-v">n</span> <span class="pl-k">=</span> (DateTime(<span class="pl-c1">2015</span>,<span class="pl-c1">1</span>,n))
-let <span class="pl-smi"><span class="pl-smi">``</span>I want to merge temporaries<span class="pl-s">``</span></span> <span class="pl-k">=</span> Outatime.merge <span class="pl-k">&gt;&gt;</span> Seq.toList
+
+let <span class="pl-smi"><span class="pl-s">``</span><span class="pl-smi">I want to merge temporaries</span><span class="pl-s">``</span></span> v <span class="pl-k">=</span> v <span class="pl-k">|&gt;</span> Outatime.build <span class="pl-k">|&gt;</span> Outatime.merge <span class="pl-k">|&gt;</span> Outatime.toList
 
 <span class="pl-c1">[&lt;Fact&gt;]</span>
-let <span class="pl-smi"><span class="pl-smi">``</span>given contiguous temporary expect a merged temporary<span class="pl-s">``</span></span><span class="pl-c1">()</span><span class="pl-k">=</span>
-    When <span class="pl-smi"><span class="pl-smi">``</span>I want to merge temporaries<span class="pl-s">``</span></span> 
+let <span class="pl-smi"><span class="pl-s">``</span><span class="pl-smi">given contiguous temporary expect a merged temporary</span><span class="pl-s">``</span></span><span class="pl-c1">()</span><span class="pl-k">=</span>
+    When <span class="pl-smi"><span class="pl-s">``</span><span class="pl-smi">I want to merge temporaries</span><span class="pl-s">``</span></span> 
     <span class="pl-k">|&gt;</span> With 
         <span class="pl-k">[</span> jan15 <span class="pl-c1">01</span> <span class="pl-k">=&gt;</span> jan15 <span class="pl-c1">02</span> <span class="pl-k">:=</span> <span class="pl-s"><span class="pl-pds">"</span>Hello<span class="pl-pds">"</span></span>
           jan15 <span class="pl-c1">02</span> <span class="pl-k">=&gt;</span> jan15 <span class="pl-c1">05</span> <span class="pl-k">:=</span> <span class="pl-s"><span class="pl-pds">"</span>Hello<span class="pl-pds">"</span></span>
@@ -93,13 +94,13 @@ let <span class="pl-smi"><span class="pl-smi">``</span>given contiguous temporar
 <span class="pl-k">let</span> <span class="pl-smi">jan15</span> <span class="pl-v">n</span> <span class="pl-k">=</span> (DateTime(<span class="pl-c1">2015</span>,<span class="pl-c1">1</span>,n))
 <span class="pl-k">let</span> <span class="pl-smi">days</span> <span class="pl-v">n</span> <span class="pl-k">=</span> TimeSpan.FromDays(float n)
 
-let <span class="pl-smi"><span class="pl-smi">``</span>I want to split temporaries<span class="pl-s">``</span></span> days temporaries <span class="pl-k">=</span> Outatime.split days temporaries <span class="pl-k">|&gt;</span> Seq.toList
-let <span class="pl-smi"><span class="pl-smi">``</span>five days<span class="pl-s">``</span></span> <span class="pl-k">=</span> days <span class="pl-c1">5</span>
+let <span class="pl-smi"><span class="pl-s">``</span><span class="pl-smi">I want to split temporaries</span><span class="pl-s">``</span></span> days temporaries <span class="pl-k">=</span> temporaries <span class="pl-k">|&gt;</span> Outatime.build <span class="pl-k">|&gt;</span> Outatime.split days <span class="pl-k">|&gt;</span> Outatime.toList
+let <span class="pl-smi"><span class="pl-s">``</span><span class="pl-smi">five days</span><span class="pl-s">``</span></span> <span class="pl-k">=</span> days <span class="pl-c1">5</span>
 
 <span class="pl-c1">[&lt;Fact&gt;]</span>
-let <span class="pl-smi"><span class="pl-smi">``</span>given temporaries for a large period when split for n days expect temporary with n day max period length<span class="pl-s">``</span></span><span class="pl-c1">()</span><span class="pl-k">=</span>
-    When <span class="pl-smi"><span class="pl-smi">``</span>I want to split temporaries<span class="pl-s">``</span></span> 
-    <span class="pl-k">|&gt;</span> For <span class="pl-smi"><span class="pl-smi">``</span>five days<span class="pl-s">``</span></span>
+let <span class="pl-smi"><span class="pl-s">``</span><span class="pl-smi">given temporaries for a large period when split for n days expect temporary with n day max period length</span><span class="pl-s">``</span></span><span class="pl-c1">()</span><span class="pl-k">=</span>
+    When <span class="pl-smi"><span class="pl-s">``</span><span class="pl-smi">I want to split temporaries</span><span class="pl-s">``</span></span> 
+    <span class="pl-k">|&gt;</span> For <span class="pl-smi"><span class="pl-s">``</span><span class="pl-smi">five days</span><span class="pl-s">``</span></span>
     <span class="pl-k">|&gt;</span> With <span class="pl-k">[</span> jan15 <span class="pl-c1">01</span> <span class="pl-k">=&gt;</span> jan15 <span class="pl-c1">11</span> <span class="pl-k">:=</span> <span class="pl-s"><span class="pl-pds">"</span>HelloWorld<span class="pl-pds">"</span></span> <span class="pl-k">]</span>
     <span class="pl-k">|&gt;</span> Expect
         <span class="pl-k">[</span> jan15 <span class="pl-c1">01</span> <span class="pl-k">=&gt;</span> jan15 <span class="pl-c1">06</span> <span class="pl-k">:=</span> <span class="pl-s"><span class="pl-pds">"</span>HelloWorld<span class="pl-pds">"</span></span>
@@ -128,6 +129,9 @@ All properties are based on Interval Mathematics principles : <a href="https://g
 
 <span class="pl-k">open</span> <span class="pl-en">Outatime</span>
 <span class="pl-k">open</span> <span class="pl-en">Xunit</span>
+
+<span class="pl-k">let</span> <span class="pl-smi">(&lt;!&gt;)</span> <span class="pl-v">f</span> <span class="pl-v">x</span> <span class="pl-k">=</span> x <span class="pl-k">|&gt;</span> Outatime.contiguous <span class="pl-k">|&gt;</span> Outatime.map f
+<span class="pl-k">let</span> <span class="pl-smi">(&lt;*&gt;)</span> <span class="pl-v">f</span> <span class="pl-v">x</span> <span class="pl-k">=</span> x <span class="pl-k">|&gt;</span> Outatime.contiguous <span class="pl-k">|&gt;</span> Outatime.apply f
 
 <span class="pl-c">//Simple BDD functions</span>
 <span class="pl-k">let</span> <span class="pl-smi">When</span> <span class="pl-v">f</span> <span class="pl-k">=</span> f
@@ -159,7 +163,7 @@ All properties are based on Interval Mathematics principles : <a href="https://g
     <span class="pl-k">|</span> Closed
     <span class="pl-k">|</span> Opened <span class="pl-k">of</span> Rate
 
-let <span class="pl-smi"><span class="pl-smi">``</span>transform temporaries to rate availability domain<span class="pl-s">``</span></span> openingO departureO availabilityO priceO <span class="pl-k">=</span> 
+let <span class="pl-smi"><span class="pl-s">``</span><span class="pl-smi">transform temporaries to rate availability domain</span><span class="pl-s">``</span></span> openingO departureO availabilityO priceO <span class="pl-k">=</span> 
     <span class="pl-k">match</span> openingO, departureO, availabilityO, priceO <span class="pl-k">with</span>
     <span class="pl-k">|</span> Some opening, Some departure, Some availability, Some price <span class="pl-k">-&gt;</span> 
         <span class="pl-k">match</span> opening <span class="pl-k">with</span>
@@ -170,31 +174,33 @@ let <span class="pl-smi"><span class="pl-smi">``</span>transform temporaries to 
         <span class="pl-k">|</span> Opening.Closed <span class="pl-k">-&gt;</span> Some RateAvailability.Closed
     <span class="pl-k">|</span> <span class="pl-k">_</span> <span class="pl-k">-&gt;</span> None
 
-let <span class="pl-smi"><span class="pl-smi">``</span>transform temporaries into request<span class="pl-s">``</span></span> temporaries <span class="pl-k">=</span> 
+let <span class="pl-smi"><span class="pl-s">``</span><span class="pl-smi">transform temporaries into request</span><span class="pl-s">``</span></span> temporal <span class="pl-k">=</span> 
     <span class="pl-k">let</span> <span class="pl-smi">request</span> <span class="pl-v">t</span> <span class="pl-k">=</span> 
-        <span class="pl-k">match</span> t.Value <span class="pl-k">with</span>
-        <span class="pl-k">|</span> None <span class="pl-k">-&gt;</span> 
-            sprintf <span class="pl-pds">"</span><span class="pl-s"><span class="pl-c1">%O</span> = No Request (May be put a state monad here for not contiguous case)</span><span class="pl-pds">"</span> t.Period
-        <span class="pl-k">|</span> Some Closed <span class="pl-k">-&gt;</span> 
-            sprintf <span class="pl-pds">"</span><span class="pl-s"><span class="pl-c1">%O</span> = Closed</span><span class="pl-pds">"</span> t.Period
-        <span class="pl-k">|</span> Some (Opened rate) <span class="pl-k">-&gt;</span> 
-            let (Availability a) <span class="pl-k">=</span> rate.Availability
-            let (Price p) <span class="pl-k">=</span> rate.Price
-            <span class="pl-k">let</span> <span class="pl-smi">d</span> <span class="pl-k">=</span> 
-                <span class="pl-k">match</span> rate.Departure <span class="pl-k">with</span>
-                <span class="pl-k">|</span> ClosedToDeparture <span class="pl-k">-&gt;</span> <span class="pl-s"><span class="pl-pds">"</span>closed to departure<span class="pl-pds">"</span></span>
-                <span class="pl-k">|</span> OpenedToDeparture <span class="pl-k">-&gt;</span> <span class="pl-s"><span class="pl-pds">"</span>opened to departure<span class="pl-pds">"</span></span>
+        <span class="pl-k">seq {</span>
+            <span class="pl-k">match</span> t.Value <span class="pl-k">with</span>
+            <span class="pl-k">|</span> None <span class="pl-k">-&gt;</span> <span class="pl-k">yield!</span> Seq.empty
+            <span class="pl-k">|</span> Some Closed <span class="pl-k">-&gt;</span> 
+                <span class="pl-k">yield</span> sprintf <span class="pl-pds">"</span><span class="pl-s"><span class="pl-c1">%O</span> = Closed</span><span class="pl-pds">"</span> t.Period
+            <span class="pl-k">|</span> Some (Opened rate) <span class="pl-k">-&gt;</span> 
+                let (Availability a) <span class="pl-k">=</span> rate.Availability
+                let (Price p) <span class="pl-k">=</span> rate.Price
+                <span class="pl-k">let</span> <span class="pl-smi">d</span> <span class="pl-k">=</span> 
+                    <span class="pl-k">match</span> rate.Departure <span class="pl-k">with</span>
+                    <span class="pl-k">|</span> ClosedToDeparture <span class="pl-k">-&gt;</span> <span class="pl-s"><span class="pl-pds">"</span>closed to departure<span class="pl-pds">"</span></span>
+                    <span class="pl-k">|</span> OpenedToDeparture <span class="pl-k">-&gt;</span> <span class="pl-s"><span class="pl-pds">"</span>opened to departure<span class="pl-pds">"</span></span>
 
-            sprintf <span class="pl-pds">"</span><span class="pl-s"><span class="pl-c1">%O</span> = Opened with <span class="pl-c1">%i</span> of availibility at <span class="pl-c1">%.2f</span> price and <span class="pl-c1">%s</span></span><span class="pl-pds">"</span> t.Period a p d
+                <span class="pl-k">yield</span> sprintf <span class="pl-pds">"</span><span class="pl-s"><span class="pl-c1">%O</span> = Opened with <span class="pl-c1">%i</span> of availibility at <span class="pl-c1">%.2f</span> price and <span class="pl-c1">%s</span></span><span class="pl-pds">"</span> t.Period a p d <span class="pl-k">}</span>
 
-    temporaries 
-    <span class="pl-k">|&gt;</span> Seq.map request
+    temporal
+    <span class="pl-k">|&gt;</span> Outatime.merge
+    <span class="pl-k">|&gt;</span> Outatime.toList 
+    <span class="pl-k">|&gt;</span> Seq.collect request
     <span class="pl-k">|&gt;</span> Seq.toList
 
 <span class="pl-c1">[&lt;Fact&gt;]</span>
-let <span class="pl-smi"><span class="pl-smi">``</span>given temporaries with no intersections or empty periods expect the largest period with none value<span class="pl-s">``</span></span><span class="pl-c1">()</span><span class="pl-k">=</span>
+let <span class="pl-smi"><span class="pl-s">``</span><span class="pl-smi">given temporaries with no intersections or empty periods expect the largest period with none value</span><span class="pl-s">``</span></span><span class="pl-c1">()</span><span class="pl-k">=</span>
     When
-        <span class="pl-smi"><span class="pl-smi">``</span>transform temporaries to rate availability domain<span class="pl-s">``</span></span>
+        <span class="pl-smi"><span class="pl-s">``</span><span class="pl-smi">transform temporaries to rate availability domain</span><span class="pl-s">``</span></span>
         <span class="pl-k">&lt;!&gt;</span> <span class="pl-k">[</span> jan15 <span class="pl-c1">4</span>  <span class="pl-k">=&gt;</span> jan15 <span class="pl-c1">4</span>  <span class="pl-k">:=</span> Opening.Opened
               jan15 <span class="pl-c1">5</span>  <span class="pl-k">=&gt;</span> jan15 <span class="pl-c1">5</span> <span class="pl-k">:=</span> Opening.Closed <span class="pl-k">]</span>
 
@@ -203,16 +209,16 @@ let <span class="pl-smi"><span class="pl-smi">``</span>given temporaries with no
 
         <span class="pl-k">&lt;*&gt;</span> <span class="pl-k">[</span> jan15 <span class="pl-c1">1</span>  <span class="pl-k">=&gt;</span> jan15 <span class="pl-c1">1</span> <span class="pl-k">:=</span> Availability <span class="pl-c1">10</span> <span class="pl-k">]</span>
 
-        <span class="pl-k">&lt;*</span>?<span class="pl-k">&gt;</span> <span class="pl-k">[</span> jan15 <span class="pl-c1">3</span>  <span class="pl-k">=&gt;</span> jan15 <span class="pl-c1">3</span> <span class="pl-k">:=</span> Price <span class="pl-c1">120</span>m <span class="pl-k">]</span>
-        <span class="pl-k">|&gt;</span> <span class="pl-smi"><span class="pl-smi">``</span>transform temporaries into request<span class="pl-s">``</span></span>
-    <span class="pl-k">|&gt;</span> Expect <span class="pl-k">[</span><span class="pl-s"><span class="pl-pds">"</span>[2015/01/01; 2015/01/16[ = No Request (May be put a state monad here for not contiguous case)<span class="pl-pds">"</span></span><span class="pl-k">]</span>
+        <span class="pl-k">&lt;*&gt;</span> <span class="pl-k">[</span> jan15 <span class="pl-c1">3</span>  <span class="pl-k">=&gt;</span> jan15 <span class="pl-c1">3</span> <span class="pl-k">:=</span> Price <span class="pl-c1">120</span>m <span class="pl-k">]</span>
+        <span class="pl-k">|&gt;</span> <span class="pl-smi"><span class="pl-s">``</span><span class="pl-smi">transform temporaries into request</span><span class="pl-s">``</span></span>
+    <span class="pl-k">|&gt;</span> Expect <span class="pl-k">[</span> <span class="pl-k">]</span>
 
 
 <span class="pl-c1">[&lt;Fact&gt;]</span>
-let <span class="pl-smi"><span class="pl-smi">``</span>given multiple temporaries, when apply a function on this temporaries then expect applied function on any intersection<span class="pl-s">``</span></span><span class="pl-c1">()</span><span class="pl-k">=</span>
+let <span class="pl-smi"><span class="pl-s">``</span><span class="pl-smi">given multiple temporaries, when apply a function on this temporaries then expect applied function on any intersection</span><span class="pl-s">``</span></span><span class="pl-c1">()</span><span class="pl-k">=</span>
 
     When
-        <span class="pl-smi"><span class="pl-smi">``</span>transform temporaries to rate availability domain<span class="pl-s">``</span></span>
+        <span class="pl-smi"><span class="pl-s">``</span><span class="pl-smi">transform temporaries to rate availability domain</span><span class="pl-s">``</span></span>
         <span class="pl-k">&lt;!&gt;</span> <span class="pl-k">[</span> jan15 <span class="pl-c1">4</span>  <span class="pl-k">=&gt;</span> jan15 <span class="pl-c1">5</span>  <span class="pl-k">:=</span> Opening.Opened
               jan15 <span class="pl-c1">5</span>  <span class="pl-k">=&gt;</span> jan15 <span class="pl-c1">20</span> <span class="pl-k">:=</span> Opening.Closed <span class="pl-k">]</span>
 
@@ -222,15 +228,12 @@ let <span class="pl-smi"><span class="pl-smi">``</span>given multiple temporarie
 
         <span class="pl-k">&lt;*&gt;</span> <span class="pl-k">[</span> jan15 <span class="pl-c1">1</span>  <span class="pl-k">=&gt;</span> jan15 <span class="pl-c1">22</span> <span class="pl-k">:=</span> Availability <span class="pl-c1">10</span> <span class="pl-k">]</span>
 
-        <span class="pl-k">&lt;*</span>?<span class="pl-k">&gt;</span> <span class="pl-k">[</span> jan15 <span class="pl-c1">1</span>  <span class="pl-k">=&gt;</span> jan15 <span class="pl-c1">22</span> <span class="pl-k">:=</span> Price <span class="pl-c1">120</span>m <span class="pl-k">]</span>
-        <span class="pl-k">|&gt;</span> <span class="pl-smi"><span class="pl-smi">``</span>transform temporaries into request<span class="pl-s">``</span></span>
+        <span class="pl-k">&lt;*&gt;</span> <span class="pl-k">[</span> jan15 <span class="pl-c1">1</span>  <span class="pl-k">=&gt;</span> jan15 <span class="pl-c1">22</span> <span class="pl-k">:=</span> Price <span class="pl-c1">120</span>m <span class="pl-k">]</span>
+        <span class="pl-k">|&gt;</span> <span class="pl-smi"><span class="pl-s">``</span><span class="pl-smi">transform temporaries into request</span><span class="pl-s">``</span></span>
     <span class="pl-k">|&gt;</span> Expect 
-        <span class="pl-k">[</span> <span class="pl-s"><span class="pl-pds">"</span>[2015/01/01; 2015/01/04[ = No Request (May be put a state monad here for not contiguous case)<span class="pl-pds">"</span></span>
-          <span class="pl-s"><span class="pl-pds">"</span>[2015/01/04; 2015/01/05[ = Opened with 10 of availibility at 120.00 price and opened to departure<span class="pl-pds">"</span></span>
+        <span class="pl-k">[</span> <span class="pl-s"><span class="pl-pds">"</span>[2015/01/04; 2015/01/05[ = Opened with 10 of availibility at 120.00 price and opened to departure<span class="pl-pds">"</span></span>
           <span class="pl-s"><span class="pl-pds">"</span>[2015/01/05; 2015/01/15[ = Closed<span class="pl-pds">"</span></span>
-          <span class="pl-s"><span class="pl-pds">"</span>[2015/01/15; 2015/01/16[ = No Request (May be put a state monad here for not contiguous case)<span class="pl-pds">"</span></span>
-          <span class="pl-s"><span class="pl-pds">"</span>[2015/01/16; 2015/01/20[ = Closed<span class="pl-pds">"</span></span>
-          <span class="pl-s"><span class="pl-pds">"</span>[2015/01/20; 2015/01/23[ = No Request (May be put a state monad here for not contiguous case)<span class="pl-pds">"</span></span> <span class="pl-k">]</span></pre></div>
+          <span class="pl-s"><span class="pl-pds">"</span>[2015/01/16; 2015/01/20[ = Closed<span class="pl-pds">"</span></span> <span class="pl-k">]</span></pre></div>
 
       <footer class="site-footer">
         <span class="site-footer-owner"><a href="https://github.com/cboudereau/Outatime">Outatime</a> is maintained by <a href="https://github.com/cboudereau">cboudereau</a>.</span>
