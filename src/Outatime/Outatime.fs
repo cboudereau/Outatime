@@ -3,14 +3,7 @@
 type DateTime = System.DateTime
 
 type TimeSpan = System.TimeSpan
-
-[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
-module TimeSpan = 
-    let forNDays n = TimeSpan.FromDays(float n)
-    let forOneDay = forNDays 1
-    let forNever = TimeSpan.Zero
-    let forEver = DateTime.MaxValue - DateTime.MinValue
-
+    
 type Period = 
     { StartDate : DateTime
       EndDate : DateTime }
@@ -18,67 +11,115 @@ type Period =
         let toString (date:DateTime) = date.ToString("yyyy/MM/dd")
         sprintf "[%s; %s[" (this.StartDate |> toString) (this.EndDate |> toString)
 
-let infinite = { StartDate=DateTime.MinValue; EndDate=DateTime.MaxValue }
-let duration p = p.EndDate - p.StartDate
-
-let sortP f p1 p2 = 
-        if p1.StartDate <= p2.StartDate then f p1 p2
-        else f p2 p1
-
-let isEmpty p = p.StartDate = p.EndDate
-
-let intersect p1 p2 = 
-    let intersect p1 p2 =
-        let i =
-            { StartDate = max p1.StartDate p2.StartDate
-              EndDate = min p1.EndDate p2.EndDate }
-
-        match i |> isEmpty, p1.EndDate >= p2.StartDate with
-        | true, _ | _, false -> None
-        | _ -> Some i
-     
-    sortP intersect p1 p2
-
-let union p1 p2 = 
-    let union p1 p2 = 
-        let u =
-            { StartDate = min p1.StartDate p2.StartDate
-              EndDate = max p1.EndDate p2.EndDate }
-        
-        match u |> isEmpty, p1.EndDate >= p2.StartDate with
-        | true, _ | _, false -> None
-        | _ -> Some u
-    
-    sortP union p1 p2
-
-type Temporary<'a> = 
+type Temporary<'v> = 
     { Period : Period
-      Value : 'a }
+      Value : 'v }
     override this.ToString() = sprintf "%O = %O" this.Period this.Value
 
-type Temporaries<'a> = Temporary<'a> seq
+type Temporal<'v> = private Temporal of 'v Temporary seq
 
-let (=>) startDate endDate = 
-    { StartDate = startDate
-      EndDate = endDate }
+let ret x = 
+    { Period = 
+          { StartDate = DateTime.MinValue
+            EndDate = DateTime.MaxValue }
+      Value = x }
+    |> Seq.singleton
+    |> Temporal
 
-let (:=) period value = { Period=period; Value=value }
+let (=>) s e = 
+    { StartDate = s
+      EndDate = e }
 
-let sort temporaries = temporaries |> Seq.sortBy (fun t -> t.Period.StartDate, t.Period.EndDate)
-let option temporaries = 
-    let option t = t.Period := Some t.Value
-    temporaries |> Seq.map option
+let (:=) p v = 
+    { Period = p
+      Value = v }
 
-let clamp period temporaries = 
+let lift2 f (Temporal x) (Temporal y) = 
+    seq {
+        use xe = x.GetEnumerator()
+        use ye = y.GetEnumerator()
+
+        if(xe.MoveNext() && ye.MoveNext()) then
+            let rec next () = 
+                seq { 
+                    if xe.Current.Period.StartDate < ye.Current.Period.EndDate then
+                        let start = max ye.Current.Period.StartDate xe.Current.Period.StartDate
+                        let enD = min ye.Current.Period.EndDate xe.Current.Period.EndDate
+                        if start < enD then yield (start => enD := (f xe.Current.Value ye.Current.Value))
+                        else failwithf "found not contiguous %A %A" enD start
+                    let n = if ye.Current.Period.EndDate < xe.Current.Period.EndDate then ye.MoveNext() else xe.MoveNext()
+                    if n then yield! next ()
+                }
+
+            yield! next ()
+    } |> Temporal
+
+let apply f x = lift2 (fun f x -> f x) f x
+
+let map f x = apply (ret f) x
+
+let private contiguousO (temporaries:#seq<Temporary<_>>) = 
+    seq { 
+        use e = temporaries.GetEnumerator()
+        if e.MoveNext() then 
+            if e.Current.Period.StartDate <> DateTime.MinValue then 
+                yield DateTime.MinValue => e.Current.Period.StartDate := None
+            yield e.Current.Period := Some e.Current.Value
+            let rec next previous = 
+                seq { 
+                    if e.MoveNext() then 
+                        if e.Current.Period.StartDate > previous.Period.EndDate then 
+                            yield previous.Period.EndDate => e.Current.Period.StartDate := None
+                        yield e.Current.Period := Some e.Current.Value
+                        yield! next e.Current
+                    elif previous.Period.EndDate <> DateTime.MaxValue then 
+                        yield previous.Period.EndDate => DateTime.MaxValue := None
+                }
+            yield! next e.Current
+        else yield DateTime.MinValue => DateTime.MaxValue := None
+    }
+
+let merge (Temporal t) =
+    seq {
+        use e = t.GetEnumerator()
+
+        if e.MoveNext() then
+            let rec merge x =     
+                seq { 
+                    if e.MoveNext() then
+                        let y = e.Current
+                        if y.Period.StartDate <= x.Period.EndDate && y.Value = x.Value then
+                            let start = min y.Period.StartDate x.Period.StartDate
+                            let enD = max y.Period.EndDate x.Period.EndDate
+                            if enD > start then yield! merge (start => enD := x.Value)
+                            else yield x; yield! merge y
+                        else yield x; yield! merge y
+                    else yield x }
+            yield! merge e.Current } |> Temporal
+
+let private sort temporaries = temporaries |> Seq.sortBy (fun t -> t.Period.StartDate)
+
+let toList (Temporal temporaries) = temporaries |> Seq.toList
+
+let private removeEmpty temporaries = temporaries |> Seq.filter(fun t -> t.Period.StartDate < t.Period.EndDate)
+
+let private check temporaries = temporaries |> Seq.map(fun t -> if t.Period.EndDate < t.Period.StartDate then failwithf "invalid period %O" t.Period else t)
+
+let build temporaries = temporaries |> removeEmpty |> check |> sort |> Temporal
+let contiguous temporaries = temporaries |> removeEmpty |> check |> sort |> contiguousO |> Temporal
+
+let ofMap temporals = 
+    let t = 
+        temporals 
+        |> Map.toList
+        |> Seq.map(fun (k, (Temporal t)) -> t |> Seq.map(fun i -> i.Period := (match i.Value with Some v -> Some (k,v) | None -> None)) |> Temporal)
     
-    let clamp state temporary = 
-        match intersect period temporary.Period with
-        | Some i -> seq { yield! state; yield { Period=i; Value=temporary.Value } }
-        | None -> state
+    let folder x y = lift2 (fun m x -> match x with Some (k, v) -> m |> Map.add k v | None -> m) x y
 
-    temporaries |> Seq.fold clamp Seq.empty
+    Seq.fold folder (ret Map.empty) t
 
-let split length temporaries = 
+let split length (Temporal temporaries) = 
+    let duration p = p.EndDate - p.StartDate
     let rec split t = 
         seq{
             if t.Period |> duration <= length then yield t
@@ -89,171 +130,17 @@ let split length temporaries =
         }
     temporaries
     |> Seq.collect split
+    |> Temporal
 
-let contiguousO temporaries = 
-    let it i = i
-
-    let folder state current = 
-        let defaulted = 
-            match state with
-            | None -> current |> Seq.singleton
-            | Some previous -> 
-                match intersect previous.Period current.Period  with
-                | Some _ -> seq { yield current }
-                | None -> 
-                    seq{
-                        let period = { StartDate=previous.Period.EndDate; EndDate=current.Period.StartDate }
-                        if isEmpty period |> not then yield period := None
-                        yield current
-                    }
-        defaulted, Some current
+let clamp period (Temporal temporaries) = 
     temporaries
-    |> Seq.mapFold folder None
-    |> fst
-    |> Seq.collect it
-
-let contiguous temporaries = temporaries |> option |> contiguousO 
-
-let defaultToNoneO period temporaries = 
-    let foreverO temporaries = 
-        match temporaries |> Seq.toList with
-        | [] -> { Period={ StartDate = period.StartDate; EndDate=period.EndDate}; Value=None } |> Seq.singleton
-        | temporaries ->
-            seq{
-                let head = temporaries |> Seq.head
-                let last = temporaries |> Seq.last
-
-                if head.Period.StartDate <> period.StartDate 
-                then yield { Period={ StartDate=period.StartDate; EndDate=head.Period.StartDate }; Value=None }
-                yield! temporaries
-                if last.Period.EndDate <> period.EndDate
-                then yield { Period={ StartDate=last.Period.EndDate; EndDate=period.EndDate }; Value=None }
-            }
-
-    temporaries |> contiguousO |> foreverO
-
-let defaultToNone period = option >> defaultToNoneO period
-
-let (|Always|_|) p = if p = infinite then Some p else None
-
-let (|Equals|_|) p1 p2 = if p1 = p2 then Some p1 else None
-
-let (|Exists|Empty|) p = 
-    if p |> isEmpty then Empty
-    else Exists p
-
-let (|Intersect|_|) p1 p2 =
-    let intersect p1 p2 = 
-        let i =
-            { StartDate = max p1.StartDate p2.StartDate
-              EndDate = min p1.EndDate p2.EndDate }
-        match i, p1.EndDate >= p2.StartDate with
-        | Exists _, true -> Some i
-        | _ -> None
-    sortP intersect p1 p2
-
-let (|Union|_|) p1 p2 =
-    let union p1 p2 = 
-        let u =
-            { StartDate = min p1.StartDate p2.StartDate
-              EndDate = max p1.EndDate p2.EndDate }
-
-        match u |> isEmpty, p1.EndDate >= p2.StartDate with
-        | false, true -> Some u
-        | _ -> None
-    sortP union p1 p2
-
-let (|Merged|_|) t1 t2 = 
-    match t1.Value = t2.Value, t1.Period with
-    | true, Union t2.Period p -> Some { Period=p; Value=t1.Value }
-    | _ -> None
-
-let merge temporaries = 
-    let enumerator = (temporaries:#seq<_>).GetEnumerator()
-
-    let rec merge previous = 
-        seq {
-            match enumerator.MoveNext(), previous with
-            | true, None -> yield! enumerator.Current |> Some |> merge
-            | true, Some t1 -> 
-                let t2 = enumerator.Current
-                match t2 with
-                | Merged t1 u -> yield! u |> Some |> merge
-                | _ -> yield t1; yield! t2 |> Some |> merge
-            | false, last -> 
-                enumerator.Dispose()
-                match last with
-                | Some t -> yield t;
-                | None -> yield! Seq.empty }
-    merge None
-
-let private liftf f temporaries = temporaries |> Seq.map (fun t -> Partial.liftf (f t.Period) t.Value)
-
-let map f temporaries = 
-    let liftedf period v = period := (f v)
-    
-    temporaries
-    |> sort
-    |> merge
-    |> defaultToNone infinite
-    |> liftf liftedf
-
-let apply tfs tvs = 
-    
-    let defaultedv = tvs |> sort |> merge |> defaultToNone infinite |> Seq.toList
-    
-    let unliftp t = 
-        let p t = t.Period
-        t |> Partial.unlift |> p
-    
-    let liftc period tf v = period := (tf.Value v)
-
-    let combinef tf = 
-        let combinev tv = Partial.combine (liftc tv.Period) tf tv.Value
-
-        defaultedv 
-        |> clamp (unliftp tf)
-        |> Seq.map combinev
-
-    tfs |> Seq.collect combinef
-
-let applyf tfs tvs = apply tfs tvs |> Partials.trim |> Partials.unlift |> merge
-
-let traverse map = 
-    let transpose map = 
-        map
-        |> Map.toSeq
-        |> Seq.collect (fun (k, temporaries) -> temporaries |> Seq.map(fun t -> t.Period := (k, t.Value)) |> sort)
-    
-    let minStart t = t |> Seq.map(fun ts -> ts.Period.StartDate) |> Seq.min
-    let maxEnd t = t |> Seq.map(fun ts -> ts.Period.EndDate) |> Seq.max
-    let aggregate state t =
-        seq { 
-            match state |> clamp t.Period with
-            | i when i |> Seq.isEmpty -> 
-                yield! state
-                yield t.Period := (t.Value |> Seq.singleton)
-            | i -> 
-                let mins = state |> minStart
-                let maxs = state |> maxEnd
-                
-                if t.Period.StartDate < mins then yield t.Period.StartDate => mins := (t.Value |> Seq.singleton)
-
-                yield! state |> clamp (infinite.StartDate => (i |> minStart))
-
-                yield! i |> Seq.map(fun ti -> ti.Period := seq { yield! ti.Value; yield t.Value })
-
-                yield! state |> clamp (i |> maxEnd => infinite.EndDate)
-
-                if t.Period.EndDate > maxs then yield maxs => t.Period.EndDate := (t.Value |> Seq.singleton)
-         }
-    
-    map
-    |> transpose
-    |> Seq.fold aggregate Seq.empty
-    |> Seq.map(fun t -> t.Period := (t.Value |> Map.ofSeq))
-    |> merge
+    |> Seq.collect(fun t -> 
+        let start = max period.StartDate t.Period.StartDate
+        let enD = min period.EndDate t.Period.EndDate
+        if enD > start then 
+            (start => enD := t.Value) |> Seq.singleton
+        else Seq.empty)
+    |> Temporal
 
 let (<!>) = map
 let (<*>) = apply
-let (<*?>) = applyf

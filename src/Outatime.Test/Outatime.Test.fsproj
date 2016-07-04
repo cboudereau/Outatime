@@ -62,13 +62,9 @@
     <None Include="paket.references" />
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Bdd.fs" />
-    <Compile Include="PeriodTests.fs" />
-    <Compile Include="SortTests.fs" />
     <Compile Include="TestData.fs" />
     <Compile Include="ClampProperties.fs" />
-    <Compile Include="DefaultToNoneTests.fs" />
     <Compile Include="MergeTests.fs" />
-    <Compile Include="PeriodProperties.fs" />
     <Compile Include="SplitProperties.fs" />
     <Compile Include="ApplicativeFunctorTests.fs" />
     <Compile Include="TraverseTests.fs" />

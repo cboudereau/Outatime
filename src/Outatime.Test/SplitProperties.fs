@@ -7,7 +7,7 @@ open Bdd
 let jan15 n = (DateTime(2015,1,n))
 let days n = TimeSpan.FromDays(float n)
 
-let ``I want to split temporaries`` days temporaries = Outatime.split days temporaries |> Seq.toList
+let ``I want to split temporaries`` days temporaries = temporaries |> Outatime.build |> Outatime.split days |> Outatime.toList
 let ``five days`` = days 5
 
 [<Fact>]
@@ -25,9 +25,11 @@ open FsCheck.Xunit
 module SplitTemporaries = 
 
     let splitPeriod = System.TimeSpan.FromDays(1000.)
-
+    let duration p = p.EndDate - p.StartDate
     [<Property>]
     let ``check that all period are less than split period`` (temporaries:string Temporary list) = 
         temporaries
+        |> Outatime.build
         |> Outatime.split splitPeriod
+        |> Outatime.toList
         |> Seq.forall(fun v -> v.Period |> duration <= splitPeriod)

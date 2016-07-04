@@ -20,11 +20,11 @@ type Price = Price of decimal
 
 type Rate = 
     { rateCode : RateCode
-      prices : Price Temporaries }
+      prices : Price Temporal }
 
 type Room = 
     { roomCode : RoomCode
-      availabilities : Availability Temporaries
+      availabilities : Availability Temporal
       rates : Rate seq }
 
 let jan15 d = System.DateTime(2015, 1, d, 0, 0, 0, System.DateTimeKind.Utc)
@@ -50,20 +50,22 @@ module Partner =
     let transpose availRepartition roomO pricesO = 
         match roomO, pricesO with
         | Some (roomCode, availability), Some prices ->
-            let numberOfRate = prices |> Seq.length
-            prices 
-            |> Map.toSeq 
-            |> Seq.mapi(fun i (c, p) -> 
-                match i |> availRepartition availability numberOfRate with
-                | Availability.Closed -> Closed (roomCode, c)
-                | Availability.Opened allot -> Opened (roomCode, c, p, (Allotment allot)))
-            |> Some
-        | Some (roomCode, _), None -> Closed (roomCode, RateCode.AllRate) |> Seq.singleton |> Some
+            if prices |> Map.isEmpty then 
+                Closed (roomCode, RateCode.AllRate) |> Seq.singleton |> Some                
+            else
+                let numberOfRate = prices |> Seq.length
+                prices 
+                |> Map.toSeq 
+                |> Seq.mapi(fun i (c, p) -> 
+                    match i |> availRepartition availability numberOfRate with
+                    | Availability.Closed -> Closed (roomCode, c)
+                    | Availability.Opened allot -> Opened (roomCode, c, p, (Allotment allot)))
+                |> Some
         | _ -> None
 
     let toRequest t = 
         match t.Value with
-        | None -> sprintf "%O => No request" t.Period |> Seq.singleton
+        | None -> Seq.empty
         | Some values -> 
             let toR = function
                 | Closed (roomCode, rateCode) ->
@@ -75,44 +77,49 @@ module Partner =
 let transposeRoom repartition room = 
     let transposeRate rates = 
         rates 
-        |> Seq.map(fun r -> r.rateCode, r.prices) 
+        |> Seq.map(fun r -> r.rateCode, (r.prices |> Outatime.toList |> Outatime.contiguous)) 
         |> Map.ofSeq 
-        |> Outatime.traverse
+        |> Outatime.ofMap
+        |> Outatime.toList
+        |> Outatime.contiguous
     
-    let roomWithRoomCode = (room.availabilities |> Seq.map(fun a -> a.Period := (room.roomCode, a.Value)))
+    let roomWithRoomCode = room.availabilities |> Outatime.toList |> List.map(fun a -> a.Period := (room.roomCode, a.Value)) |> Outatime.contiguous
 
-    Partner.transpose repartition
-    <!>  roomWithRoomCode
-    <*?> (room.rates |> transposeRate)
+    let rates = room.rates |> transposeRate
+
+    Partner.transpose repartition 
+    <!> roomWithRoomCode
+    <*> rates
 
 let single = 
     { roomCode = RoomCode "SGL"
       availabilities = 
-        [ jan15  1 => jan15 10 := Opened 10 
-          jan15 10 => jan15 25 := Closed
-          jan15 27 => jan15 30 := Opened 20 ]
+        ([ jan15  1 => jan15 10 := Opened 10 
+           jan15 10 => jan15 25 := Closed
+           jan15 27 => jan15 30 := Opened 20 ] |> Outatime.build)
       rates = 
         [ { rateCode= RateCode "RO"
             prices= 
                 [ jan15  1 => jan15 10 := Price 120m 
-                  jan15 10 => jan15 28 := Price 115m ] } 
-          { rateCode= RateCode "BB"; prices= [ jan15 1 => jan15 15 := Price 135m ] }] }
+                  jan15 10 => jan15 28 := Price 115m ] |> Outatime.build}
+          { rateCode= RateCode "BB"; prices= ([ jan15 1 => jan15 15 := Price 135m ] |> Outatime.build) }] }
 
 let double = 
     { roomCode = RoomCode "DBL"
       availabilities = 
-        [ jan15 1 => jan15  8 := Opened 5
-          jan15 8 => jan15 23 := Opened 7 ]
+        ([ jan15 1 => jan15  8 := Opened 5
+           jan15 8 => jan15 23 := Opened 7 ] |> Outatime.build)
       rates = 
-        [ { rateCode= RateCode "RO"; prices= [ jan15 1 => jan15 25 := Price 240m ] } 
-          { rateCode= RateCode "BB"; prices= [ jan15 1 => jan15 25 := Price 270m ] }] }
+        [ { rateCode= RateCode "RO"; prices= ([ jan15 1 => jan15 25 := Price 240m ] |> Outatime.build) } 
+          { rateCode= RateCode "BB"; prices= ([ jan15 1 => jan15 25 := Price 270m ] |> Outatime.build) }] }
 
 [<Fact>]
 let ``tranpose avp model to partner model with rate level repartition`` ()=
     When 
         [ single
           double ]
-        |> Seq.collect (transposeRoom Repartition.rateLevel)
+        |> Seq.map (transposeRoom Repartition.rateLevel)
+        |> Seq.collect (Outatime.merge >> Outatime.toList)
         |> Seq.collect Partner.toRequest
         |> Seq.toList
     |> Expect 
@@ -121,12 +128,10 @@ let ``tranpose avp model to partner model with rate level repartition`` ()=
           @"[2015/01/10; 2015/01/15[ => RoomCode ""SGL"", RateCode ""BB"" = Closed"
           @"[2015/01/10; 2015/01/15[ => RoomCode ""SGL"", RateCode ""RO"" = Closed"
           @"[2015/01/15; 2015/01/25[ => RoomCode ""SGL"", RateCode ""RO"" = Closed"
-          @"[2015/01/25; 2015/01/27[ => No request"
           @"[2015/01/27; 2015/01/28[ => RoomCode ""SGL"", RateCode ""RO"" = Opened Allotment 20/Price 115M"
           @"[2015/01/28; 2015/01/30[ => RoomCode ""SGL"", AllRate = Closed"
           @"[2015/01/01; 2015/01/08[ => RoomCode ""DBL"", RateCode ""BB"" = Opened Allotment 3/Price 270M"
           @"[2015/01/01; 2015/01/08[ => RoomCode ""DBL"", RateCode ""RO"" = Opened Allotment 2/Price 240M"
           @"[2015/01/08; 2015/01/23[ => RoomCode ""DBL"", RateCode ""BB"" = Opened Allotment 4/Price 270M"
-          @"[2015/01/08; 2015/01/23[ => RoomCode ""DBL"", RateCode ""RO"" = Opened Allotment 3/Price 240M"
-          @"[2015/01/23; 2015/01/25[ => No request" ]
+          @"[2015/01/08; 2015/01/23[ => RoomCode ""DBL"", RateCode ""RO"" = Opened Allotment 3/Price 240M" ]
     
