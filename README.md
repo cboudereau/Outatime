@@ -22,6 +22,9 @@ module ReadmeSample
 open Outatime
 open Xunit
 
+let (<!>) f x = x |> Outatime.contiguous |> Outatime.map f
+let (<*>) f x = x |> Outatime.contiguous |> Outatime.apply f
+
 //Simple BDD functions
 let When f = f
 let With v f = f v
@@ -63,25 +66,27 @@ let ``transform temporaries to rate availability domain`` openingO departureO av
         | Opening.Closed -> Some RateAvailability.Closed
     | _ -> None
 
-let ``transform temporaries into request`` temporaries = 
+let ``transform temporaries into request`` temporal = 
     let request t = 
-        match t.Value with
-        | None -> 
-            sprintf "%O = No Request (May be put a state monad here for not contiguous case)" t.Period
-        | Some Closed -> 
-            sprintf "%O = Closed" t.Period
-        | Some (Opened rate) -> 
-            let (Availability a) = rate.Availability
-            let (Price p) = rate.Price
-            let d = 
-                match rate.Departure with
-                | ClosedToDeparture -> "closed to departure"
-                | OpenedToDeparture -> "opened to departure"
+        seq {
+            match t.Value with
+            | None -> yield! Seq.empty
+            | Some Closed -> 
+                yield sprintf "%O = Closed" t.Period
+            | Some (Opened rate) -> 
+                let (Availability a) = rate.Availability
+                let (Price p) = rate.Price
+                let d = 
+                    match rate.Departure with
+                    | ClosedToDeparture -> "closed to departure"
+                    | OpenedToDeparture -> "opened to departure"
 
-            sprintf "%O = Opened with %i of availibility at %.2f price and %s" t.Period a p d
+                yield sprintf "%O = Opened with %i of availibility at %.2f price and %s" t.Period a p d }
         
-    temporaries 
-    |> Seq.map request
+    temporal
+    |> Outatime.merge
+    |> Outatime.toList 
+    |> Seq.collect request
     |> Seq.toList
 
 [<Fact>]
@@ -96,9 +101,9 @@ let ``given temporaries with no intersections or empty periods expect the larges
 
         <*> [ jan15 1  => jan15 1 := Availability 10 ]
 
-        <*?> [ jan15 3  => jan15 3 := Price 120m ]
+        <*> [ jan15 3  => jan15 3 := Price 120m ]
         |> ``transform temporaries into request``
-    |> Expect ["[2015/01/01; 2015/01/16[ = No Request (May be put a state monad here for not contiguous case)"]
+    |> Expect [ ]
     
 
 [<Fact>]
@@ -115,16 +120,12 @@ let ``given multiple temporaries, when apply a function on this temporaries then
 
         <*> [ jan15 1  => jan15 22 := Availability 10 ]
 
-        <*?> [ jan15 1  => jan15 22 := Price 120m ]
+        <*> [ jan15 1  => jan15 22 := Price 120m ]
         |> ``transform temporaries into request``
     |> Expect 
-        [ "[2015/01/01; 2015/01/04[ = No Request (May be put a state monad here for not contiguous case)"
-          "[2015/01/04; 2015/01/05[ = Opened with 10 of availibility at 120.00 price and opened to departure"
+        [ "[2015/01/04; 2015/01/05[ = Opened with 10 of availibility at 120.00 price and opened to departure"
           "[2015/01/05; 2015/01/15[ = Closed"
-          "[2015/01/15; 2015/01/16[ = No Request (May be put a state monad here for not contiguous case)"
-          "[2015/01/16; 2015/01/20[ = Closed"
-          "[2015/01/20; 2015/01/23[ = No Request (May be put a state monad here for not contiguous case)" ]
-
+          "[2015/01/16; 2015/01/20[ = Closed" ]
 ```
 ## Documentation
 A complete documentation can be found here : http://cboudereau.github.io/Outatime/
