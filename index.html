@@ -28,7 +28,7 @@
 <h1></h1>
 
 <h2>
-<a id="introduction" class="anchor" href="#introduction" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Introduction</h2>
+<a id="intro" class="anchor" href="#intro" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Intro</h2>
 
 <p>When you have a lots of values changing over the time in a planning, it become difficult to deal with it day per day. The solution is to group the same values and merge period.
 On way is having the temporary (type containing value on a period) everywhere but: you have the domain complexity everywhere and if you have to compose another domain you will have more wrapped types.</p>
@@ -129,8 +129,8 @@ let <span class="pl-smi"><span class="pl-s">``</span><span class="pl-smi">given 
 <span class="pl-k">open</span> <span class="pl-en">Outatime</span>
 <span class="pl-k">open</span> <span class="pl-en">Xunit</span>
 
-<span class="pl-k">let</span> <span class="pl-smi">(&lt;!&gt;)</span> <span class="pl-v">f</span> <span class="pl-v">x</span> <span class="pl-k">=</span> x <span class="pl-k">|&gt;</span> Outatime.contiguous <span class="pl-k">|&gt;</span> Outatime.map f
-<span class="pl-k">let</span> <span class="pl-smi">(&lt;*&gt;)</span> <span class="pl-v">f</span> <span class="pl-v">x</span> <span class="pl-k">=</span> x <span class="pl-k">|&gt;</span> Outatime.contiguous <span class="pl-k">|&gt;</span> Outatime.apply f
+<span class="pl-k">let</span> <span class="pl-smi">(&lt;!&gt;)</span> <span class="pl-v">f</span> <span class="pl-v">x</span> <span class="pl-k">=</span> x <span class="pl-k">|&gt;</span> Outatime.build <span class="pl-k">|&gt;</span> Outatime.contiguous <span class="pl-k">|&gt;</span> Outatime.map f
+<span class="pl-k">let</span> <span class="pl-smi">(&lt;*&gt;)</span> <span class="pl-v">f</span> <span class="pl-v">x</span> <span class="pl-k">=</span> x <span class="pl-k">|&gt;</span> Outatime.build <span class="pl-k">|&gt;</span> Outatime.contiguous <span class="pl-k">|&gt;</span> Outatime.apply f
 
 <span class="pl-c">//Simple BDD functions</span>
 <span class="pl-k">let</span> <span class="pl-smi">When</span> <span class="pl-v">f</span> <span class="pl-k">=</span> f
