@@ -1,3 +1,5 @@
+## New in 1.1 (Released 2016/4/7)
+* refactoring on apply and add lift2
 ## New in 1.0 (Released 2015/12/10)
 * enhanced merge function, avoid toList
 ## New in 0.1.10 (Released 2015/12/10)
