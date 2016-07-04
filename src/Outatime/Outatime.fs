@@ -100,15 +100,13 @@ let merge (Temporal t) =
 
 let private sort temporaries = temporaries |> Seq.sortBy (fun t -> t.Period.StartDate)
 
-let toList (Temporal temporaries) = temporaries |> Seq.toList
-
 let private removeEmpty temporaries = temporaries |> Seq.filter(fun t -> t.Period.StartDate < t.Period.EndDate)
 
 let private check temporaries = temporaries |> Seq.map(fun t -> if t.Period.EndDate < t.Period.StartDate then failwithf "invalid period %O" t.Period else t)
 
+let contiguous (Temporal temporaries) = temporaries |> contiguousT None Some |> Temporal
 let build temporaries = temporaries |> removeEmpty |> check |> sort |> Temporal
-let contiguous zero f temporaries = temporaries |> removeEmpty |> check |> sort |> contiguousT zero f |> Temporal
-let contiguousO temporaries = contiguous None Some temporaries
+let toList (Temporal temporaries) = temporaries |> Seq.toList
 
 let ofMap temporals = 
     let folder state k t = lift2 (fun m i -> match i with Some v -> m |> Map.add k v | None -> m) state t

@@ -4,7 +4,7 @@
 
 =====
 
-## Introduction
+## Intro
 When you have a lots of values changing over the time in a planning, it become difficult to deal with it day per day. The solution is to group the same values and merge period.
 On way is having the temporary (type containing value on a period) everywhere but: you have the domain complexity everywhere and if you have to compose another domain you will have more wrapped types.
 
@@ -22,8 +22,8 @@ module ReadmeSample
 open Outatime
 open Xunit
 
-let (<!>) f x = x |> Outatime.contiguous |> Outatime.map f
-let (<*>) f x = x |> Outatime.contiguous |> Outatime.apply f
+let (<!>) f x = x |> Outatime.build |> Outatime.contiguous |> Outatime.map f
+let (<*>) f x = x |> Outatime.build |> Outatime.contiguous |> Outatime.apply f
 
 //Simple BDD functions
 let When f = f

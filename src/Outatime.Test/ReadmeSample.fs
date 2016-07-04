@@ -3,8 +3,8 @@
 open Outatime
 open Xunit
 
-let (<!>) f x = x |> Outatime.contiguousO |> Outatime.map f
-let (<*>) f x = x |> Outatime.contiguousO |> Outatime.apply f
+let (<!>) f x = x |> Outatime.build |> Outatime.contiguous |> Outatime.map f
+let (<*>) f x = x |> Outatime.build |> Outatime.contiguous |> Outatime.apply f
 
 //Simple BDD functions
 let When f = f

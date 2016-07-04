@@ -74,11 +74,11 @@ module Partner =
 let transposeRoom repartition room = 
     let transposeRate rates = 
         rates 
-        |> Seq.map(fun r -> r.rateCode, (r.prices |> Outatime.toList |> Outatime.contiguousO)) 
+        |> Seq.map(fun r -> r.rateCode, r.prices |> Outatime.contiguous) 
         |> Map.ofSeq 
         |> Outatime.ofMap
     
-    let roomWithRoomCode = room.availabilities |> Outatime.toList |> List.map(fun a -> a.Period := (room.roomCode, a.Value)) |> Outatime.contiguousO
+    let roomWithRoomCode = room.availabilities |> Outatime.lift (fun v -> (room.roomCode, v)) |> Outatime.contiguous
 
     let rates = room.rates |> transposeRate
 
