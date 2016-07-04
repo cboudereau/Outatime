@@ -34,6 +34,8 @@ let (:=) p v =
     { Period = p
       Value = v }
 
+let lift f (Temporal x) = x |> Seq.map(fun i -> i.Period := f i.Value) |> Temporal
+
 let lift2 f (Temporal x) (Temporal y) = 
     seq {
         use xe = x.GetEnumerator()
@@ -76,8 +78,7 @@ let private contiguousO (temporaries:#seq<Temporary<_>>) =
                         yield previous.Period.EndDate => DateTime.MaxValue := None
                 }
             yield! next e.Current
-        else yield DateTime.MinValue => DateTime.MaxValue := None
-    }
+        else yield DateTime.MinValue => DateTime.MaxValue := None }
 
 let merge (Temporal t) =
     seq {
@@ -112,8 +113,8 @@ let ofMap temporals =
     let t = 
         temporals 
         |> Map.toList
-        |> Seq.map(fun (k, (Temporal t)) -> t |> Seq.map(fun i -> i.Period := (match i.Value with Some v -> Some (k,v) | None -> None)) |> Temporal)
-    
+        |> Seq.map(fun (k, temporal) -> temporal |> lift (fun x -> match x with Some x' -> Some (k,x') | None -> None))
+
     let folder x y = lift2 (fun m x -> match x with Some (k, v) -> m |> Map.add k v | None -> m) x y
 
     Seq.fold folder (ret Map.empty) t
