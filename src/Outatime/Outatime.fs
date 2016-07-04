@@ -60,7 +60,7 @@ let apply f x = lift2 (fun f x -> f x) f x
 
 let map f x = apply (ret f) x
 
-let private contiguousO (temporaries:#seq<Temporary<_>>) = 
+let private contiguousT zero f (temporaries:#seq<Temporary<_>>) = 
     seq { 
         use e = temporaries.GetEnumerator()
         if e.MoveNext() then 
@@ -72,10 +72,10 @@ let private contiguousO (temporaries:#seq<Temporary<_>>) =
                     if e.MoveNext() then 
                         if e.Current.Period.StartDate > previous.Period.EndDate then 
                             yield previous.Period.EndDate => e.Current.Period.StartDate := None
-                        yield e.Current.Period := Some e.Current.Value
+                        yield e.Current.Period := f e.Current.Value
                         yield! next e.Current
                     elif previous.Period.EndDate <> DateTime.MaxValue then 
-                        yield previous.Period.EndDate => DateTime.MaxValue := None
+                        yield previous.Period.EndDate => DateTime.MaxValue := zero
                 }
             yield! next e.Current
         else yield DateTime.MinValue => DateTime.MaxValue := None }
@@ -107,17 +107,13 @@ let private removeEmpty temporaries = temporaries |> Seq.filter(fun t -> t.Perio
 let private check temporaries = temporaries |> Seq.map(fun t -> if t.Period.EndDate < t.Period.StartDate then failwithf "invalid period %O" t.Period else t)
 
 let build temporaries = temporaries |> removeEmpty |> check |> sort |> Temporal
-let contiguous temporaries = temporaries |> removeEmpty |> check |> sort |> contiguousO |> Temporal
+let contiguous zero f temporaries = temporaries |> removeEmpty |> check |> sort |> contiguousT zero f |> Temporal
+let contiguousO temporaries = contiguous None Some temporaries
 
 let ofMap temporals = 
-    let t = 
-        temporals 
-        |> Map.toList
-        |> Seq.map(fun (k, temporal) -> temporal |> lift (fun x -> match x with Some x' -> Some (k,x') | None -> None))
+    let folder state k t = lift2 (fun m i -> match i with Some v -> m |> Map.add k v | None -> m) state t
 
-    let folder x y = lift2 (fun m x -> match x with Some (k, v) -> m |> Map.add k v | None -> m) x y
-
-    Seq.fold folder (ret Map.empty) t
+    Map.fold folder (ret Map.empty) temporals
 
 let split length (Temporal temporaries) = 
     let duration p = p.EndDate - p.StartDate

@@ -47,9 +47,9 @@ module Partner =
         | Opened of RoomCode * RateCode * Price * Allotment
         | Closed of RoomCode * RateCode
 
-    let transpose availRepartition roomO pricesO = 
-        match roomO, pricesO with
-        | Some (roomCode, availability), Some prices ->
+    let transpose availRepartition roomO prices = 
+        match roomO with
+        | Some (roomCode, availability) ->
             if prices |> Map.isEmpty then 
                 Closed (roomCode, RateCode.AllRate) |> Seq.singleton |> Some                
             else
@@ -64,32 +64,28 @@ module Partner =
         | _ -> None
 
     let toRequest t = 
-        match t.Value with
-        | None -> Seq.empty
-        | Some values -> 
-            let toR = function
-                | Closed (roomCode, rateCode) ->
-                    sprintf "%O => %A, %A = Closed" t.Period roomCode rateCode 
-                | Opened (roomCode, rateCode, price, allot) ->
-                    sprintf "%O => %A, %A = Opened %A/%A" t.Period roomCode rateCode allot price
-            values |> Seq.map toR
+        let toR = function
+            | Closed (roomCode, rateCode) ->
+                sprintf "%O => %A, %A = Closed" t.Period roomCode rateCode 
+            | Opened (roomCode, rateCode, price, allot) ->
+                sprintf "%O => %A, %A = Opened %A/%A" t.Period roomCode rateCode allot price
+        t.Value |> Seq.map toR
 
 let transposeRoom repartition room = 
     let transposeRate rates = 
         rates 
-        |> Seq.map(fun r -> r.rateCode, (r.prices |> Outatime.toList |> Outatime.contiguous)) 
+        |> Seq.map(fun r -> r.rateCode, (r.prices |> Outatime.toList |> Outatime.contiguousO)) 
         |> Map.ofSeq 
         |> Outatime.ofMap
-        |> Outatime.toList
-        |> Outatime.contiguous
     
-    let roomWithRoomCode = room.availabilities |> Outatime.toList |> List.map(fun a -> a.Period := (room.roomCode, a.Value)) |> Outatime.contiguous
+    let roomWithRoomCode = room.availabilities |> Outatime.toList |> List.map(fun a -> a.Period := (room.roomCode, a.Value)) |> Outatime.contiguousO
 
     let rates = room.rates |> transposeRate
 
     Partner.transpose repartition 
     <!> roomWithRoomCode
     <*> rates
+    |> Outatime.lift (Option.toList >> Seq.concat)
 
 let single = 
     { roomCode = RoomCode "SGL"
