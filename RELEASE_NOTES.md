@@ -1,4 +1,4 @@
-## New in 1.2 (Released 2016/4/7)
+## New in 1.3 (Released 2016/4/7)
 * refactoring on apply and add lift2
 ## New in 1.0 (Released 2015/12/10)
 * enhanced merge function, avoid toList
