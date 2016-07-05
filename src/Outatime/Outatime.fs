@@ -48,7 +48,6 @@ let lift2 f (Temporal x) (Temporal y) =
                         let start = max ye.Current.Period.StartDate xe.Current.Period.StartDate
                         let enD = min ye.Current.Period.EndDate xe.Current.Period.EndDate
                         if start < enD then yield (start => enD := (f xe.Current.Value ye.Current.Value))
-                        else failwithf "found not contiguous %A %A" enD start
                     let n = if ye.Current.Period.EndDate < xe.Current.Period.EndDate then ye.MoveNext() else xe.MoveNext()
                     if n then yield! next ()
                 }
