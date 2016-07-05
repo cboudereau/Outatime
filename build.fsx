@@ -13,10 +13,10 @@ type Project =
       framework:string }
 
 let project = "Outatime"
-let summary = "An applicative functor for temporaries (ie: value over the time) to apply function on time intersection"
-let description = "An applicative functor for temporaries (ie: value over the time) to apply function on time intersection"
+let summary = "Temporality category to map function and values changing over the time"
+let description = "Temporality category to map function and values changing over the time"
 let authors = ["@cboudereau"]
-let tags = "F# fsharp temporality applicative functor"
+let tags = "F# fsharp temporality category applicative functor monads map"
 
 let projects = [ { name=project; summary=summary; authors=authors; tags=tags; description=description; framework="net452" } ]
 
