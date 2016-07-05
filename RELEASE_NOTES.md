@@ -1,4 +1,4 @@
-## New in 1.4.1 (Released 2016/5/7)
+## New in 1.4.2 (Released 2016/5/7)
 * Bug fix on contiguous detection
 ## New in 1.4 (Released 2016/4/7)
 * refactoring on apply and add lift2
