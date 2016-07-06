@@ -47,21 +47,17 @@ module Partner =
         | Opened of RoomCode * RateCode * Price * Allotment
         | Closed of RoomCode * RateCode
 
-    let transpose availRepartition roomO prices = 
-        match roomO with
-        | Some (roomCode, availability) ->
-            if prices |> Map.isEmpty then 
-                Closed (roomCode, RateCode.AllRate) |> Seq.singleton |> Some                
-            else
-                let numberOfRate = prices |> Seq.length
-                prices 
-                |> Map.toSeq 
-                |> Seq.mapi(fun i (c, p) -> 
-                    match i |> availRepartition availability numberOfRate with
-                    | Availability.Closed -> Closed (roomCode, c)
-                    | Availability.Opened allot -> Opened (roomCode, c, p, (Allotment allot)))
-                |> Some
-        | _ -> None
+    let transpose availRepartition (roomCode, availability) prices = 
+        if prices |> Map.isEmpty then 
+            Closed (roomCode, RateCode.AllRate) |> Seq.singleton
+        else
+            let numberOfRate = prices |> Seq.length
+            prices 
+            |> Map.toSeq 
+            |> Seq.mapi(fun i (c, p) -> 
+                match i |> availRepartition availability numberOfRate with
+                | Availability.Closed -> Closed (roomCode, c)
+                | Availability.Opened allot -> Opened (roomCode, c, p, (Allotment allot)))
 
     let toRequest t = 
         let toR = function
@@ -78,14 +74,13 @@ let transposeRoom repartition room =
         |> Map.ofSeq 
         |> Outatime.ofMap
     
-    let roomWithRoomCode = room.availabilities |> Outatime.lift (fun v -> (room.roomCode, v)) |> Outatime.contiguous
+    let roomWithRoomCode = room.availabilities |> Outatime.lift (fun v -> (room.roomCode, v))
 
     let rates = room.rates |> transposeRate
 
     Partner.transpose repartition 
     <!> roomWithRoomCode
     <*> rates
-    |> Outatime.lift (Option.toList >> Seq.concat)
 
 let single = 
     { roomCode = RoomCode "SGL"

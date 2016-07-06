@@ -1,7 +1,9 @@
-## New in 1.4.3 (Released 2016/5/7)
+## New in 1.4.4 (Released 2016/7/6)
+* Add ofOption feature
+## New in 1.4.3 (Released 2016/7/5)
 * Bug fix on contiguous detection
 * Fix Documentation
-## New in 1.4 (Released 2016/4/7)
+## New in 1.4 (Released 2016/7/4)
 * refactoring on apply and add lift2
 ## New in 1.0 (Released 2015/12/10)
 * enhanced merge function, avoid toList

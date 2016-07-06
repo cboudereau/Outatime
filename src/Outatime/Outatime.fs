@@ -107,6 +107,12 @@ let contiguous (Temporal temporaries) = temporaries |> contiguousT None Some |> 
 let build temporaries = temporaries |> removeEmpty |> check |> sort |> Temporal
 let toList (Temporal temporaries) = temporaries |> Seq.toList
 
+let ofOption (Temporal temporaries) = 
+    seq {
+        for t in temporaries do 
+            if t.Value |> Option.isSome then yield t.Period := t.Value.Value
+    } |> Temporal
+
 let ofMap temporals = 
     let folder state k t = lift2 (fun m i -> match i with Some v -> m |> Map.add k v | None -> m) state t
 
