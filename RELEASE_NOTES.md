@@ -1,3 +1,5 @@
+## New in 1.4.5 (Released 2016/7/7)
+* fix ofMap
 ## New in 1.4.4 (Released 2016/7/6)
 * Add ofOption feature
 ## New in 1.4.3 (Released 2016/7/5)

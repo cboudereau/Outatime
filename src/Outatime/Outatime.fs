@@ -114,7 +114,7 @@ let ofOption (Temporal temporaries) =
     } |> Temporal
 
 let ofMap temporals = 
-    let folder state k t = lift2 (fun m i -> match i with Some v -> m |> Map.add k v | None -> m) state t
+    let folder state k t = lift2 (fun m v -> m |> Map.add k v) state t
 
     Map.fold folder (ret Map.empty) temporals
 
