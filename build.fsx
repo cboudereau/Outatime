@@ -80,7 +80,7 @@ Target "NuGet" (fun _ ->
                 Tags = tags
                 OutputPath = nugetDir
                 AccessKey = getBuildParamOrDefault "nugetkey" ""
-                Publish = hasBuildParam "nugetkey"
+                Publish = hasBuildParam "nugetkey" && (release.Date |> Option.isSome)
                 Dependencies = [] })
             ("template.nuspec"))
 )
