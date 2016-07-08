@@ -114,9 +114,10 @@ let ofOption (Temporal temporaries) =
     } |> Temporal
 
 let ofMap temporals = 
-    let folder state k t = lift2 (fun m v -> m |> Map.add k v) state t
-
-    Map.fold folder (ret Map.empty) temporals
+    Map.fold 
+        <| fun state k t -> lift2 (fun m v -> m |> Map.add k v) state t
+        <| ret Map.empty
+        <| temporals
 
 let split length (Temporal temporaries) = 
     let duration p = p.EndDate - p.StartDate
