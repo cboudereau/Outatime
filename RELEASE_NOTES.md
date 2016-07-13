@@ -1,5 +1,6 @@
-## New in 1.4.6
+## New in 1.4.6 (Released 2016/7/13)
 * clean ofMap
+* add fold function
 ## New in 1.4.5 (Released 2016/7/7)
 * fix ofMap
 ## New in 1.4.4 (Released 2016/7/6)

@@ -48,30 +48,33 @@ module Partner =
         | Closed of RoomCode * RateCode
 
     let transpose availRepartition (roomCode, availabilityO) prices = 
-        let numberOfRate = prices |> Map.toList |> List.collect(fun (_,v) -> v |> Option.toList) |> List.length
+        let pricesList = prices |> Map.toList
+        let numberOfRate = prices |> Map.toList |> List.sumBy(fun (_,v) -> v |> Option.toList |> List.length)
         seq {
             match availabilityO, numberOfRate with
             | None, 0 -> yield! Seq.empty //All None
             | None, _ | Some _, 0 -> yield Closed (roomCode, RateCode.AllRate)
             | Some availability, _ ->
                 yield!
-                    prices
-                    |> Map.toSeq
+                    pricesList
                     |> Seq.mapi(fun i (c, pO) -> 
                         match pO with
                         | None -> Closed (roomCode, c)
                         | Some p -> 
                             match i |> availRepartition availability numberOfRate with
                             | Availability.Closed -> Closed (roomCode, c)
-                            | Availability.Opened allot -> Opened (roomCode, c, p, (Allotment allot))) }
+                            | Availability.Opened allot -> Opened (roomCode, c, p, (Allotment allot))) } |> Seq.toList
 
-    let toRequest t = 
-        let toR = function
-            | Closed (roomCode, rateCode) ->
-                sprintf "%O => %A, %A = Closed" t.Period roomCode rateCode 
-            | Opened (roomCode, rateCode, price, allot) ->
-                sprintf "%O => %A, %A = Opened %A/%A" t.Period roomCode rateCode allot price
-        t.Value |> Seq.map toR
+    let toRequest state p v = 
+        seq {
+            yield! state
+            let toR = function
+                | Closed (roomCode, rateCode) ->
+                    sprintf "%O => %A, %A = Closed" p roomCode rateCode 
+                | Opened (roomCode, rateCode, price, allot) ->
+                    sprintf "%O => %A, %A = Opened %A/%A" p roomCode rateCode allot price
+            yield! v |> Seq.map toR }
+
 
 let transposeRoom repartition room = 
     let transposeRate rates = 
@@ -91,7 +94,8 @@ let transposeRoom repartition room =
 let single = 
     { roomCode = RoomCode "SGL"
       availabilities = 
-        ([ jan15  1 => jan15 10 := Opened 10 
+        ([ jan15  1 => jan15 5 := Opened 10 
+           jan15  5 => jan15 10 := Opened 10 
            jan15 10 => jan15 25 := Closed
            jan15 27 => jan15 30 := Opened 20 ] |> Outatime.build)
       rates = 
@@ -116,16 +120,13 @@ let ``tranpose avp model to partner model with rate level repartition`` ()=
         [ single
           double ]
         |> Seq.map (transposeRoom Repartition.rateLevel)
-        |> Seq.collect (Outatime.merge >> Outatime.toList)
-        |> Seq.collect Partner.toRequest
+        |> Seq.collect (Outatime.merge >> Outatime.fold Partner.toRequest Seq.empty)
         |> Seq.toList
     |> Expect 
         [ @"[2015/01/01; 2015/01/10[ => RoomCode ""SGL"", RateCode ""BB"" = Opened Allotment 5/Price 135M"
           @"[2015/01/01; 2015/01/10[ => RoomCode ""SGL"", RateCode ""RO"" = Opened Allotment 5/Price 120M"
-          @"[2015/01/10; 2015/01/15[ => RoomCode ""SGL"", RateCode ""BB"" = Closed"
-          @"[2015/01/10; 2015/01/15[ => RoomCode ""SGL"", RateCode ""RO"" = Closed"
-          @"[2015/01/15; 2015/01/25[ => RoomCode ""SGL"", RateCode ""BB"" = Closed"
-          @"[2015/01/15; 2015/01/25[ => RoomCode ""SGL"", RateCode ""RO"" = Closed"
+          @"[2015/01/10; 2015/01/25[ => RoomCode ""SGL"", RateCode ""BB"" = Closed"
+          @"[2015/01/10; 2015/01/25[ => RoomCode ""SGL"", RateCode ""RO"" = Closed"
           @"[2015/01/25; 2015/01/27[ => RoomCode ""SGL"", AllRate = Closed"
           @"[2015/01/27; 2015/01/28[ => RoomCode ""SGL"", RateCode ""BB"" = Closed"
           @"[2015/01/27; 2015/01/28[ => RoomCode ""SGL"", RateCode ""RO"" = Opened Allotment 20/Price 115M"

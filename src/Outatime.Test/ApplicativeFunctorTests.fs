@@ -35,24 +35,26 @@ let ``transform temporaries to rate availability domain`` openingO departureO av
     | _ -> None
 
 let ``transform temporaries into request`` temporal = 
-    let request t = 
-        match t.Value with
-        | Closed -> sprintf "%O = Closed" t.Period
-        | Opened rate -> 
-            let (Availability a) = rate.Availability
-            let (Price p) = rate.Price
-            let d = 
-                match rate.Departure with
-                | ClosedToDeparture -> "closed to departure"
-                | OpenedToDeparture -> "opened to departure"
+    let folder state p v = 
+        seq {
+            yield! state
+            match v with
+            | Closed -> yield sprintf "%O = Closed" p
+            | Opened rate -> 
+                let (Availability availability) = rate.Availability
+                let (Price price) = rate.Price
+                let departure = 
+                    match rate.Departure with
+                    | ClosedToDeparture -> "closed to departure"
+                    | OpenedToDeparture -> "opened to departure"
 
-            sprintf "%O = Opened with %i of availibility at %.2f price and %s" t.Period a p d
+                yield sprintf "%O = Opened with %i of availibility at %.2f price and %s" p availability price departure }
         
     temporal
     |> Outatime.merge
     |> Outatime.ofOption
-    |> Outatime.toList 
-    |> List.map request
+    |> Outatime.fold folder Seq.empty
+    |> Seq.toList
 
 [<Fact>]
 let ``given empty temporaries expect empty temporaries``()=

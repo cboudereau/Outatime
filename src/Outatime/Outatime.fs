@@ -119,6 +119,11 @@ let ofMap temporals =
         <| ret Map.empty
         <| temporals
 
+let fold folder state (Temporal temporaries) = 
+    let f state t = folder state t.Period t.Value 
+    Seq.fold f state temporaries
+
+
 let split length (Temporal temporaries) = 
     let duration p = p.EndDate - p.StartDate
     let rec split t = 
