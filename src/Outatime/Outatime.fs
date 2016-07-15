@@ -49,9 +49,7 @@ let lift2 f (Temporal x) (Temporal y) =
                         let enD = min ye.Current.Period.EndDate xe.Current.Period.EndDate
                         if start < enD then yield (start => enD := (f xe.Current.Value ye.Current.Value))
                     let n = if ye.Current.Period.EndDate < xe.Current.Period.EndDate then ye.MoveNext() else xe.MoveNext()
-                    if n then yield! next ()
-                }
-
+                    if n then yield! next () }
             yield! next ()
     } |> Temporal
 
@@ -74,8 +72,7 @@ let private contiguousT zero f (Temporal temporaries) =
                         yield e.Current.Period := f e.Current.Value
                         yield! next e.Current
                     elif previous.Period.EndDate <> always.EndDate then 
-                        yield previous.Period.EndDate => always.EndDate := zero
-                }
+                        yield previous.Period.EndDate => always.EndDate := zero }
             yield! next e.Current
         else yield always := None }
     |> Temporal
@@ -110,8 +107,7 @@ let toList (Temporal temporaries) = temporaries |> Seq.toList
 let ofOption (Temporal temporaries) = 
     seq {
         for t in temporaries do 
-            if t.Value |> Option.isSome then yield t.Period := t.Value.Value
-    } |> Temporal
+            if t.Value |> Option.isSome then yield t.Period := t.Value.Value } |> Temporal
 
 let ofMap temporals = 
     Map.fold 
@@ -123,17 +119,15 @@ let fold folder state (Temporal temporaries) =
     let f state t = folder state t.Period t.Value 
     Seq.fold f state temporaries
 
-
 let split length (Temporal temporaries) = 
     let duration p = p.EndDate - p.StartDate
     let rec split t = 
-        seq{
+        seq {
             if t.Period |> duration <= length then yield t
             else
                 let next = t.Period.StartDate + length
                 yield { t with Period = { t.Period with EndDate = next } }
-                yield! split { t with Period = { t.Period with StartDate = next } }
-        }
+                yield! split { t with Period = { t.Period with StartDate = next } } }
     temporaries
     |> Seq.collect split
     |> Temporal
