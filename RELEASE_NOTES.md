@@ -1,5 +1,5 @@
-## New in 1.4.6
-* todo
+## New in 1.4.7
+* clean
 ## New in 1.4.6 (Released 2016/7/13)
 * clean ofMap
 * add fold function
