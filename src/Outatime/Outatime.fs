@@ -18,10 +18,10 @@ type Temporary<'v> =
 
 type Temporal<'v> = private Temporal of 'v Temporary seq
 
+let always = { StartDate = DateTime.MinValue; EndDate = DateTime.MaxValue }
+
 let ret x = 
-    { Period = 
-          { StartDate = DateTime.MinValue
-            EndDate = DateTime.MaxValue }
+    { Period = always
       Value = x }
     |> Seq.singleton
     |> Temporal
@@ -59,12 +59,12 @@ let apply f x = lift2 (fun f x -> f x) f x
 
 let map f x = apply (ret f) x
 
-let private contiguousT zero f (temporaries:#seq<Temporary<_>>) = 
+let private contiguousT zero f (Temporal temporaries) = 
     seq { 
         use e = temporaries.GetEnumerator()
         if e.MoveNext() then 
-            if e.Current.Period.StartDate <> DateTime.MinValue then 
-                yield DateTime.MinValue => e.Current.Period.StartDate := None
+            if e.Current.Period.StartDate <> always.StartDate then 
+                yield always.StartDate => e.Current.Period.StartDate := None
             yield e.Current.Period := Some e.Current.Value
             let rec next previous = 
                 seq { 
@@ -73,11 +73,12 @@ let private contiguousT zero f (temporaries:#seq<Temporary<_>>) =
                             yield previous.Period.EndDate => e.Current.Period.StartDate := None
                         yield e.Current.Period := f e.Current.Value
                         yield! next e.Current
-                    elif previous.Period.EndDate <> DateTime.MaxValue then 
-                        yield previous.Period.EndDate => DateTime.MaxValue := zero
+                    elif previous.Period.EndDate <> always.EndDate then 
+                        yield previous.Period.EndDate => always.EndDate := zero
                 }
             yield! next e.Current
-        else yield DateTime.MinValue => DateTime.MaxValue := None }
+        else yield always := None }
+    |> Temporal
 
 let merge (Temporal t) =
     seq {
@@ -97,14 +98,13 @@ let merge (Temporal t) =
                     else yield x }
             yield! merge e.Current } |> Temporal
 
-let private sort temporaries = temporaries |> Seq.sortBy (fun t -> t.Period.StartDate)
+let contiguous temporal = temporal |> contiguousT None Some
+let build temporaries = 
+    let sort temporaries = temporaries |> Seq.sortBy (fun t -> t.Period.StartDate)
+    let removeEmpty temporaries = temporaries |> Seq.filter(fun t -> t.Period.StartDate < t.Period.EndDate)
+    let check temporaries = temporaries |> Seq.map(fun t -> if t.Period.EndDate < t.Period.StartDate then failwithf "invalid period %O" t.Period else t)
+    temporaries |> removeEmpty |> check |> sort |> Temporal
 
-let private removeEmpty temporaries = temporaries |> Seq.filter(fun t -> t.Period.StartDate < t.Period.EndDate)
-
-let private check temporaries = temporaries |> Seq.map(fun t -> if t.Period.EndDate < t.Period.StartDate then failwithf "invalid period %O" t.Period else t)
-
-let contiguous (Temporal temporaries) = temporaries |> contiguousT None Some |> Temporal
-let build temporaries = temporaries |> removeEmpty |> check |> sort |> Temporal
 let toList (Temporal temporaries) = temporaries |> Seq.toList
 
 let ofOption (Temporal temporaries) = 
