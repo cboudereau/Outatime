@@ -10,8 +10,8 @@ type Period = Interval<DateTime>
 type Temporary<'v> = IntervalValued<DateTime, 'v>    
 type Temporal<'v> = IntervalValuedSet<DateTime, 'v>
 
-let (=>) = (=>)
-let (:=) = (:=)
+let (=>) (x:DateTime) (y:DateTime) : Period = (=>) x y
+let (:=) (p:Period) v : Temporary<'v> = (:=) p v
 
 let build (temporaries : 'v Temporary seq) = build temporaries
 let clamp period (temporal:Temporal<_>) = clamp period temporal
