@@ -13,8 +13,8 @@ type Temporal<'v> = IntervalValuedSet<DateTime, 'v>
 let (=>) (x:DateTime) (y:DateTime) : Period = (=>) x y
 let (:=) (p:Period) v : Temporary<'v> = (:=) p v
 
-let build (temporaries : 'v Temporary seq) = build temporaries
-let clamp period (temporal:Temporal<_>) = clamp period temporal
+let build (temporaries : 'v Temporary seq) : Temporal<_> = build temporaries
+let clamp period (temporal:Temporal<_>) : Temporal<_>= clamp period temporal
 let toList (temporal:Temporal<_>) : _ Temporary list = toList temporal
 let merge (temporal:Temporal<_>) : Temporal<_> = merge temporal
 let fold (folder:'a -> Period -> 'c -> 'a) state (temporal:Temporal<_>) = fold folder state temporal
@@ -30,7 +30,7 @@ let lift f (x:Temporal<_>) : Temporal<_> =  lift f x
 let (<!>) f (x:Temporal<_>) : Temporal<_> = (<!>) f x
 let (<*>) (f:Temporal<_>) (x:Temporal<_>) : Temporal<_> = (<*>) f x
 
-let period t = t.Interval
-let start p = p.Start
-let enD p = p.End
+let period (t:Temporary<_>) : Period = t.Interval
+let start (p:Period) = p.Start
+let enD (p:Period) = p.End
 let duration (p:Period) = p.End - p.Start
