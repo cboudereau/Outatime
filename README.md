@@ -68,12 +68,13 @@ let ``transform temporaries to rate availability domain`` openingO departureO av
 
 let ``transform temporaries into request`` temporal = 
     let request t = 
-        seq {
+            let toString (date:DateTime) = date.ToString("yyyy/MM/dd")
+            let start = t |> period |> start |> toString
+            let enD = t |> period |> enD |> toString
+
             match t.Value with
-            | None -> yield! Seq.empty
-            | Some Closed -> 
-                yield sprintf "%O = Closed" t.Period
-            | Some (Opened rate) -> 
+            | Closed -> sprintf "[%s; %s[ = Closed" start enD
+            | Opened rate -> 
                 let (Availability a) = rate.Availability
                 let (Price p) = rate.Price
                 let d = 
@@ -81,13 +82,13 @@ let ``transform temporaries into request`` temporal =
                     | ClosedToDeparture -> "closed to departure"
                     | OpenedToDeparture -> "opened to departure"
 
-                yield sprintf "%O = Opened with %i of availibility at %.2f price and %s" t.Period a p d }
+                sprintf "[%s; %s[ = Opened with %i of availibility at %.2f price and %s" start enD a p d
         
     temporal
     |> Outatime.merge
+    |> Outatime.ofOption
     |> Outatime.toList 
-    |> Seq.collect request
-    |> Seq.toList
+    |> List.map request
 
 [<Fact>]
 let ``given temporaries with no intersections or empty periods expect the largest period with none value``()=
