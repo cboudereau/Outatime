@@ -4,39 +4,37 @@ type DateTime = System.DateTime
 
 type TimeSpan = System.TimeSpan
     
-type Period = 
-    { StartDate : DateTime
-      EndDate : DateTime }
-    override this.ToString() = 
-        let toString (date:DateTime) = date.ToString("yyyy/MM/dd")
-        sprintf "[%s; %s[" (this.StartDate |> toString) (this.EndDate |> toString)
+type Interval<'t> = 
+    { Start : 't
+      End : 't }
+    override this.ToString() = sprintf "[%O; %O[" this.Start this.End
 
-type Temporary<'v> = 
-    { Period : Period
+type IntervalValued<'k, 'v> = 
+    { Interval : Interval<'k>
       Value : 'v }
-    override this.ToString() = sprintf "%O = %O" this.Period this.Value
+    override this.ToString() = sprintf "%O = %O" this.Interval this.Value
 
-type Temporal<'v> = private Temporal of 'v Temporary seq
+type IntervalValuedSet<'k, 'v> = private IntervalValuedSet of IntervalValued<'k, 'v> seq
 
-let always = { StartDate = DateTime.MinValue; EndDate = DateTime.MaxValue }
+let always = { Start=DateTime.MinValue; End=DateTime.MaxValue }
 
 let ret x = 
-    { Period = always
+    { Interval = always
       Value = x }
     |> Seq.singleton
-    |> Temporal
+    |> IntervalValuedSet
 
 let (=>) s e = 
-    { StartDate = s
-      EndDate = e }
+    { Start = s
+      End = e }
 
 let (:=) p v = 
-    { Period = p
+    { Interval = p
       Value = v }
 
-let lift f (Temporal x) = x |> Seq.map(fun i -> i.Period := f i.Value) |> Temporal
+let lift f (IntervalValuedSet x) = x |> Seq.map(fun i -> i.Interval := f i.Value) |> IntervalValuedSet
 
-let lift2 f (Temporal x) (Temporal y) = 
+let lift2 f (IntervalValuedSet x) (IntervalValuedSet y) = 
     seq {
         use xe = x.GetEnumerator()
         use ye = y.GetEnumerator()
@@ -44,40 +42,40 @@ let lift2 f (Temporal x) (Temporal y) =
         if(xe.MoveNext() && ye.MoveNext()) then
             let rec next () = 
                 seq { 
-                    if xe.Current.Period.StartDate < ye.Current.Period.EndDate then
-                        let start = max ye.Current.Period.StartDate xe.Current.Period.StartDate
-                        let enD = min ye.Current.Period.EndDate xe.Current.Period.EndDate
+                    if xe.Current.Interval.Start < ye.Current.Interval.End then
+                        let start = max ye.Current.Interval.Start xe.Current.Interval.Start
+                        let enD = min ye.Current.Interval.End xe.Current.Interval.End
                         if start < enD then yield (start => enD := (f xe.Current.Value ye.Current.Value))
-                    let n = if ye.Current.Period.EndDate < xe.Current.Period.EndDate then ye.MoveNext() else xe.MoveNext()
+                    let n = if ye.Current.Interval.End < xe.Current.Interval.End then ye.MoveNext() else xe.MoveNext()
                     if n then yield! next () }
             yield! next ()
-    } |> Temporal
+    } |> IntervalValuedSet
 
 let apply f x = lift2 (fun f x -> f x) f x
 
 let map f x = apply (ret f) x
 
-let private contiguousT zero f (Temporal temporaries) = 
+let private contiguousT zero f (IntervalValuedSet temporaries) = 
     seq { 
         use e = temporaries.GetEnumerator()
         if e.MoveNext() then 
-            if e.Current.Period.StartDate <> always.StartDate then 
-                yield always.StartDate => e.Current.Period.StartDate := None
-            yield e.Current.Period := Some e.Current.Value
+            if e.Current.Interval.Start <> always.Start then 
+                yield always.Start => e.Current.Interval.Start := None
+            yield e.Current.Interval := Some e.Current.Value
             let rec next previous = 
                 seq { 
                     if e.MoveNext() then 
-                        if e.Current.Period.StartDate > previous.Period.EndDate then 
-                            yield previous.Period.EndDate => e.Current.Period.StartDate := None
-                        yield e.Current.Period := f e.Current.Value
+                        if e.Current.Interval.Start > previous.Interval.End then 
+                            yield previous.Interval.End => e.Current.Interval.Start := None
+                        yield e.Current.Interval := f e.Current.Value
                         yield! next e.Current
-                    elif previous.Period.EndDate <> always.EndDate then 
-                        yield previous.Period.EndDate => always.EndDate := zero }
+                    elif previous.Interval.End <> always.End then 
+                        yield previous.Interval.End => always.End := zero }
             yield! next e.Current
         else yield always := None }
-    |> Temporal
+    |> IntervalValuedSet
 
-let merge (Temporal t) =
+let merge (IntervalValuedSet t) =
     seq {
         use e = t.GetEnumerator()
 
@@ -86,28 +84,28 @@ let merge (Temporal t) =
                 seq { 
                     if e.MoveNext() then
                         let y = e.Current
-                        if y.Period.StartDate <= x.Period.EndDate && y.Value = x.Value then
-                            let start = min y.Period.StartDate x.Period.StartDate
-                            let enD = max y.Period.EndDate x.Period.EndDate
+                        if y.Interval.Start <= x.Interval.End && y.Value = x.Value then
+                            let start = min y.Interval.Start x.Interval.Start
+                            let enD = max y.Interval.End x.Interval.End
                             if enD > start then yield! merge (start => enD := x.Value)
                             else yield x; yield! merge y
                         else yield x; yield! merge y
                     else yield x }
-            yield! merge e.Current } |> Temporal
+            yield! merge e.Current } |> IntervalValuedSet
 
 let contiguous temporal = temporal |> contiguousT None Some
 let build temporaries = 
-    let sort temporaries = temporaries |> Seq.sortBy (fun t -> t.Period.StartDate)
-    let removeEmpty temporaries = temporaries |> Seq.filter(fun t -> t.Period.StartDate < t.Period.EndDate)
-    let check temporaries = temporaries |> Seq.map(fun t -> if t.Period.EndDate < t.Period.StartDate then failwithf "invalid period %O" t.Period else t)
-    temporaries |> removeEmpty |> check |> sort |> Temporal
+    let sort temporaries = temporaries |> Seq.sortBy (fun t -> t.Interval.Start)
+    let removeEmpty temporaries = temporaries |> Seq.filter(fun t -> t.Interval.Start < t.Interval.End)
+    let check temporaries = temporaries |> Seq.map(fun t -> if t.Interval.End < t.Interval.Start then failwithf "invalid period %O" t.Interval else t)
+    temporaries |> removeEmpty |> check |> sort |> IntervalValuedSet
 
-let toList (Temporal temporaries) = temporaries |> Seq.toList
+let toList (IntervalValuedSet temporaries) = temporaries |> Seq.toList
 
-let ofOption (Temporal temporaries) = 
+let ofOption (IntervalValuedSet temporaries) = 
     seq {
         for t in temporaries do 
-            if t.Value |> Option.isSome then yield t.Period := t.Value.Value } |> Temporal
+            if t.Value |> Option.isSome then yield t.Interval := t.Value.Value } |> IntervalValuedSet
 
 let ofMap temporals = 
     Map.fold 
@@ -115,32 +113,35 @@ let ofMap temporals =
         <| ret Map.empty
         <| temporals
 
-let fold folder state (Temporal temporaries) = 
-    let f state t = folder state t.Period t.Value 
+let fold folder state (IntervalValuedSet temporaries) = 
+    let f state t = folder state t.Interval t.Value 
     Seq.fold f state temporaries
 
-let split length (Temporal temporaries) = 
-    let duration p = p.EndDate - p.StartDate
-    let rec split t = 
-        seq {
-            if t.Period |> duration <= length then yield t
-            else
-                let next = t.Period.StartDate + length
-                yield { t with Period = { t.Period with EndDate = next } }
-                yield! split { t with Period = { t.Period with StartDate = next } } }
-    temporaries
-    |> Seq.collect split
-    |> Temporal
-
-let clamp period (Temporal temporaries) = 
+let clamp period (IntervalValuedSet temporaries) = 
     temporaries
     |> Seq.collect(fun t -> 
-        let start = max period.StartDate t.Period.StartDate
-        let enD = min period.EndDate t.Period.EndDate
+        let start = max period.Start t.Interval.Start
+        let enD = min period.End t.Interval.End
         if enD > start then 
             (start => enD := t.Value) |> Seq.singleton
         else Seq.empty)
-    |> Temporal
+    |> IntervalValuedSet
+
+let inline split length intervalValuedSet = 
+    let inline duration p = p.End - p.Start
+
+    let rec splitI t = 
+        seq {
+            if t.Interval |> duration <= length then yield t
+            else
+                let next = t.Interval.Start + length
+                yield { t with Interval = { t.Interval with End = next } }
+                yield! splitI { t with Interval = { t.Interval with Start = next } } 
+        }
+    intervalValuedSet
+    |> toList
+    |> Seq.collect splitI
+    |> build
 
 let (<!>) = map
 let (<*>) = apply

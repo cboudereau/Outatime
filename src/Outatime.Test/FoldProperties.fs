@@ -7,7 +7,7 @@ open Outatime
 module FoldTemporal = 
 
     [<Property>]
-    let ``identity fold should be equal to source`` (temporaries:string Temporary list) = 
+    let ``identity fold should be equal to source`` (temporaries:IntervalValued<DateTime, string> list) = 
         let expected = temporaries |> Outatime.build |> Outatime.toList
 
         let actual = 

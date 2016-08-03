@@ -65,8 +65,8 @@
     <Compile Include="TestData.fs" />
     <Compile Include="ClampProperties.fs" />
     <Compile Include="MergeTests.fs" />
-    <Compile Include="SplitProperties.fs" />
     <Compile Include="FoldProperties.fs" />
+    <Compile Include="SplitProperties.fs" />
     <Compile Include="LiftProperties.fs" />
     <Compile Include="ApplicativeFunctorTests.fs" />
     <Compile Include="TraverseTests.fs" />

@@ -9,27 +9,27 @@ let jan15 d = DateTime(2015,1,1,0,0,0,System.DateTimeKind.Utc)
 module LiftTemporal = 
 
     let splitPeriod = System.TimeSpan.FromDays(1000.)
-    let duration p = p.EndDate - p.StartDate
+    let duration p = p.End - p.Start
     
-    let build l = l |> Outatime.build |> Outatime.contiguous
+    let inline build l = l |> Outatime.build |> Outatime.contiguous
 
     [<Property>]
-    let ``lift2 of temporals and empty should always return empty temporals`` (t:string Temporary list) = 
+    let ``lift2 of temporals and empty should always return empty temporals`` (t:IntervalValued<DateTime, string> list) = 
         Outatime.lift2 (sprintf "x=%s/y=%s") (Outatime.build t) (Outatime.build []) |> Outatime.toList = []
 
     [<Property>]
-    let ``lift2 of empty and temporals should always return empty temporals`` (t:string Temporary list) = 
+    let ``lift2 of empty and temporals should always return empty temporals`` (t:IntervalValued<DateTime, string> list) = 
         Outatime.lift2 (sprintf "x=%s/y=%s") (Outatime.build []) (Outatime.build t) |> Outatime.toList = []
 
     [<Property>]
-    let ``contiguous lift2 should always return contiguous period`` (t1:string Temporary list) (t2:string Temporary list) = 
+    let ``contiguous lift2 should always return contiguous period`` (t1:IntervalValued<DateTime, string> list) (t2:IntervalValued<DateTime, string> list) = 
         let t1' = build t1
         let t2' = build t2 
-
+        
         let r = Outatime.lift2 (sprintf "x=%A/y=%A") t1' t2'
 
-        let actual = r |> Outatime.toList |> List.map(fun t -> t.Period)
-        let expected = r |> Outatime.contiguous |> Outatime.toList |> List.map(fun t -> t.Period)
+        let actual = r |> Outatime.toList |> List.map(fun t -> t.Interval)
+        let expected = r |> Outatime.contiguous |> Outatime.toList |> List.map(fun t -> t.Interval)
 
         actual = expected
         

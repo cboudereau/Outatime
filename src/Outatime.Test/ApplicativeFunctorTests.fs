@@ -37,9 +37,13 @@ let ``transform temporaries to rate availability domain`` openingO departureO av
 let ``transform temporaries into request`` temporal = 
     let folder state p v = 
         seq {
+            let toString (date:DateTime) = date.ToString("yyyy/MM/dd")
+            let start = p.Start |> box :?> DateTime |> toString
+            let enD = p.End |> box :?> DateTime |> toString
+
             yield! state
             match v with
-            | Closed -> yield sprintf "%O = Closed" p
+            | Closed -> yield sprintf "[%s; %s[ = Closed" start enD
             | Opened rate -> 
                 let (Availability availability) = rate.Availability
                 let (Price price) = rate.Price
@@ -47,8 +51,7 @@ let ``transform temporaries into request`` temporal =
                     match rate.Departure with
                     | ClosedToDeparture -> "closed to departure"
                     | OpenedToDeparture -> "opened to departure"
-
-                yield sprintf "%O = Opened with %i of availibility at %.2f price and %s" p availability price departure }
+                yield sprintf "[%s; %s[ = Opened with %i of availibility at %.2f price and %s" start enD availability price departure }
         
     temporal
     |> Outatime.merge
