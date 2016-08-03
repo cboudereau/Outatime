@@ -4,7 +4,23 @@ open Outatime
 open Bdd
 open Xunit
 
+open SetTheory
+
 let jan15 n = (DateTime(2015,1,n))
+
+open System
+type Price = 
+    | Price of decimal
+    static member MaxValue = Price Decimal.MaxValue
+    static member MinValue = Price Decimal.MinValue
+
+[<Fact>]
+let ``infinite should find the MinValue and MaxValue``() =
+    let r = infinite<Price>
+    let (Price minV) = r.Start
+    let (Price maxV) = r.End
+    minV |> Expect Decimal.MinValue
+    maxV |> Expect Decimal.MaxValue
 
 let ``I want to merge temporaries`` v = v |> Outatime.build |> Outatime.merge |> Outatime.toList
 

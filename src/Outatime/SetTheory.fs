@@ -12,7 +12,17 @@ type IntervalValued<'k, 'v> =
 
 type IntervalValuedSet<'k, 'v> = private IntervalValuedSet of IntervalValued<'k, 'v> seq
 
-let infinite<'t> = { Start=typeof<'t>.GetField("MinValue").GetValue(null) :?> 't; End=typeof<'t>.GetField("MaxValue").GetValue(null) :?> 't }
+let infinite<'t> = 
+    { Start=
+        match typeof<'t>.GetField("MinValue"), typeof<'t>.GetProperty("MinValue") with
+        | null, null -> failwithf "expect MinValue field or property on type %s" (typeof<'t>.FullName)
+        | f, _ when f <> null  -> f.GetValue(null) :?> 't
+        | _, p -> p.GetValue(null) :?> 't
+      End=
+        match typeof<'t>.GetField("MaxValue"), typeof<'t>.GetProperty("MaxValue") with
+        | null, null -> failwithf "expect MaxValue field or property on type %s" (typeof<'t>.FullName)
+        | f, _ when f <> null  -> f.GetValue(null) :?> 't
+        | _, p -> p.GetValue(null) :?> 't }
 
 let ret x = 
     { Interval = infinite
