@@ -25,11 +25,10 @@ open FsCheck.Xunit
 module SplitTemporaries = 
 
     let splitPeriod = System.TimeSpan.FromDays(1000.)
-    let duration p = p.End - p.Start
     [<Property>]
-    let ``check that all period are less than split period`` (temporaries:IntervalValued<DateTime, string> list) = 
+    let ``check that all period are less than split period`` (temporaries:Temporary<string> list) = 
         temporaries
         |> Outatime.build
         |> Outatime.split splitPeriod
         |> Outatime.toList
-        |> Seq.forall(fun v -> v.Interval |> duration <= splitPeriod)
+        |> Seq.forall(fun v -> v.Interval |> Outatime.duration <= splitPeriod)

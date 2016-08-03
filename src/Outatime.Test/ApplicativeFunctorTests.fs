@@ -38,8 +38,8 @@ let ``transform temporaries into request`` temporal =
     let folder state p v = 
         seq {
             let toString (date:DateTime) = date.ToString("yyyy/MM/dd")
-            let start = p.Start |> box :?> DateTime |> toString
-            let enD = p.End |> box :?> DateTime |> toString
+            let start = p |> start |> toString
+            let enD = p |> enD |> toString
 
             yield! state
             match v with

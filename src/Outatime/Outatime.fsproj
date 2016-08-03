@@ -50,6 +50,7 @@
   </Choose>
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
+    <Compile Include="SetTheory.fs" />
     <Compile Include="Outatime.fs" />
   </ItemGroup>
   <ItemGroup>

@@ -50,8 +50,8 @@ let ``transform temporaries to rate availability domain`` openingO departureO av
 let ``transform temporaries into request`` temporal = 
     let request t = 
             let toString (date:DateTime) = date.ToString("yyyy/MM/dd")
-            let start = t.Interval.Start |> box :?> DateTime |> toString
-            let enD = t.Interval.End |> box :?> DateTime |> toString
+            let start = t |> period |> start |> toString
+            let enD = t |> period |> enD |> toString
 
             match t.Value with
             | Closed -> sprintf "[%s; %s[ = Closed" start enD

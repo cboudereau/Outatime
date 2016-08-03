@@ -20,11 +20,11 @@ type Price = Price of decimal
 
 type Rate = 
     { rateCode : RateCode
-      prices : IntervalValuedSet<DateTime, Price> }
+      prices : Price Temporal }
 
 type Room = 
     { roomCode : RoomCode
-      availabilities : IntervalValuedSet<DateTime, Availability>
+      availabilities : Availability Temporal
       rates : Rate seq }
 
 let jan15 d = System.DateTime(2015, 1, d, 0, 0, 0, System.DateTimeKind.Utc)
@@ -69,8 +69,8 @@ module Partner =
         seq {
             yield! state
             let toString (date:DateTime) = date.ToString("yyyy/MM/dd")
-            let start = p.Start |> box :?> DateTime |> toString
-            let enD = p.End |> box :?> DateTime |> toString
+            let start = p |> start |> toString
+            let enD = p |> enD |> toString
 
             let toR = function
                 | Closed (roomCode, rateCode) ->
