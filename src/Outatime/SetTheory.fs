@@ -24,8 +24,8 @@ let (=>) s e =
     { Start = s
       End = e }
 
-let (:=) p v = 
-    { Interval = p
+let (:=) i v = 
+    { Interval = i
       Value = v }
 
 let lift f (IntervalValuedSet x) = x |> Seq.map(fun i -> i.Interval := f i.Value) |> IntervalValuedSet
