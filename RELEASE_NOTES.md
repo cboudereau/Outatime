@@ -1,3 +1,5 @@
+## New in 1.5.2
+* todo
 ## New in 1.5.1 (Released 2016/7/19)
 * Fix MinValue and MaxValue on infinite
 ## New in 1.5.0 (Released 2016/7/19)
