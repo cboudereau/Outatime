@@ -34,3 +34,4 @@ let period (t:Temporary<_>) : Period = t.Interval
 let start (p:Period) = p.Start
 let enD (p:Period) = p.End
 let duration (p:Period) = p.End - p.Start
+let always = infinite<DateTime>

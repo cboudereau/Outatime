@@ -12,11 +12,11 @@ type RandomPeriod =
     static member Gen() = 
         let beginingPeriod = 
             Arb.generate<DateTime>
-            |> Gen.map (fun d -> getPeriod(DateTime.MinValue, d))
+            |> Gen.map (fun d -> getPeriod(always.Start, d))
 
         let endingPeriod = 
             Arb.generate<DateTime>
-            |> Gen.map (fun d -> getPeriod(d, DateTime.MaxValue))
+            |> Gen.map (fun d -> getPeriod(d, always.End))
 
         let randomPeriod = 
             Arb.generate<DateTime>
@@ -46,7 +46,7 @@ let toTemporaries l =
                 yield! internalToTemporaries (s + duration) tail
             | [] -> yield! []
         }
-    internalToTemporaries DateTime.MinValue l
+    internalToTemporaries always.Start l
     |> Seq.toList
 
 type RandomStringTemporal = 
