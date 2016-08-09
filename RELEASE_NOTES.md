@@ -1,3 +1,5 @@
+## New in 1.5.3
+* update docs
 ## New in 1.5.2 (Released 2016/8/9)
 * map with interval like Map.map
 ## New in 1.5.1 (Released 2016/7/19)

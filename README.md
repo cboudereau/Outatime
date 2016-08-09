@@ -55,7 +55,7 @@ type RateAvailability =
     | Closed
     | Opened of Rate
 
-let ``transform temporaries to rate availability domain`` openingO departureO availabilityO priceO = 
+let ``transform temporaries to rate availability domain`` _ openingO departureO availabilityO priceO = 
     match openingO, departureO, availabilityO, priceO with
     | Some opening, Some departure, Some availability, Some price -> 
         match opening with
