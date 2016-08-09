@@ -162,7 +162,7 @@ let <span class="pl-smi"><span class="pl-s">``</span><span class="pl-smi">given 
     <span class="pl-k">|</span> Closed
     <span class="pl-k">|</span> Opened <span class="pl-k">of</span> Rate
 
-let <span class="pl-smi"><span class="pl-s">``</span><span class="pl-smi">transform temporaries to rate availability domain</span><span class="pl-s">``</span></span> openingO departureO availabilityO priceO <span class="pl-k">=</span> 
+let <span class="pl-smi"><span class="pl-s">``</span><span class="pl-smi">transform temporaries to rate availability domain</span><span class="pl-s">``</span></span> <span class="pl-k">_</span> openingO departureO availabilityO priceO <span class="pl-k">=</span> 
     <span class="pl-k">match</span> openingO, departureO, availabilityO, priceO <span class="pl-k">with</span>
     <span class="pl-k">|</span> Some opening, Some departure, Some availability, Some price <span class="pl-k">-&gt;</span> 
         <span class="pl-k">match</span> opening <span class="pl-k">with</span>
@@ -175,12 +175,13 @@ let <span class="pl-smi"><span class="pl-s">``</span><span class="pl-smi">transf
 
 let <span class="pl-smi"><span class="pl-s">``</span><span class="pl-smi">transform temporaries into request</span><span class="pl-s">``</span></span> temporal <span class="pl-k">=</span> 
     <span class="pl-k">let</span> <span class="pl-smi">request</span> <span class="pl-v">t</span> <span class="pl-k">=</span> 
-        <span class="pl-k">seq {</span>
+            <span class="pl-k">let</span> <span class="pl-smi">toString</span> (<span class="pl-v">date</span>:<span class="pl-v">DateTime</span>) <span class="pl-k">=</span> date.ToString(<span class="pl-s"><span class="pl-pds">"</span>yyyy/MM/dd<span class="pl-pds">"</span></span>)
+            <span class="pl-k">let</span> <span class="pl-smi">start</span> <span class="pl-k">=</span> t <span class="pl-k">|&gt;</span> period <span class="pl-k">|&gt;</span> start <span class="pl-k">|&gt;</span> toString
+            <span class="pl-k">let</span> <span class="pl-smi">enD</span> <span class="pl-k">=</span> t <span class="pl-k">|&gt;</span> period <span class="pl-k">|&gt;</span> enD <span class="pl-k">|&gt;</span> toString
+
             <span class="pl-k">match</span> t.Value <span class="pl-k">with</span>
-            <span class="pl-k">|</span> None <span class="pl-k">-&gt;</span> <span class="pl-k">yield!</span> Seq.empty
-            <span class="pl-k">|</span> Some Closed <span class="pl-k">-&gt;</span> 
-                <span class="pl-k">yield</span> sprintf <span class="pl-pds">"</span><span class="pl-s"><span class="pl-c1">%O</span> = Closed</span><span class="pl-pds">"</span> t.Period
-            <span class="pl-k">|</span> Some (Opened rate) <span class="pl-k">-&gt;</span> 
+            <span class="pl-k">|</span> Closed <span class="pl-k">-&gt;</span> sprintf <span class="pl-pds">"</span><span class="pl-s">[<span class="pl-c1">%s</span>; <span class="pl-c1">%s</span>[ = Closed</span><span class="pl-pds">"</span> start enD
+            <span class="pl-k">|</span> Opened rate <span class="pl-k">-&gt;</span> 
                 let (Availability a) <span class="pl-k">=</span> rate.Availability
                 let (Price p) <span class="pl-k">=</span> rate.Price
                 <span class="pl-k">let</span> <span class="pl-smi">d</span> <span class="pl-k">=</span> 
@@ -188,13 +189,13 @@ let <span class="pl-smi"><span class="pl-s">``</span><span class="pl-smi">transf
                     <span class="pl-k">|</span> ClosedToDeparture <span class="pl-k">-&gt;</span> <span class="pl-s"><span class="pl-pds">"</span>closed to departure<span class="pl-pds">"</span></span>
                     <span class="pl-k">|</span> OpenedToDeparture <span class="pl-k">-&gt;</span> <span class="pl-s"><span class="pl-pds">"</span>opened to departure<span class="pl-pds">"</span></span>
 
-                <span class="pl-k">yield</span> sprintf <span class="pl-pds">"</span><span class="pl-s"><span class="pl-c1">%O</span> = Opened with <span class="pl-c1">%i</span> of availibility at <span class="pl-c1">%.2f</span> price and <span class="pl-c1">%s</span></span><span class="pl-pds">"</span> t.Period a p d <span class="pl-k">}</span>
+                sprintf <span class="pl-pds">"</span><span class="pl-s">[<span class="pl-c1">%s</span>; <span class="pl-c1">%s</span>[ = Opened with <span class="pl-c1">%i</span> of availibility at <span class="pl-c1">%.2f</span> price and <span class="pl-c1">%s</span></span><span class="pl-pds">"</span> start enD a p d
 
     temporal
     <span class="pl-k">|&gt;</span> Outatime.merge
+    <span class="pl-k">|&gt;</span> Outatime.ofOption
     <span class="pl-k">|&gt;</span> Outatime.toList 
-    <span class="pl-k">|&gt;</span> Seq.collect request
-    <span class="pl-k">|&gt;</span> Seq.toList
+    <span class="pl-k">|&gt;</span> List.map request
 
 <span class="pl-c1">[&lt;Fact&gt;]</span>
 let <span class="pl-smi"><span class="pl-s">``</span><span class="pl-smi">given temporaries with no intersections or empty periods expect the largest period with none value</span><span class="pl-s">``</span></span><span class="pl-c1">()</span><span class="pl-k">=</span>
