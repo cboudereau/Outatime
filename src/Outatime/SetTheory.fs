@@ -59,7 +59,7 @@ let lift2 f (IntervalValuedSet x) (IntervalValuedSet y) =
 
 let apply f x = lift2 (fun f x -> f x) f x
 
-let map f x = apply (ret f) x
+let map f (IntervalValuedSet x) = x |> Seq.map(fun i -> i.Interval := f i.Interval i.Value) |> IntervalValuedSet
 
 let private contiguousT zero f (IntervalValuedSet x) = 
     seq { 
@@ -148,5 +148,5 @@ let inline split length intervalValuedSet =
     |> Seq.collect splitI
     |> build
 
-let (<!>) = map
+let (<!>) = lift
 let (<*>) = apply

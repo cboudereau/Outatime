@@ -6,7 +6,7 @@ open Outatime
 
 let jan15 d = DateTime(2015, 1, d)
 
-let (<!>) f x = x |> Outatime.build |> Outatime.contiguous |> Outatime.map f
+let (<!>) f x = x |> Outatime.build |> Outatime.contiguous |> Outatime.lift f
 let (<*>) f x = x |> Outatime.build |> Outatime.contiguous |> Outatime.apply f
 
 type Opening = Opened | Closed
