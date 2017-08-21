@@ -1,6 +1,6 @@
 # Outatime [![Build status](https://ci.appveyor.com/api/projects/status/v3f2gj9602e82ia4?svg=true)](https://ci.appveyor.com/project/cboudereau/outatime) [![NuGet Status](http://img.shields.io/nuget/v/Outatime.svg?style=flat)](https://www.nuget.org/packages/Outatime/)
 
-![Outatime] (https://raw.githubusercontent.com/cboudereau/Outatime/master/intro.jpg)
+![Outatime](https://raw.githubusercontent.com/cboudereau/Outatime/master/intro.jpg)
 
 =====
 
