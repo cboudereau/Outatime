@@ -2,7 +2,7 @@
 
 ![Outatime](https://raw.githubusercontent.com/cboudereau/Outatime/master/intro.jpg)
 
-=====
+----
 
 ## Intro
 When you have a lots of values changing over the time in a planning, it become difficult to deal with it day per day. The solution is to group the same values and merge period.
