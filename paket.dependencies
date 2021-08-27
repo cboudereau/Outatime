@@ -7,3 +7,4 @@ nuget FsCheck
 nuget FsCheck.Xunit
 nuget xunit
 nuget xunit.runner.console
+nuget xunit.runner.visualstudio

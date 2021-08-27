@@ -160,3 +160,9 @@ $RECYCLE.BIN/
 packages/
 
 .idea/
+
+.fake/
+
+test/
+
+nuget/

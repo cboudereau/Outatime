@@ -18,7 +18,7 @@
     <DocumentationFile>bin\Debug\FSharp.Temporality.Test.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
+    <DebugType>portable</DebugType>
     <Optimize>true</Optimize>
     <Tailcalls>true</Tailcalls>
     <OutputPath>bin\Release\</OutputPath>
@@ -41,10 +41,6 @@
     <Compile Include="ReadmeSample.fs" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="mscorlib" />
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Numerics" />
     <ProjectReference Include="..\Outatime\Outatime.fsproj" />
   </ItemGroup>
   <ItemGroup>

@@ -1,8 +1,53 @@
-#r @"packages/FAKE/tools/FakeLib.dll"
-open Fake 
-open Fake.AssemblyInfoFile
-open Fake.ReleaseNotesHelper
+#if FAKE
+#r "paket:
+nuget Fake.IO.FileSystem
+nuget Fake.DotNet.Cli
+nuget Fake.DotNet.Testing.XUnit2
+nuget Fake.Core.ReleaseNotes
+nuget Fake.DotNet.AssemblyInfoFile
+nuget Fake.Core.Target //"
+#load "./.fake/build.fsx/intellisense.fsx"
+#endif
+
+#if !FAKE
+#r "nuget: Fake.IO.FileSystem"
+#r "nuget: Fake.DotNet.Testing.XUnit2"
+#r "nuget: Fake.Core.Target"
+#r "nuget: Fake.Core.ReleaseNotes"
+#r "nuget: Fake.DotNet.AssemblyInfoFile"
+#r "nuget: Fake.DotNet.Cli"
+
+let execContext = Fake.Core.Context.FakeExecutionContext.Create false "build.fsx" []
+Fake.Core.Context.setExecutionContext (Fake.Core.Context.RuntimeContext.Fake execContext)
+#endif
+
+open Fake
+open Fake.IO
+open Fake.IO.Globbing.Operators //enables !! and globbing
+open Fake.DotNet
+open Fake.Core
+open Fake.Core.TargetOperators
 open System
+open Fake.DotNet.Testing
+open Fake.IO.FileSystemOperators
+open Fake.DotNet.NuGet
+
+let runDotNet cmd workingDir args =
+    let result =
+        DotNet.exec (DotNet.Options.withWorkingDirectory workingDir) cmd args
+    if result.ExitCode <> 0 then failwithf $"'dotnet %s{cmd}' failed in %s{workingDir}"
+
+let dotNetBuild = runDotNet "build"
+
+let build config outputDir (projects:IGlobbingPattern) = 
+  projects |> Seq.iter (fun p -> dotNetBuild "." $"%s{p} --output %s{outputDir} --configuration %s{config}")
+
+//let buildDebug = build "debug"
+
+let buildRelease = build "release"
+
+let dotnetTest (projects:IGlobbingPattern) =
+    projects |> Seq.iter (fun p -> runDotNet "test" "." p)
 
 type Project = 
     { name:string
@@ -18,7 +63,7 @@ let description = "Temporality category to map function and values changing over
 let authors = ["@cboudereau"]
 let tags = "F# fsharp temporality category applicative functor monads map"
 
-let projects = [ { name=project; summary=summary; authors=authors; tags=tags; description=description; framework="net452" } ]
+let projects = [ { name=project; summary=summary; authors=authors; tags=tags; description=description; framework="net5" } ]
 
 let nugetDir = "./nuget/"
 let outDir = "./bin/"
@@ -26,50 +71,49 @@ let testDir = "./test/"
 
 // Read additional information from the release notes document
 Environment.CurrentDirectory <- __SOURCE_DIRECTORY__
-let release = parseReleaseNotes (IO.File.ReadAllLines "RELEASE_NOTES.md")
+let release = ReleaseNotes.load "RELEASE_NOTES.md"
 
-Target "Clean" (fun _ ->
-    CleanDirs [outDir; testDir; nugetDir]
+Target.create "Clean" (fun _ ->
+    Shell.cleanDirs [outDir; testDir; nugetDir]
 )
 
 // Generate assembly info files with the right version & up-to-date information
-Target "AssemblyInfo" (fun _ ->
+Target.create "AssemblyInfo" (fun _ ->
     for project in projects do
         let fileName = "src" @@ project.name @@ "/AssemblyInfo.fs"
         printfn "%s" fileName
-        CreateFSharpAssemblyInfo fileName
-            [ Attribute.Title project.name
-              Attribute.Product project.name
-              Attribute.Description project.summary
-              Attribute.Version release.AssemblyVersion
-              Attribute.FileVersion release.AssemblyVersion ] 
+        AssemblyInfoFile.createFSharp fileName
+            [ AssemblyInfo.Title project.name
+              AssemblyInfo.Product project.name
+              AssemblyInfo.Description project.summary
+              AssemblyInfo.Version release.AssemblyVersion
+              AssemblyInfo.FileVersion release.AssemblyVersion ] 
 )
 
-Target "Build" (fun _ ->
+Target.create "Build" (fun _ ->
     projects 
     |> List.iter(fun p ->
-        !! ( "src" @@ p.name @@ p.name + ".*proj")
-        |> MSBuildRelease (outDir @@ p.name) "Build"
-        |> ignore)
+         !! ( "src" @@ p.name @@ p.name + ".*proj")
+           |> buildRelease (outDir @@ p.name)
+       )
 )
 
-open Fake.Testing.XUnit2
-Target "Tests" (fun _ ->
-    !! ("**/*Test.*proj")
-    |> MSBuildRelease testDir "Build"
-    |> ignore
-
-    !! (testDir @@ "*Test.dll")
-    |> xUnit2 (fun p -> { p with ShadowCopy=true; ForceAppVeyor=true; Parallel=ParallelMode.All })
+Target.create "Tests" (fun _ ->
+    !! "**/*Test.*proj"
+    |> dotnetTest
+    
+    //!! (testDir @@ "*Test.dll")
+    //|> XUnit2.run (fun p -> { p with ShadowCopy=true; ForceAppVeyor=true; Parallel=XUnit2.ParallelMode.All })
 )
 
-Target "NuGet" (fun _ ->
+Target.create "NuGet" (fun _ ->
     let description project = project.description.Replace("\r", "").Replace("\n", "").Replace("  ", " ")
+    let toLines (lines:string seq) = String.Join(Environment.NewLine, lines)
 
     projects
     |> Seq.iter(fun project ->
-        CopyDir (nugetDir @@ "/lib/" @@ project.framework) (outDir @@ project.name) (fun file -> file.Contains "FSharp.Core." |> not)
-        NuGet (fun p -> 
+        Shell.copyDir (nugetDir @@ "/lib/" @@ project.framework) (outDir @@ project.name) (fun file -> file.Contains "FSharp.Core." |> not)
+        NuGet.NuGet (fun p -> 
             { p with
                 Authors = project.authors
                 Project = project.name
@@ -79,13 +123,13 @@ Target "NuGet" (fun _ ->
                 ReleaseNotes = release.Notes |> toLines
                 Tags = tags
                 OutputPath = nugetDir
-                AccessKey = getBuildParamOrDefault "nugetkey" ""
-                Publish = hasBuildParam "nugetkey" && (release.Date |> Option.isSome)
+                AccessKey = Environment.environVarOrDefault "nugetkey" ""
+                Publish = Environment.hasEnvironVar "nugetkey" && (release.Date |> Option.isSome)
                 Dependencies = [] })
-            ("template.nuspec"))
+            "template.nuspec")
 )
 
-Target "All" DoNothing
+Target.create "All" ignore
 
 "Clean"
 ==> "AssemblyInfo"
@@ -94,4 +138,4 @@ Target "All" DoNothing
 ==> "NuGet"
 ==> "All"
 
-RunTargetOrDefault "All"
+Target.runOrDefault "All"

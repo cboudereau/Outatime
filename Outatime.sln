@@ -16,7 +16,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".paket", ".paket", "{72D0A1
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".build", ".build", "{7AEC135F-BFBF-4634-AC61-9CDF6CE00D76}"
 	ProjectSection(SolutionItems) = preProject
-		build.cmd = build.cmd
 		build.fsx = build.fsx
 		icon.png = icon.png
 		intro.jpg = intro.jpg

@@ -29,7 +29,7 @@
     <DocumentationFile>bin\Debug\FSharp.Outatime.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
+    <DebugType>portable</DebugType>
     <Optimize>true</Optimize>
     <Tailcalls>true</Tailcalls>
     <OutputPath>bin\Release\</OutputPath>
@@ -42,4 +42,5 @@
     <Compile Include="Outatime.fs" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.targets" />
+  <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>
