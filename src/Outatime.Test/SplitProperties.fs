@@ -20,12 +20,11 @@ let ``given temporaries for a large period when split for n days expect temporar
           jan15 06 => jan15 11 := "HelloWorld" ]
 
 open FsCheck.Xunit
-    
-[<Arbitrary(typeof<TestData.RandomStringTemporal>)>]
+
 module SplitTemporaries = 
 
     let splitPeriod = System.TimeSpan.FromDays(1000.)
-    [<Property>]
+    [<Property(Arbitrary=[| typeof<TestData.RandomStringTemporal> |])>]
     let ``check that all period are less than split period`` (temporaries:Temporary<string> list) = 
         temporaries
         |> Outatime.build
