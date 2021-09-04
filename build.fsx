@@ -42,8 +42,6 @@ let dotNetBuild = runDotNet "build"
 let build config outputDir (projects:IGlobbingPattern) = 
   projects |> Seq.iter (fun p -> dotNetBuild "." $"%s{p} --output %s{outputDir} --configuration %s{config}")
 
-//let buildDebug = build "debug"
-
 let buildRelease = build "release"
 
 let dotnetTest (projects:IGlobbingPattern) =
@@ -105,8 +103,6 @@ Target.create "Tests" (fun _ ->
 Target.create "NuGet" (fun _ ->
     let description project = project.description.Replace("\r", "").Replace("\n", "").Replace("  ", " ")
     let toLines (lines:string seq) = String.Join(Environment.NewLine, lines)
-
-    let toLines' (lines:string seq) = String.Join(" + ", lines)
     
     let fsproj = __SOURCE_DIRECTORY__ @@ "src" @@ "Outatime" @@ "Outatime.fsproj"
 
