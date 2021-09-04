@@ -1,11 +1,20 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net5</TargetFramework>
     <RootNamespace>FSharp.Temporality</RootNamespace>
     <AssemblyName>Outatime</AssemblyName>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Name>FSharp.Temporality</Name>
+    <Authors>@cboudereau</Authors>
+    <Description>Temporality category to map function and values changing over the time</Description>
+    <Copyright>Copyright 2015</Copyright>
+    <PackageProjectUrl>https://github.com/cboudereau/Outatime</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/cboudereau/Outatime</RepositoryUrl>
+    <RepositoryType>github</RepositoryType>
+    <PackageTags>F# fsharp temporality category applicative functor monads map</PackageTags>
+    <PackageVersion />
+    <Title>Outatime</Title>
+    <TargetFrameworks>net5.0;netstandard2.1</TargetFrameworks>
   </PropertyGroup>
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>

@@ -54,8 +54,7 @@ type Project =
       summary:string
       description:string
       authors:string list
-      tags:string
-      framework:string }
+      tags:string }
 
 let project = "Outatime"
 let summary = "Temporality category to map function and values changing over the time"
@@ -63,7 +62,7 @@ let description = "Temporality category to map function and values changing over
 let authors = ["@cboudereau"]
 let tags = "F# fsharp temporality category applicative functor monads map"
 
-let projects = [ { name=project; summary=summary; authors=authors; tags=tags; description=description; framework="net5" } ]
+let projects = [ { name=project; summary=summary; authors=authors; tags=tags; description=description } ]
 
 let nugetDir = "./nuget/"
 let outDir = "./bin/"
@@ -101,32 +100,18 @@ Target.create "Build" (fun _ ->
 Target.create "Tests" (fun _ ->
     !! "**/*Test.*proj"
     |> dotnetTest
-    
-    //!! (testDir @@ "*Test.dll")
-    //|> XUnit2.run (fun p -> { p with ShadowCopy=true; ForceAppVeyor=true; Parallel=XUnit2.ParallelMode.All })
 )
 
 Target.create "NuGet" (fun _ ->
     let description project = project.description.Replace("\r", "").Replace("\n", "").Replace("  ", " ")
     let toLines (lines:string seq) = String.Join(Environment.NewLine, lines)
 
-    projects
-    |> Seq.iter(fun project ->
-        Shell.copyDir (nugetDir @@ "/lib/" @@ project.framework) (outDir @@ project.name) (fun file -> file.Contains "FSharp.Core." |> not)
-        NuGet.NuGet (fun p -> 
-            { p with
-                Authors = project.authors
-                Project = project.name
-                Summary = project.summary
-                Description = project |> description
-                Version = release.NugetVersion
-                ReleaseNotes = release.Notes |> toLines
-                Tags = tags
-                OutputPath = nugetDir
-                AccessKey = Environment.environVarOrDefault "nugetkey" ""
-                Publish = Environment.hasEnvironVar "nugetkey" && (release.Date |> Option.isSome)
-                Dependencies = [] })
-            "template.nuspec")
+    let toLines' (lines:string seq) = String.Join(" + ", lines)
+    
+    let fsproj = __SOURCE_DIRECTORY__ @@ "src" @@ "Outatime" @@ "Outatime.fsproj"
+
+    let releaseNotes = release.Notes |> toLines
+    runDotNet "pack" "." $"""{fsproj} --no-build -p:PackageVersion={release.NugetVersion} -p:PackageReleaseNotes="{releaseNotes}" --output {nugetDir}"""
 )
 
 Target.create "All" ignore

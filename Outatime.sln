@@ -21,7 +21,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".build", ".build", "{7AEC13
 		intro.jpg = intro.jpg
 		README.md = README.md
 		RELEASE_NOTES.md = RELEASE_NOTES.md
-		template.nuspec = template.nuspec
 	EndProjectSection
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Outatime.Test", "src\Outatime.Test\Outatime.Test.fsproj", "{836E3DEB-4F9D-45B3-8E58-E6C5D4D441E3}"

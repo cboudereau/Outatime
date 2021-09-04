@@ -1,3 +1,7 @@
+## New in 1.6.0
+* .NET Core project files migration
+* .NET 5.0 migration
+* FAKE 5 build migration
 ## New in 1.5.3
 * update docs
 ## New in 1.5.2 (Released 2016/8/9)
