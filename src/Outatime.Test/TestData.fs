@@ -10,7 +10,7 @@ let getPeriod (d1, d2) =
 
 type RandomPeriod = 
     static member Gen() = 
-        let beginingPeriod = 
+        let beginningPeriod = 
             Arb.generate<DateTime>
             |> Gen.map (fun d -> getPeriod(always.Start, d))
 
@@ -21,7 +21,7 @@ type RandomPeriod =
         let randomPeriod = 
             Arb.generate<DateTime>
             |> Gen.two
-            |> Gen.map (getPeriod)
+            |> Gen.map getPeriod
         
         let emptyPeriod = 
             Arb.generate<DateTime>
@@ -29,7 +29,7 @@ type RandomPeriod =
 
         [ (3, randomPeriod)
           (1, emptyPeriod)
-          (1, beginingPeriod)
+          (1, beginningPeriod)
           (1, endingPeriod) ]
         |> Gen.frequency 
         
@@ -68,7 +68,7 @@ type RandomStringTemporal =
             |> Gen.frequency 
             |> Gen.map2 (fun days value -> (value, TimeSpan.FromDays(float days))) daysGen
             |> Gen.listOf
-            |> Gen.map (toTemporaries)
+            |> Gen.map toTemporaries
 
         [ emptyTemporal
           overlapHelloTemporal

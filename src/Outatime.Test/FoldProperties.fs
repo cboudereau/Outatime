@@ -3,10 +3,9 @@
 open FsCheck.Xunit
 open Outatime
 
-[<Arbitrary(typeof<TestData.RandomStringTemporal>)>]
 module FoldTemporal = 
 
-    [<Property>]
+    [<Property(Arbitrary=[| typeof<TestData.RandomStringTemporal> |])>]
     let ``identity fold should be equal to source`` (temporaries:Temporary<string> list) = 
         let expected = temporaries |> Outatime.build |> Outatime.toList
 

@@ -5,22 +5,21 @@ open FsCheck.Xunit
 
 let jan15 d = DateTime(2015,1,1,0,0,0,System.DateTimeKind.Utc)
 
-[<Arbitrary(typeof<TestData.RandomStringTemporal>)>]
 module LiftTemporal = 
 
     let splitPeriod = System.TimeSpan.FromDays(1000.)
     
     let inline build l = l |> Outatime.build |> Outatime.contiguous
 
-    [<Property>]
+    [<Property(Arbitrary=[| typeof<TestData.RandomStringTemporal> |])>]
     let ``lift2 of temporals and empty should always return empty temporals`` (t:Temporary<string> list) = 
         Outatime.lift2 (sprintf "x=%s/y=%s") (Outatime.build t) (Outatime.build []) |> Outatime.toList = []
 
-    [<Property>]
+    [<Property(Arbitrary=[| typeof<TestData.RandomStringTemporal> |])>]
     let ``lift2 of empty and temporals should always return empty temporals`` (t:Temporary<string> list) = 
         Outatime.lift2 (sprintf "x=%s/y=%s") (Outatime.build []) (Outatime.build t) |> Outatime.toList = []
 
-    [<Property>]
+    [<Property(Arbitrary=[| typeof<TestData.RandomStringTemporal> |])>]
     let ``contiguous lift2 should always return contiguous period`` (t1:Temporary<string> list) (t2:Temporary<string> list) = 
         let t1' = build t1
         let t2' = build t2 
