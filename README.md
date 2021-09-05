@@ -1,19 +1,19 @@
 # Outatime [![Build status](https://ci.appveyor.com/api/projects/status/v3f2gj9602e82ia4?svg=true)](https://ci.appveyor.com/project/cboudereau/outatime) [![NuGet Status](http://img.shields.io/nuget/v/Outatime.svg?style=flat)](https://www.nuget.org/packages/Outatime/)
 
-![Outatime] (https://raw.githubusercontent.com/cboudereau/Outatime/master/intro.jpg)
+![Outatime](https://raw.githubusercontent.com/cboudereau/Outatime/master/intro.jpg)
 
-=====
+----
 
 ## Intro
 When you have a lots of values changing over the time in a planning, it become difficult to deal with it day per day. The solution is to group the same values and merge period.
-On way is having the temporary (type containing value on a period) everywhere but: you have the domain complexity everywhere and if you have to compose another domain you will have more wrapped types.
+One way is having the temporary (type containing value on a period) everywhere but: you have the domain complexity everywhere and if you have to compose another domain you will have more wrapped types.
 
-To simplify and compose functionalities, Outatime give an applicative functor approach. 
+To simplify and compose functionalities, Outatime provides an applicative functor approach. 
 Instead of having the wrapped type everywhere, a function containing all values as parameter is binded to values changing over the time.
 
 ## How it works
 By using merge function, intersection period, and finding the largest period for missing values, a function is applied each time you give the temporaries. 
-Each time the value is the function applied (given a function with n parameter, expect a function with n-1 parameter).
+Each time, the value is the function applied (given a function with n parameter, expect a function with n-1 parameter).
 
 ## Samples
 ```fsharp
